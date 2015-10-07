@@ -17,7 +17,8 @@ ApplicationWindow {
     Timer {
         running: true
         repeat: true
-        interval: 1000
+        interval: 16
+
         onTriggered: {
             renderView.integrate()
         }
