@@ -2,7 +2,7 @@ TEMPLATE = app
 
 QT += qml quick widgets
 
-CONFIG += c++11
+CONFIG += c++14
 
 # Default rules for deployment.
 include(deployment.pri)
@@ -22,7 +22,8 @@ HEADERS += \
     cameras/perspective.h \
     core/spectrum.h \
     film/image.h \
-    core/filter.h
+    core/filter.h \
+    samplers/random.h
 
 SOURCES += main.cpp \
     visual/renderview.cpp \
@@ -38,8 +39,14 @@ SOURCES += main.cpp \
     cameras/perspective.cpp \
     core/spectrum.cpp \
     film/image.cpp \
-    core/filter.cpp
+    core/filter.cpp \
+    samplers/random.cpp
 
 RESOURCES += qml.qrc
 
+QMAKE_CXXFLAGS += -Wno-unused-parameter
+
 LIBS += -lalglib
+
+DISTFILES += \
+    samplers/bestcandidate.out

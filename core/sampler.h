@@ -78,34 +78,28 @@ struct CameraSample {
 };
 
 
-//struct Sample : public CameraSample {
-//    // Sample Public Methods
-//    Sample(Sampler *sampler, SurfaceIntegrator *surf, VolumeIntegrator *vol,
-//        const Scene *scene);
-//    uint32_t Add1D(uint32_t num) {
-//        n1D.push_back(num);
-//        return n1D.size()-1;
-//    }
-//    uint32_t Add2D(uint32_t num) {
-//        n2D.push_back(num);
-//        return n2D.size()-1;
-//    }
-//    ~Sample() {
-//        if (oneD != NULL) {
-//            FreeAligned(oneD[0]);
-//            FreeAligned(oneD);
-//        }
-//    }
-//    Sample *Duplicate(int count) const;
+struct Sample : public CameraSample {
+    // Sample Public Methods
+    Sample(Sampler *sampler);
+    uint32_t Add1D(uint32_t num) {
+        n1D.push_back(num);
+        return n1D.size()-1;
+    }
+    uint32_t Add2D(uint32_t num) {
+        n2D.push_back(num);
+        return n2D.size()-1;
+    }
+    ~Sample() {
+    }
+    Sample *Duplicate(int count) const;
 
-//    // Sample Public Data
-//    vector<uint32_t> n1D, n2D;
-//    float **oneD, **twoD;
-//private:
-//    // Sample Private Methods
-//    void AllocateSampleMemory();
-//    Sample() { oneD = twoD = NULL; }
-//};
+    // Sample Public Data
+    std::vector<uint32_t> n1D, n2D;
+    float **oneD, **twoD;
+private:
+    // Sample Private Methods
+    Sample() { oneD = twoD = NULL; }
+};
 
 
 

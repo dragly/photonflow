@@ -24,7 +24,7 @@ inline float Lerp(float t, float v1, float v2) {
 }
 
 
-inline float Clamp(float val, float low, float high) {
+inline double Clamp(double val, double low, double high) {
     if (val < low) return low;
     else if (val > high) return high;
     else return val;

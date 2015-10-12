@@ -37,6 +37,7 @@
 #define PBRT_CORE_GEOMETRY_H
 
 #include <cmath>
+#include <ostream>
 #include "../core/common.h"
 
 class Point;
@@ -126,11 +127,11 @@ public:
     bool operator!=(const Vector &v) const {
         return x != v.x || y != v.y || z != v.z;
     }
+    friend std::ostream& operator<< (std::ostream &out, const Vector &vector);
 
     // Vector Public Data
     float x, y, z;
 };
-
 
 class Point {
 public:
@@ -221,6 +222,7 @@ public:
     bool operator!=(const Point &p) const {
         return x != p.x || y != p.y || z != p.z;
     }
+    friend std::ostream& operator<< (std::ostream &out, const Point &point);
 
     // Point Public Data
     float x, y, z;

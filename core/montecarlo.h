@@ -45,8 +45,6 @@
 
 using std::vector;
 
-#define INV_PI 0.3183098861837907
-
 // smallest floating point value less than one; all canonical random samples
 // should be <= this.
 #ifdef PBRT_IS_WINDOWS
@@ -140,6 +138,7 @@ inline Vector CosineSampleHemisphere(float u1, float u2) {
 
 
 inline float CosineHemispherePdf(float costheta, float phi) {
+    (void)(phi);
     return costheta * INV_PI;
 }
 

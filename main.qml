@@ -16,7 +16,7 @@ ApplicationWindow {
 
     Timer {
         running: true
-        repeat: true
+        repeat: false
         interval: 16
 
         onTriggered: {

@@ -85,4 +85,14 @@ bool BBox::IntersectP(const Ray &ray, float *hitt0,
     return true;
 }
 
+std::ostream& operator<< (std::ostream &out, const Vector &vector)
+{
+    out << vector.x << ", " << vector.y << ", " << vector.z;
+    return out;
+}
 
+std::ostream& operator<< (std::ostream &out, const Point &point)
+{
+    out << point.x << ", " << point.y << ", " << point.z;
+    return out;
+}

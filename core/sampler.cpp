@@ -76,12 +76,8 @@ void Sampler::ComputeSubWindow(int num, int count, int *newXStart,
 
 
 // Sample Method Definitions
-//Sample::Sample(Sampler *sampler, SurfaceIntegrator *surf,
-//               VolumeIntegrator *vol, const Scene *scene) {
-//    if (surf) surf->RequestSamples(sampler, this, scene);
-//    if (vol)  vol->RequestSamples(sampler, this, scene);
-//    AllocateSampleMemory();
-//}
+Sample::Sample(Sampler *sampler) {
+}
 
 
 //void Sample::AllocateSampleMemory() {
@@ -114,14 +110,13 @@ void Sampler::ComputeSubWindow(int num, int count, int *newXStart,
 //}
 
 
-//Sample *Sample::Duplicate(int count) const {
-//    Sample *ret = new Sample[count];
-//    for (int i = 0; i < count; ++i) {
-//        ret[i].n1D = n1D;
-//        ret[i].n2D = n2D;
-//        ret[i].AllocateSampleMemory();
-//    }
-//    return ret;
-//}
+Sample *Sample::Duplicate(int count) const {
+    Sample *ret = new Sample[count];
+    for (int i = 0; i < count; ++i) {
+        ret[i].n1D = n1D;
+        ret[i].n2D = n2D;
+    }
+    return ret;
+}
 
 

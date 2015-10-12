@@ -3,12 +3,15 @@
 #include <QPainter>
 #include <interpolation.h>
 #include <iostream>
+#include <memory>
 
 #include "../cameras/perspective.h"
 #include "../film/image.h"
 #include "../core/randomnumbergenerator.h"
+#include "../samplers/random.h"
 
 using std::cout; using std::endl;
+using std::unique_ptr; using std::make_unique;
 
 RenderView::RenderView(QQuickItem *parent)
     : QQuickPaintedItem(parent)
@@ -27,28 +30,39 @@ void RenderView::integrate()
     screenWindow[2] = 0.0;
     screenWindow[3] = 200.0;
     ImageFilm film(200, 200, nullptr, nullptr, string(), true);
-    PerspectiveCamera camera(AnimatedTransform(&a, 0.0, &b, 0.0), screenWindow, 0.0, 1.0, 1.0, 1.0, 0.0, &film);
+    PerspectiveCamera camera(AnimatedTransform(&a, 0.0, &b, 0.0), screenWindow, 0.0, 1.0, 0.0, 1.0, 1.0, &film);
 
     QSize size = boundingRect().size().toSize();
-    int w = size.width();
-    int h = size.height();
+
+    int sampleCount = 1;
+    int maxDepth = 20;
+    double stepSize = 0.1;
+
+    int width = size.width();
+    int height = size.height();
     if(m_image.size() != size) {
         m_image = QImage(size, QImage::Format_ARGB32);
-        for(int x = 0; x < size.width(); x++) {
-            for(int y = 0; y < size.height(); y++) {
-                CameraSample sample;
-                sample.imageX = x;
-                sample.imageY = y;
-                sample.lensU = rng.RandomFloat();
-                sample.lensV = rng.RandomFloat();
-                sample.time = 0.5;
+        unique_ptr<Sampler> sampler = make_unique<RandomSampler>(0, width, 0, height, 1, 0.0, 1.0);
+        int maxSampleCount = sampler->MaximumSampleCount();
+
+        Sample origSample(sampler.get());
+        Sample* samples = origSample.Duplicate(maxSampleCount);
+        int sampleCount = 0;
+        while((sampleCount = sampler->GetMoreSamples(samples, rng)) > 0) {
+            for(int i = 0; i < sampleCount; i++) {
+                Sample sample = samples[i];
                 Ray ray;
                 camera.GenerateRay(sample, &ray);
-
-                m_image.setPixel(x, y, QColor(ray.d.x * 127.0, ray.d.y * 127.0, 127, 255).rgba());
+                double factor = 255.0;
+                QColor color(Clamp(ray.d.x*factor, 0.0, 255.0),
+                             Clamp(ray.d.y*factor, 0.0, 255.0),
+                             Clamp(ray.d.z*factor, 0.0, 255.0),
+                             255.0);
+                m_image.setPixel(sample.imageX, sample.imageY, color.rgba());
             }
         }
     }
+    qDebug() << "Done!";
     update();
 }
 

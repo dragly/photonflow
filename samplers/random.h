@@ -33,29 +33,29 @@
 #pragma once
 #endif
 
-#ifndef PBRT_CAMERAS_PERSPECTIVE_H
-#define PBRT_CAMERAS_PERSPECTIVE_H
+#ifndef PBRT_SAMPLERS_RANDOM_H
+#define PBRT_SAMPLERS_RANDOM_H
 
-// cameras/perspective.h*
-#include "../core/common.h"
-#include "../core/camera.h"
+// samplers/random.h*
+#include "../core/sampler.h"
 #include "../core/film.h"
+#include "../core/randomnumbergenerator.h"
 
-class ParamSet;
-
-// PerspectiveCamera Declarations
-class PerspectiveCamera : public ProjectiveCamera {
+class RandomSampler : public Sampler {
 public:
-    // PerspectiveCamera Public Methods
-    PerspectiveCamera(const AnimatedTransform &cam2world,
-        const float screenWindow[4], float sopen, float sclose,
-        float lensr, float focald, float fov, Film *film);
-    float GenerateRay(const CameraSample &sample, Ray *) const;
-    float GenerateRayDifferential(const CameraSample &sample,
-                                  RayDifferential *ray) const;
+    RandomSampler(int xstart, int xend, int ystart,
+        int yend, int ns, float sopen, float sclose);
+    ~RandomSampler() {
+    }
+    int MaximumSampleCount() { return 1; }
+    int GetMoreSamples(Sample *sample, RandomNumberGenerator &rng);
+    int RoundSize(int sz) const { return sz; }
+    Sampler *GetSubSampler(int num, int count);
 private:
-    // PerspectiveCamera Private Data
-    Vector dxCamera, dyCamera;
+    // RandomSampler Private Data
+    int xPos, yPos, nSamples;
+    float *imageSamples, *lensSamples, *timeSamples;
+    int samplePos;
 };
 
-#endif // PBRT_CAMERAS_PERSPECTIVE_H
+#endif // PBRT_SAMPLERS_RANDOM_H

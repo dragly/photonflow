@@ -39,7 +39,7 @@
 
 // Camera Method Definitions
 Camera::~Camera() {
-    delete film;
+//    delete film;
 }
 
 
