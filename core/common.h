@@ -5,10 +5,21 @@
 
 #include <assert.h>
 #include <algorithm>
+#include <vector>
+
 using std::min;
 using std::max;
 using std::swap;
 using std::sort;
+using std::vector;
+
+class LightSample;
+class VisibilityTester;
+class Scene;
+class Renderer;
+class Sample;
+class RNG;
+class LightSampleOffsets;
 
 #ifdef M_PI
 #undef M_PI

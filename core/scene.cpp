@@ -29,33 +29,42 @@
 
  */
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
 
-#ifndef PBRT_SAMPLERS_RANDOM_H
-#define PBRT_SAMPLERS_RANDOM_H
+// core/scene.cpp*
+#include "stdafx.h"
+#include "scene.h"
+#include "camera.h"
+#include "film.h"
+#include "sampler.h"
+#include "volume.h"
+//#include "parallel.h"
+//#include "progressreporter.h"
+#include "renderer.h"
 
-// samplers/random.h*
-#include "../core/sampler.h"
-#include "../core/film.h"
-#include "../core/randomnumbergenerator.h"
+// Scene Method Definitions
+Scene::~Scene() {
+//    delete aggregate;
+    delete volumeRegion;
+    for (uint32_t i = 0; i < lights.size(); ++i)
+        delete lights[i];
+}
 
-class RandomSampler : public Sampler {
-public:
-    RandomSampler(int xstart, int xend, int ystart,
-        int yend, int ns, float sopen, float sclose);
-    ~RandomSampler() {
-    }
-    int MaximumSampleCount() { return 1; }
-    int GetMoreSamples(Sample *sample, RNG &rng);
-    int RoundSize(int sz) const { return sz; }
-    Sampler *GetSubSampler(int num, int count);
-private:
-    // RandomSampler Private Data
-    int xPos, yPos, nSamples;
-    float *imageSamples, *lensSamples, *timeSamples;
-    int samplePos;
-};
 
-#endif // PBRT_SAMPLERS_RANDOM_H
+Scene::Scene(const vector<Light *> &lts, VolumeRegion *vr) {
+    lights = lts;
+//    aggregate = accel;
+    volumeRegion = vr;
+    // Scene Constructor Implementation
+//    bound = aggregate->WorldBound();
+
+    // TODO insert bound here as alternative to primitive
+
+    if (volumeRegion) bound = Union(bound, volumeRegion->WorldBound());
+}
+
+
+const BBox &Scene::WorldBound() const {
+    return bound;
+}
+
+

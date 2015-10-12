@@ -29,33 +29,16 @@
 
  */
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
 
-#ifndef PBRT_SAMPLERS_RANDOM_H
-#define PBRT_SAMPLERS_RANDOM_H
+// core/integrator.cpp*
+#include "stdafx.h"
+#include "integrator.h"
+#include "scene.h"
+#include "intersection.h"
+#include "montecarlo.h"
 
-// samplers/random.h*
-#include "../core/sampler.h"
-#include "../core/film.h"
-#include "../core/randomnumbergenerator.h"
+// Integrator Method Definitions
+Integrator::~Integrator() {
+}
 
-class RandomSampler : public Sampler {
-public:
-    RandomSampler(int xstart, int xend, int ystart,
-        int yend, int ns, float sopen, float sclose);
-    ~RandomSampler() {
-    }
-    int MaximumSampleCount() { return 1; }
-    int GetMoreSamples(Sample *sample, RNG &rng);
-    int RoundSize(int sz) const { return sz; }
-    Sampler *GetSubSampler(int num, int count);
-private:
-    // RandomSampler Private Data
-    int xPos, yPos, nSamples;
-    float *imageSamples, *lensSamples, *timeSamples;
-    int samplePos;
-};
 
-#endif // PBRT_SAMPLERS_RANDOM_H

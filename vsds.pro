@@ -23,7 +23,16 @@ HEADERS += \
     core/spectrum.h \
     film/image.h \
     core/filter.h \
-    samplers/random.h
+    samplers/random.h \
+    volumes/volumegrid.h \
+    core/volume.h \
+    core/integrator.h \
+    core/renderer.h \
+    core/scene.h \
+    core/intersection.h \
+    core/diffgeom.h \
+    core/light.h \
+    core/shape.h
 
 SOURCES += main.cpp \
     visual/renderview.cpp \
@@ -40,7 +49,16 @@ SOURCES += main.cpp \
     core/spectrum.cpp \
     film/image.cpp \
     core/filter.cpp \
-    samplers/random.cpp
+    samplers/random.cpp \
+    volumes/volumegrid.cpp \
+    core/volume.cpp \
+    core/integrator.cpp \
+    core/renderer.cpp \
+    core/scene.cpp \
+    core/intersection.cpp \
+    core/diffgeom.cpp \
+    core/light.cpp \
+    core/shape.cpp
 
 RESOURCES += qml.qrc
 

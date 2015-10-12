@@ -33,29 +33,39 @@
 #pragma once
 #endif
 
-#ifndef PBRT_SAMPLERS_RANDOM_H
-#define PBRT_SAMPLERS_RANDOM_H
+#ifndef PBRT_CORE_DIFFGEOM_H
+#define PBRT_CORE_DIFFGEOM_H
 
-// samplers/random.h*
-#include "../core/sampler.h"
-#include "../core/film.h"
-#include "../core/randomnumbergenerator.h"
+// core/diffgeom.h*
+#include "../core/common.h"
+#include "geometry.h"
 
-class RandomSampler : public Sampler {
-public:
-    RandomSampler(int xstart, int xend, int ystart,
-        int yend, int ns, float sopen, float sclose);
-    ~RandomSampler() {
+class Shape;
+
+// DifferentialGeometry Declarations
+struct DifferentialGeometry {
+    DifferentialGeometry() { 
+        u = v = dudx = dvdx = dudy = dvdy = 0.; 
+        shape = NULL; 
     }
-    int MaximumSampleCount() { return 1; }
-    int GetMoreSamples(Sample *sample, RNG &rng);
-    int RoundSize(int sz) const { return sz; }
-    Sampler *GetSubSampler(int num, int count);
-private:
-    // RandomSampler Private Data
-    int xPos, yPos, nSamples;
-    float *imageSamples, *lensSamples, *timeSamples;
-    int samplePos;
+    // DifferentialGeometry Public Methods
+    DifferentialGeometry(const Point &P, const Vector &DPDU,
+            const Vector &DPDV, const Normal &DNDU,
+            const Normal &DNDV, float uu, float vv,
+            const Shape *sh);
+    void ComputeDifferentials(const RayDifferential &r) const;
+
+    // DifferentialGeometry Public Data
+    Point p;
+    Normal nn;
+    float u, v;
+    const Shape *shape;
+    Vector dpdu, dpdv;
+    Normal dndu, dndv;
+    mutable Vector dpdx, dpdy;
+    mutable float dudx, dvdx, dudy, dvdy;
 };
 
-#endif // PBRT_SAMPLERS_RANDOM_H
+
+
+#endif // PBRT_CORE_DIFFGEOM_H

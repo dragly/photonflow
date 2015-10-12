@@ -33,29 +33,35 @@
 #pragma once
 #endif
 
-#ifndef PBRT_SAMPLERS_RANDOM_H
-#define PBRT_SAMPLERS_RANDOM_H
+#ifndef PBRT_CORE_INTERSECTION_H
+#define PBRT_CORE_INTERSECTION_H
 
-// samplers/random.h*
-#include "../core/sampler.h"
-#include "../core/film.h"
-#include "../core/randomnumbergenerator.h"
+// core/intersection.h*
+#include "../core/common.h"
+#include "../core/diffgeom.h"
+#include "../core/transform.h"
+#include "../core/spectrum.h"
 
-class RandomSampler : public Sampler {
-public:
-    RandomSampler(int xstart, int xend, int ystart,
-        int yend, int ns, float sopen, float sclose);
-    ~RandomSampler() {
+// Intersection Declarations
+struct Intersection {
+    // Intersection Public Methods
+    Intersection() {
+//        primitive = NULL;
+        shapeId = primitiveId = 0;
+        rayEpsilon = 0.f;
     }
-    int MaximumSampleCount() { return 1; }
-    int GetMoreSamples(Sample *sample, RNG &rng);
-    int RoundSize(int sz) const { return sz; }
-    Sampler *GetSubSampler(int num, int count);
-private:
-    // RandomSampler Private Data
-    int xPos, yPos, nSamples;
-    float *imageSamples, *lensSamples, *timeSamples;
-    int samplePos;
+//    BSDF *GetBSDF(const RayDifferential &ray, MemoryArena &arena) const;
+//    BSSRDF *GetBSSRDF(const RayDifferential &ray, MemoryArena &arena) const;
+    Spectrum Le(const Vector &wo) const;
+
+    // Intersection Public Data
+    DifferentialGeometry dg;
+//    const Primitive *primitive;
+    Transform WorldToObject, ObjectToWorld;
+    uint32_t shapeId, primitiveId;
+    float rayEpsilon;
 };
 
-#endif // PBRT_SAMPLERS_RANDOM_H
+
+
+#endif // PBRT_CORE_INTERSECTION_H

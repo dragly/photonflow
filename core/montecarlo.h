@@ -118,7 +118,7 @@ private:
 };
 
 
-void RejectionSampleDisk(float *x, float *y, RandomNumberGenerator &rng);
+void RejectionSampleDisk(float *x, float *y, RNG &rng);
 Vector UniformSampleHemisphere(float u1, float u2);
 float  UniformHemispherePdf();
 Vector UniformSampleSphere(float u1, float u2);
@@ -172,12 +172,12 @@ private:
 };
 
 
-void StratifiedSample1D(float *samples, int nsamples, RandomNumberGenerator &rng,
+void StratifiedSample1D(float *samples, int nsamples, RNG &rng,
                         bool jitter = true);
-void StratifiedSample2D(float *samples, int nx, int ny, RandomNumberGenerator &rng,
+void StratifiedSample2D(float *samples, int nx, int ny, RNG &rng,
                         bool jitter = true);
 template <typename T>
-void Shuffle(T *samp, uint32_t count, uint32_t dims, RandomNumberGenerator &rng) {
+void Shuffle(T *samp, uint32_t count, uint32_t dims, RNG &rng) {
     for (uint32_t i = 0; i < count; ++i) {
         uint32_t other = i + (rng.RandomUInt() % (count - i));
         for (uint32_t j = 0; j < dims; ++j)
@@ -186,7 +186,7 @@ void Shuffle(T *samp, uint32_t count, uint32_t dims, RandomNumberGenerator &rng)
 }
 
 
-void LatinHypercube(float *samples, uint32_t nSamples, uint32_t nDim, RandomNumberGenerator &rng);
+void LatinHypercube(float *samples, uint32_t nSamples, uint32_t nDim, RNG &rng);
 inline double RadicalInverse(int n, int base) {
     double val = 0;
     double invBase = 1. / base, invBi = invBase;
@@ -201,7 +201,7 @@ inline double RadicalInverse(int n, int base) {
 }
 
 
-inline void GeneratePermutation(uint32_t *buf, uint32_t b, RandomNumberGenerator &rng) {
+inline void GeneratePermutation(uint32_t *buf, uint32_t b, RNG &rng) {
     for (uint32_t i = 0; i < b; ++i)
         buf[i] = i;
     Shuffle(buf, b, 1, rng);
@@ -226,7 +226,7 @@ inline double PermutedRadicalInverse(uint32_t n, uint32_t base,
 class PermutedHalton {
 public:
     // PermutedHalton Public Methods
-    PermutedHalton(uint32_t d, RandomNumberGenerator &rng);
+    PermutedHalton(uint32_t d, RNG &rng);
     ~PermutedHalton() {
         delete[] b;
         delete[] permute;
@@ -307,7 +307,7 @@ LarcherPillichshammer2(uint32_t n, uint32_t scramble) {
 
 
 inline void LDShuffleScrambled1D(int nSamples, int nPixel,
-                                 float *samples, RandomNumberGenerator &rng) {
+                                 float *samples, RNG &rng) {
     uint32_t scramble = rng.RandomUInt();
     for (int i = 0; i < nSamples * nPixel; ++i)
         samples[i] = VanDerCorput(i, scramble);
@@ -318,7 +318,7 @@ inline void LDShuffleScrambled1D(int nSamples, int nPixel,
 
 
 inline void LDShuffleScrambled2D(int nSamples, int nPixel,
-                                 float *samples, RandomNumberGenerator &rng) {
+                                 float *samples, RNG &rng) {
     uint32_t scramble[2] = { rng.RandomUInt(), rng.RandomUInt() };
     for (int i = 0; i < nSamples * nPixel; ++i)
         Sample02(i, scramble, &samples[2*i]);

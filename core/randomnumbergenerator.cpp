@@ -33,7 +33,7 @@
 #define UPPER_MASK 0x80000000UL /* most significant w-r bits */
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
 
-void RandomNumberGenerator::seed(uint32_t seed) const {
+void RNG::seed(uint32_t seed) const {
     mt[0]= seed & 0xffffffffUL;
     for (mti=1; mti<N; mti++) {
         mt[mti] =
@@ -49,7 +49,7 @@ void RandomNumberGenerator::seed(uint32_t seed) const {
 
 
 /* generates a random number on [0,1)-real-interval */
-float RandomNumberGenerator::RandomFloat() const
+float RNG::RandomFloat() const
 {
     float v = (RandomUInt() & 0xffffff) / float(1 << 24);
     return v;
@@ -58,7 +58,7 @@ float RandomNumberGenerator::RandomFloat() const
 
 
 // Random Number Functions
-uint32_t RandomNumberGenerator::RandomUInt() const
+uint32_t RNG::RandomUInt() const
 {
     unsigned long y;
     static unsigned long mag01[2]={0x0UL, MATRIX_A};

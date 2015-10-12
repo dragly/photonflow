@@ -33,29 +33,42 @@
 #pragma once
 #endif
 
-#ifndef PBRT_SAMPLERS_RANDOM_H
-#define PBRT_SAMPLERS_RANDOM_H
+#ifndef PBRT_CORE_INTEGRATOR_H
+#define PBRT_CORE_INTEGRATOR_H
 
-// samplers/random.h*
+// core/integrator.h*
+#include "../core/common.h"
+//#include "../core/primitive.h"
+#include "../core/spectrum.h"
+//#include "../core/light.h"
+//#include "../core/reflection.h"
 #include "../core/sampler.h"
-#include "../core/film.h"
-#include "../core/randomnumbergenerator.h"
+//#include "../core/material.h"
+//#include "../core/probes.h"
+#include "../core/renderer.h"
 
-class RandomSampler : public Sampler {
+class Camera;
+
+// Integrator Declarations
+class Integrator {
 public:
-    RandomSampler(int xstart, int xend, int ystart,
-        int yend, int ns, float sopen, float sclose);
-    ~RandomSampler() {
+    // Integrator Interface
+    virtual ~Integrator();
+    virtual void Preprocess(const Scene *scene, const Camera *camera,
+                            const Renderer *renderer) {
     }
-    int MaximumSampleCount() { return 1; }
-    int GetMoreSamples(Sample *sample, RNG &rng);
-    int RoundSize(int sz) const { return sz; }
-    Sampler *GetSubSampler(int num, int count);
-private:
-    // RandomSampler Private Data
-    int xPos, yPos, nSamples;
-    float *imageSamples, *lensSamples, *timeSamples;
-    int samplePos;
+    virtual void RequestSamples(Sampler *sampler, Sample *sample,
+                                const Scene *scene) {
+    }
 };
 
-#endif // PBRT_SAMPLERS_RANDOM_H
+
+class SurfaceIntegrator : public Integrator {
+public:
+    // SurfaceIntegrator Interface
+    virtual Spectrum Li(const Scene *scene, const Renderer *renderer,
+        const RayDifferential &ray, const Intersection &isect,
+        const Sample *sample, RNG &rng) const = 0;
+};
+
+#endif // PBRT_CORE_INTEGRATOR_H

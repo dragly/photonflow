@@ -20,7 +20,7 @@ RenderView::RenderView(QQuickItem *parent)
 
 void RenderView::integrate()
 {
-    RandomNumberGenerator rng;
+    RNG rng;
     rng.seed(0);
     Transform a;
     Transform b;
@@ -35,20 +35,18 @@ void RenderView::integrate()
     QSize size = boundingRect().size().toSize();
 
     int sampleCount = 1;
-    int maxDepth = 20;
-    double stepSize = 0.1;
 
     int width = size.width();
     int height = size.height();
     if(m_image.size() != size) {
         m_image = QImage(size, QImage::Format_ARGB32);
-        unique_ptr<Sampler> sampler = make_unique<RandomSampler>(0, width, 0, height, 1, 0.0, 1.0);
-        int maxSampleCount = sampler->MaximumSampleCount();
+        RandomSampler sampler(0, width, 0, height, sampleCount, 0.0, 1.0);
+        int maxSampleCount = sampler.MaximumSampleCount();
 
-        Sample origSample(sampler.get());
+        Sample origSample(&sampler);
         Sample* samples = origSample.Duplicate(maxSampleCount);
         int sampleCount = 0;
-        while((sampleCount = sampler->GetMoreSamples(samples, rng)) > 0) {
+        while((sampleCount = sampler.GetMoreSamples(samples, rng)) > 0) {
             for(int i = 0; i < sampleCount; i++) {
                 Sample sample = samples[i];
                 Ray ray;

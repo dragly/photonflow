@@ -33,29 +33,35 @@
 #pragma once
 #endif
 
-#ifndef PBRT_SAMPLERS_RANDOM_H
-#define PBRT_SAMPLERS_RANDOM_H
+#ifndef PBRT_CORE_RENDERER_H
+#define PBRT_CORE_RENDERER_H
 
-// samplers/random.h*
-#include "../core/sampler.h"
-#include "../core/film.h"
-#include "../core/randomnumbergenerator.h"
+// core/renderer.h*
+#include "../core/common.h"
 
-class RandomSampler : public Sampler {
+class Scene;
+class Ray;
+class RayDifferential;
+class Sample;
+class RNG;
+class Intersection;
+class RGBSpectrum;
+using Spectrum = RGBSpectrum;
+
+// Renderer Declarations
+class Renderer {
 public:
-    RandomSampler(int xstart, int xend, int ystart,
-        int yend, int ns, float sopen, float sclose);
-    ~RandomSampler() {
-    }
-    int MaximumSampleCount() { return 1; }
-    int GetMoreSamples(Sample *sample, RNG &rng);
-    int RoundSize(int sz) const { return sz; }
-    Sampler *GetSubSampler(int num, int count);
-private:
-    // RandomSampler Private Data
-    int xPos, yPos, nSamples;
-    float *imageSamples, *lensSamples, *timeSamples;
-    int samplePos;
+    // Renderer Interface
+    virtual ~Renderer();
+    virtual void Render(const Scene *scene) = 0;
+    virtual Spectrum Li(const Scene *scene, const RayDifferential &ray,
+        const Sample *sample, RNG &rng,
+        Intersection *isect = NULL, Spectrum *T = NULL) const = 0;
+    virtual Spectrum Transmittance(const Scene *scene,
+        const RayDifferential &ray, const Sample *sample,
+        RNG &rng) const = 0;
 };
 
-#endif // PBRT_SAMPLERS_RANDOM_H
+
+
+#endif // PBRT_CORE_RENDERER_H

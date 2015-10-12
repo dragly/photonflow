@@ -145,7 +145,7 @@ static const int primes[] = {
 
 
 // Sampling Function Definitions
-void StratifiedSample1D(float *samp, int nSamples, RandomNumberGenerator &rng,
+void StratifiedSample1D(float *samp, int nSamples, RNG &rng,
                         bool jitter) {
     float invTot = 1.f / nSamples;
     for (int i = 0;  i < nSamples; ++i) {
@@ -155,7 +155,7 @@ void StratifiedSample1D(float *samp, int nSamples, RandomNumberGenerator &rng,
 }
 
 
-void StratifiedSample2D(float *samp, int nx, int ny, RandomNumberGenerator &rng,
+void StratifiedSample2D(float *samp, int nx, int ny, RNG &rng,
                         bool jitter) {
     float dx = 1.f / nx, dy = 1.f / ny;
     for (int y = 0; y < ny; ++y)
@@ -169,7 +169,7 @@ void StratifiedSample2D(float *samp, int nx, int ny, RandomNumberGenerator &rng,
 
 
 void LatinHypercube(float *samples, uint32_t nSamples, uint32_t nDim,
-                    RandomNumberGenerator &rng) {
+                    RNG &rng) {
     // Generate LHS samples along diagonal
     float delta = 1.f / nSamples;
     for (uint32_t i = 0; i < nSamples; ++i)
@@ -254,7 +254,7 @@ void LatinHypercube(float *samples, uint32_t nSamples, uint32_t nDim,
 
 
 // Monte Carlo Function Definitions
-void RejectionSampleDisk(float *x, float *y, RandomNumberGenerator &rng) {
+void RejectionSampleDisk(float *x, float *y, RNG &rng) {
     float sx, sy;
     do {
         sx = 1.f - 2.f * rng.RandomFloat();
@@ -377,7 +377,7 @@ Distribution2D::~Distribution2D() {
 }
 
 
-PermutedHalton::PermutedHalton(uint32_t d, RandomNumberGenerator &rng) {
+PermutedHalton::PermutedHalton(uint32_t d, RNG &rng) {
     dims = d;
     // Determine bases $b_i$ and their sum
     b = new uint32_t[dims];

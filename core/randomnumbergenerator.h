@@ -29,9 +29,9 @@
 #include <stdint.h>
 
 // Random Number Declarations
-class RandomNumberGenerator {
+class RNG {
 public:
-    RandomNumberGenerator(uint32_t seedin = 5489UL) {
+    RNG(uint32_t seedin = 5489UL) {
         mti = N+1; /* mti==N+1 means mt[N] is not initialized */
         seed(seedin);
     }

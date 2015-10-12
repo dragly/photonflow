@@ -33,29 +33,45 @@
 #pragma once
 #endif
 
-#ifndef PBRT_SAMPLERS_RANDOM_H
-#define PBRT_SAMPLERS_RANDOM_H
+#ifndef PBRT_VOLUMES_VOLUMEGRID_H
+#define PBRT_VOLUMES_VOLUMEGRID_H
 
-// samplers/random.h*
-#include "../core/sampler.h"
-#include "../core/film.h"
-#include "../core/randomnumbergenerator.h"
+// volumes/volumegrid.h*
+#include "../core/volume.h"
 
-class RandomSampler : public Sampler {
+// VolumeGridDensity Declarations
+class VolumeGridDensity : public DensityRegion {
 public:
-    RandomSampler(int xstart, int xend, int ystart,
-        int yend, int ns, float sopen, float sclose);
-    ~RandomSampler() {
+    // VolumeGridDensity Public Methods
+    VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, float gg,
+            const Spectrum &emita, const BBox &e, const Transform &v2w,
+            int x, int y, int z, const float *d)
+        : DensityRegion(sa, ss, gg, emita, v2w), nx(x), ny(y), nz(z), extent(e) {
+        density = new float[nx*ny*nz];
+        memcpy(density, d, nx*ny*nz*sizeof(float));
     }
-    int MaximumSampleCount() { return 1; }
-    int GetMoreSamples(Sample *sample, RNG &rng);
-    int RoundSize(int sz) const { return sz; }
-    Sampler *GetSubSampler(int num, int count);
+    ~VolumeGridDensity() { delete[] density; }
+    BBox WorldBound() const { return Inverse(WorldToVolume)(extent); }
+    bool IntersectP(const Ray &r, float *t0, float *t1) const {
+        Ray ray = WorldToVolume(r);
+        return extent.IntersectP(ray, t0, t1);
+    }
+    float Density(const Point &Pobj) const;
+    float D(int x, int y, int z) const {
+        x = Clamp(x, 0, nx-1);
+        y = Clamp(y, 0, ny-1);
+        z = Clamp(z, 0, nz-1);
+        return density[z*nx*ny + y*nx + x];
+    }
 private:
-    // RandomSampler Private Data
-    int xPos, yPos, nSamples;
-    float *imageSamples, *lensSamples, *timeSamples;
-    int samplePos;
+    // VolumeGridDensity Private Data
+    float *density;
+    const int nx, ny, nz;
+    const BBox extent;
 };
 
-#endif // PBRT_SAMPLERS_RANDOM_H
+
+//VolumeGridDensity *CreateGridVolumeRegion(const Transform &volume2world,
+//        const ParamSet &params);
+
+#endif // PBRT_VOLUMES_VOLUMEGRID_H

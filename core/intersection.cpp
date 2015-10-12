@@ -29,33 +29,39 @@
 
  */
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
 
-#ifndef PBRT_SAMPLERS_RANDOM_H
-#define PBRT_SAMPLERS_RANDOM_H
+// core/intersection.cpp*
+#include "stdafx.h"
+#include "intersection.h"
+#include "shape.h"
+//#include "primitive.h"
+#include "light.h"
 
-// samplers/random.h*
-#include "../core/sampler.h"
-#include "../core/film.h"
-#include "../core/randomnumbergenerator.h"
+// Intersection Method Definitions
+//BSDF *Intersection::GetBSDF(const RayDifferential &ray,
+//                            MemoryArena &arena) const {
+//    PBRT_STARTED_BSDF_SHADING(const_cast<RayDifferential *>(&ray));
+//    dg.ComputeDifferentials(ray);
+//    BSDF *bsdf = primitive->GetBSDF(dg, ObjectToWorld, arena);
+//    PBRT_FINISHED_BSDF_SHADING(const_cast<RayDifferential *>(&ray), bsdf);
+//    return bsdf;
+//}
 
-class RandomSampler : public Sampler {
-public:
-    RandomSampler(int xstart, int xend, int ystart,
-        int yend, int ns, float sopen, float sclose);
-    ~RandomSampler() {
-    }
-    int MaximumSampleCount() { return 1; }
-    int GetMoreSamples(Sample *sample, RNG &rng);
-    int RoundSize(int sz) const { return sz; }
-    Sampler *GetSubSampler(int num, int count);
-private:
-    // RandomSampler Private Data
-    int xPos, yPos, nSamples;
-    float *imageSamples, *lensSamples, *timeSamples;
-    int samplePos;
-};
 
-#endif // PBRT_SAMPLERS_RANDOM_H
+//BSSRDF *Intersection::GetBSSRDF(const RayDifferential &ray,
+//          MemoryArena &arena) const {
+//    PBRT_STARTED_BSSRDF_SHADING(const_cast<RayDifferential *>(&ray));
+//    dg.ComputeDifferentials(ray);
+//    BSSRDF *bssrdf = primitive->GetBSSRDF(dg, ObjectToWorld, arena);
+//    PBRT_FINISHED_BSSRDF_SHADING(const_cast<RayDifferential *>(&ray), bssrdf);
+//    return bssrdf;
+//}
+
+
+Spectrum Intersection::Le(const Vector &w) const {
+//    const AreaLight *area = primitive->GetAreaLight();
+//    return area ? area->L(dg.p, dg.nn, w) : Spectrum(0.);
+    return Spectrum(0.);
+}
+
+

@@ -33,29 +33,46 @@
 #pragma once
 #endif
 
-#ifndef PBRT_SAMPLERS_RANDOM_H
-#define PBRT_SAMPLERS_RANDOM_H
+#ifndef PBRT_CORE_SCENE_H
+#define PBRT_CORE_SCENE_H
 
-// samplers/random.h*
-#include "../core/sampler.h"
-#include "../core/film.h"
-#include "../core/randomnumbergenerator.h"
+// core/scene.h*
+#include "../core/common.h"
+//#include "primitive.h"
+#include "integrator.h"
 
-class RandomSampler : public Sampler {
+class Light;
+class VolumeRegion;
+
+// Scene Declarations
+class Scene {
 public:
-    RandomSampler(int xstart, int xend, int ystart,
-        int yend, int ns, float sopen, float sclose);
-    ~RandomSampler() {
+    // Scene Public Methods
+    Scene(const vector<Light *> &lts, VolumeRegion *vr);
+    ~Scene();
+    bool Intersect(const Ray &ray, Intersection *isect) const {
+//        PBRT_STARTED_RAY_INTERSECTION(const_cast<Ray *>(&ray));
+//        bool hit = aggregate->Intersect(ray, isect);
+//        PBRT_FINISHED_RAY_INTERSECTION(const_cast<Ray *>(&ray), isect, int(hit));
+//        return hit;
+        return false;
     }
-    int MaximumSampleCount() { return 1; }
-    int GetMoreSamples(Sample *sample, RNG &rng);
-    int RoundSize(int sz) const { return sz; }
-    Sampler *GetSubSampler(int num, int count);
-private:
-    // RandomSampler Private Data
-    int xPos, yPos, nSamples;
-    float *imageSamples, *lensSamples, *timeSamples;
-    int samplePos;
+    bool IntersectP(const Ray &ray) const {
+//        PBRT_STARTED_RAY_INTERSECTIONP(const_cast<Ray *>(&ray));
+//        bool hit = aggregate->IntersectP(ray);
+//        PBRT_FINISHED_RAY_INTERSECTIONP(const_cast<Ray *>(&ray), int(hit));
+//        return hit;
+        return false;
+    }
+    const BBox &WorldBound() const;
+
+    // Scene Public Data
+//    Primitive *aggregate;
+    vector<Light *> lights;
+    VolumeRegion *volumeRegion;
+    BBox bound;
 };
 
-#endif // PBRT_SAMPLERS_RANDOM_H
+
+
+#endif // PBRT_CORE_SCENE_H
