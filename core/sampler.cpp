@@ -80,34 +80,34 @@ Sample::Sample(Sampler *sampler) {
 }
 
 
-//void Sample::AllocateSampleMemory() {
-//    // Allocate storage for sample pointers
-//    int nPtrs = n1D.size() + n2D.size();
-//    if (!nPtrs) {
-//        oneD = twoD = NULL;
-//        return;
-//    }
-//    oneD = AllocAligned<float *>(nPtrs);
-//    twoD = oneD + n1D.size();
+void Sample::AllocateSampleMemory() {
+    // Allocate storage for sample pointers
+    int nPtrs = n1D.size() + n2D.size();
+    if (!nPtrs) {
+        oneD = twoD = NULL;
+        return;
+    }
+    oneD = new float*[nPtrs];
+    twoD = oneD + n1D.size();
 
-//    // Compute total number of sample values needed
-//    int totSamples = 0;
-//    for (uint32_t i = 0; i < n1D.size(); ++i)
-//        totSamples += n1D[i];
-//    for (uint32_t i = 0; i < n2D.size(); ++i)
-//        totSamples += 2 * n2D[i];
+    // Compute total number of sample values needed
+    int totSamples = 0;
+    for (uint32_t i = 0; i < n1D.size(); ++i)
+        totSamples += n1D[i];
+    for (uint32_t i = 0; i < n2D.size(); ++i)
+        totSamples += 2 * n2D[i];
 
-//    // Allocate storage for sample values
-//    float *mem = AllocAligned<float>(totSamples);
-//    for (uint32_t i = 0; i < n1D.size(); ++i) {
-//        oneD[i] = mem;
-//        mem += n1D[i];
-//    }
-//    for (uint32_t i = 0; i < n2D.size(); ++i) {
-//        twoD[i] = mem;
-//        mem += 2 * n2D[i];
-//    }
-//}
+    // Allocate storage for sample values
+    float *mem = new float[totSamples];
+    for (uint32_t i = 0; i < n1D.size(); ++i) {
+        oneD[i] = mem;
+        mem += n1D[i];
+    }
+    for (uint32_t i = 0; i < n2D.size(); ++i) {
+        twoD[i] = mem;
+        mem += 2 * n2D[i];
+    }
+}
 
 
 Sample *Sample::Duplicate(int count) const {
@@ -115,6 +115,7 @@ Sample *Sample::Duplicate(int count) const {
     for (int i = 0; i < count; ++i) {
         ret[i].n1D = n1D;
         ret[i].n2D = n2D;
+        ret[i].AllocateSampleMemory();
     }
     return ret;
 }

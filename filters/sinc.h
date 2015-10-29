@@ -33,56 +33,33 @@
 #pragma once
 #endif
 
-#ifndef PBRT_FILM_IMAGE_H
-#define PBRT_FILM_IMAGE_H
+#ifndef PBRT_FILTERS_SINC_H
+#define PBRT_FILTERS_SINC_H
 
-// film/image.h*
-#include "../core/common.h"
-#include "../core/film.h"
-#include "../core/sampler.h"
+// filters/sinc.h*
 #include "../core/filter.h"
-#include "../core/memory.h"
-//#include "paramset.h"
 
-
-class Pixel {
+// Sinc Filter Declarations
+class LanczosSincFilter : public Filter {
 public:
-    Pixel() {
-        for (int i = 0; i < 3; ++i) Lxyz[i] = splatXYZ[i] = 0.f;
-        weightSum = 0.f;
+    // LanczosSincFilter Public Methods
+    LanczosSincFilter(float xw, float yw, float t)
+        : Filter(xw, yw), tau(t) { }
+    float Evaluate(float x, float y) const;
+    float Sinc1D(float x) const {
+        x = fabsf(x);
+        if (x < 1e-5) return 1.f;
+        if (x > 1.)   return 0.f;
+        x *= M_PI;
+        float sinc = sinf(x) / x;
+        float lanczos = sinf(x * tau) / (x * tau);
+        return sinc * lanczos;
     }
-    float Lxyz[3];
-    float weightSum;
-    float splatXYZ[3];
-    float pad;
-};
-
-// ImageFilm Declarations
-class ImageFilm : public Film {
-public:
-    // ImageFilm Public Methods
-    ImageFilm(int xres, int yres, Filter *filt, const float crop[4]);
-    ~ImageFilm() {
-        delete pixels;
-//        delete filter;
-        delete[] filterTable;
-    }
-    void AddSample(const CameraSample &sample, const Spectrum &L);
-    void Splat(const CameraSample &sample, const Spectrum &L);
-    void GetSampleExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void GetPixelExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void WriteImage(float splatScale);
-    void UpdateDisplay(int x0, int y0, int x1, int y1, float splatScale);
-//private:
-    // ImageFilm Private Data
-    Filter *filter;
-    float cropWindow[4];
-    int xPixelStart, yPixelStart, xPixelCount, yPixelCount;
-    BlockedArray<Pixel> *pixels;
-    float *filterTable;
+private:
+    const float tau;
 };
 
 
-//ImageFilm *CreateImageFilm(const ParamSet &params, Filter *filter);
+//LanczosSincFilter *CreateSincFilter(const ParamSet &ps);
 
-#endif // PBRT_FILM_IMAGE_H
+#endif // PBRT_FILTERS_SINC_H

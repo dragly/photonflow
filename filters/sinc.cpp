@@ -29,60 +29,23 @@
 
  */
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
 
-#ifndef PBRT_FILM_IMAGE_H
-#define PBRT_FILM_IMAGE_H
-
-// film/image.h*
-#include "../core/common.h"
-#include "../core/film.h"
-#include "../core/sampler.h"
-#include "../core/filter.h"
-#include "../core/memory.h"
+// filters/sinc.cpp*
+#include "stdafx.h"
+#include "filters/sinc.h"
 //#include "paramset.h"
 
-
-class Pixel {
-public:
-    Pixel() {
-        for (int i = 0; i < 3; ++i) Lxyz[i] = splatXYZ[i] = 0.f;
-        weightSum = 0.f;
-    }
-    float Lxyz[3];
-    float weightSum;
-    float splatXYZ[3];
-    float pad;
-};
-
-// ImageFilm Declarations
-class ImageFilm : public Film {
-public:
-    // ImageFilm Public Methods
-    ImageFilm(int xres, int yres, Filter *filt, const float crop[4]);
-    ~ImageFilm() {
-        delete pixels;
-//        delete filter;
-        delete[] filterTable;
-    }
-    void AddSample(const CameraSample &sample, const Spectrum &L);
-    void Splat(const CameraSample &sample, const Spectrum &L);
-    void GetSampleExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void GetPixelExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void WriteImage(float splatScale);
-    void UpdateDisplay(int x0, int y0, int x1, int y1, float splatScale);
-//private:
-    // ImageFilm Private Data
-    Filter *filter;
-    float cropWindow[4];
-    int xPixelStart, yPixelStart, xPixelCount, yPixelCount;
-    BlockedArray<Pixel> *pixels;
-    float *filterTable;
-};
+// Sinc Filter Method Definitions
+float LanczosSincFilter::Evaluate(float x, float y) const {
+    return Sinc1D(x * invXWidth) * Sinc1D(y * invYWidth);
+}
 
 
-//ImageFilm *CreateImageFilm(const ParamSet &params, Filter *filter);
+//LanczosSincFilter *CreateSincFilter(const ParamSet &ps) {
+//    float xw = ps.FindOneFloat("xwidth", 4.);
+//    float yw = ps.FindOneFloat("ywidth", 4.);
+//    float tau = ps.FindOneFloat("tau", 3.f);
+//    return new LanczosSincFilter(xw, yw, tau);
+//}
 
-#endif // PBRT_FILM_IMAGE_H
+

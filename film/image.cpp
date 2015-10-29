@@ -32,40 +32,40 @@
 
 // film/image.cpp*
 #include "stdafx.h"
-#include "film/image.h"
+#include "../film/image.h"
 #include "../core/spectrum.h"
-//#include "parallel.h"
+#include <memory.h>
+
+//#include "../core/parallel.h"
 //#include "imageio.h"
 
 // ImageFilm Method Definitions
-ImageFilm::ImageFilm(int xres, int yres, Filter *filt, const float crop[4],
-                     const string &fn, bool openWindow)
+ImageFilm::ImageFilm(int xres, int yres, Filter *filt, const float crop[4])
     : Film(xres, yres) {
-//    filter = filt;
-//    memcpy(cropWindow, crop, 4 * sizeof(float));
-//    filename = fn;
-//    // Compute film image extent
-//    xPixelStart = Ceil2Int(xResolution * cropWindow[0]);
-//    xPixelCount = max(1, Ceil2Int(xResolution * cropWindow[1]) - xPixelStart);
-//    yPixelStart = Ceil2Int(yResolution * cropWindow[2]);
-//    yPixelCount = max(1, Ceil2Int(yResolution * cropWindow[3]) - yPixelStart);
+    filter = filt;
+    memcpy(cropWindow, crop, 4 * sizeof(float));
+    // Compute film image extent
+    xPixelStart = Ceil2Int(xResolution * cropWindow[0]);
+    xPixelCount = max(1, Ceil2Int(xResolution * cropWindow[1]) - xPixelStart);
+    yPixelStart = Ceil2Int(yResolution * cropWindow[2]);
+    yPixelCount = max(1, Ceil2Int(yResolution * cropWindow[3]) - yPixelStart);
 
-//    // Allocate film image storage
-//    pixels = new BlockedArray<Pixel>(xPixelCount, yPixelCount);
+    // Allocate film image storage
+    pixels = new BlockedArray<Pixel>(xPixelCount, yPixelCount);
 
-//    // Precompute filter weight table
-//#define FILTER_TABLE_SIZE 16
-//    filterTable = new float[FILTER_TABLE_SIZE * FILTER_TABLE_SIZE];
-//    float *ftp = filterTable;
-//    for (int y = 0; y < FILTER_TABLE_SIZE; ++y) {
-//        float fy = ((float)y + .5f) *
-//                   filter->yWidth / FILTER_TABLE_SIZE;
-//        for (int x = 0; x < FILTER_TABLE_SIZE; ++x) {
-//            float fx = ((float)x + .5f) *
-//                       filter->xWidth / FILTER_TABLE_SIZE;
-//            *ftp++ = filter->Evaluate(fx, fy);
-//        }
-//    }
+    // Precompute filter weight table
+#define FILTER_TABLE_SIZE 16
+    filterTable = new float[FILTER_TABLE_SIZE * FILTER_TABLE_SIZE];
+    float *ftp = filterTable;
+    for (int y = 0; y < FILTER_TABLE_SIZE; ++y) {
+        float fy = ((float)y + .5f) *
+                   filter->yWidth / FILTER_TABLE_SIZE;
+        for (int x = 0; x < FILTER_TABLE_SIZE; ++x) {
+            float fx = ((float)x + .5f) *
+                       filter->xWidth / FILTER_TABLE_SIZE;
+            *ftp++ = filter->Evaluate(fx, fy);
+        }
+    }
 
 //    // Possibly open window for image display
 //    if (openWindow || PbrtOptions.openWindow) {
@@ -76,54 +76,59 @@ ImageFilm::ImageFilm(int xres, int yres, Filter *filt, const float crop[4],
 
 void ImageFilm::AddSample(const CameraSample &sample,
                           const Spectrum &L) {
-//    // Compute sample's raster extent
-//    float dimageX = sample.imageX - 0.5f;
-//    float dimageY = sample.imageY - 0.5f;
-//    int x0 = Ceil2Int (dimageX - filter->xWidth);
-//    int x1 = Floor2Int(dimageX + filter->xWidth);
-//    int y0 = Ceil2Int (dimageY - filter->yWidth);
-//    int y1 = Floor2Int(dimageY + filter->yWidth);
-//    x0 = max(x0, xPixelStart);
-//    x1 = min(x1, xPixelStart + xPixelCount - 1);
-//    y0 = max(y0, yPixelStart);
-//    y1 = min(y1, yPixelStart + yPixelCount - 1);
-//    if ((x1-x0) < 0 || (y1-y0) < 0)
-//    {
+    // Compute sample's raster extent
+    float dimageX = sample.imageX - 0.5f;
+    float dimageY = sample.imageY - 0.5f;
+    int x0 = Ceil2Int (dimageX - filter->xWidth);
+    int x1 = Floor2Int(dimageX + filter->xWidth);
+    int y0 = Ceil2Int (dimageY - filter->yWidth);
+    int y1 = Floor2Int(dimageY + filter->yWidth);
+    x0 = max(x0, xPixelStart);
+    x1 = min(x1, xPixelStart + xPixelCount - 1);
+    y0 = max(y0, yPixelStart);
+    y1 = min(y1, yPixelStart + yPixelCount - 1);
+    if ((x1-x0) < 0 || (y1-y0) < 0)
+    {
 //        PBRT_SAMPLE_OUTSIDE_IMAGE_EXTENT(const_cast<CameraSample *>(&sample));
-//        return;
-//    }
+        return;
+    }
 
-//    // Loop over filter support and add sample to pixel arrays
-//    float xyz[3];
-//    L.ToXYZ(xyz);
+    // Loop over filter support and add sample to pixel arrays
+    float xyz[3];
+    L.ToXYZ(xyz);
 
-//    // Precompute $x$ and $y$ filter table offsets
-//    int *ifx = ALLOCA(int, x1 - x0 + 1);
-//    for (int x = x0; x <= x1; ++x) {
-//        float fx = fabsf((x - dimageX) *
-//                         filter->invXWidth * FILTER_TABLE_SIZE);
-//        ifx[x-x0] = min(Floor2Int(fx), FILTER_TABLE_SIZE-1);
-//    }
-//    int *ify = ALLOCA(int, y1 - y0 + 1);
-//    for (int y = y0; y <= y1; ++y) {
-//        float fy = fabsf((y - dimageY) *
-//                         filter->invYWidth * FILTER_TABLE_SIZE);
-//        ify[y-y0] = min(Floor2Int(fy), FILTER_TABLE_SIZE-1);
-//    }
+//    Pixel &pixel = (*pixels)(sample.imageX - xPixelStart, sample.imageY - yPixelStart);
+//    pixel.Lxyz[0] += xyz[0];
+//    pixel.Lxyz[1] += xyz[1];
+//    pixel.Lxyz[2] += xyz[2];
+
+    // Precompute $x$ and $y$ filter table offsets
+    int *ifx = ALLOCA(int, x1 - x0 + 1);
+    for (int x = x0; x <= x1; ++x) {
+        float fx = fabsf((x - dimageX) *
+                         filter->invXWidth * FILTER_TABLE_SIZE);
+        ifx[x-x0] = min(Floor2Int(fx), FILTER_TABLE_SIZE-1);
+    }
+    int *ify = ALLOCA(int, y1 - y0 + 1);
+    for (int y = y0; y <= y1; ++y) {
+        float fy = fabsf((y - dimageY) *
+                         filter->invYWidth * FILTER_TABLE_SIZE);
+        ify[y-y0] = min(Floor2Int(fy), FILTER_TABLE_SIZE-1);
+    }
 //    bool syncNeeded = (filter->xWidth > 0.5f || filter->yWidth > 0.5f);
-//    for (int y = y0; y <= y1; ++y) {
-//        for (int x = x0; x <= x1; ++x) {
-//            // Evaluate filter value at $(x,y)$ pixel
-//            int offset = ify[y-y0]*FILTER_TABLE_SIZE + ifx[x-x0];
-//            float filterWt = filterTable[offset];
+    for (int y = y0; y <= y1; ++y) {
+        for (int x = x0; x <= x1; ++x) {
+            // Evaluate filter value at $(x,y)$ pixel
+            int offset = ify[y-y0]*FILTER_TABLE_SIZE + ifx[x-x0];
+            float filterWt = filterTable[offset];
 
-//            // Update pixel values with filtered sample contribution
-//            Pixel &pixel = (*pixels)(x - xPixelStart, y - yPixelStart);
+            // Update pixel values with filtered sample contribution
+            Pixel &pixel = (*pixels)(x - xPixelStart, y - yPixelStart);
 //            if (!syncNeeded) {
-//                pixel.Lxyz[0] += filterWt * xyz[0];
-//                pixel.Lxyz[1] += filterWt * xyz[1];
-//                pixel.Lxyz[2] += filterWt * xyz[2];
-//                pixel.weightSum += filterWt;
+                pixel.Lxyz[0] += filterWt * xyz[0];
+                pixel.Lxyz[1] += filterWt * xyz[1];
+                pixel.Lxyz[2] += filterWt * xyz[2];
+                pixel.weightSum += filterWt;
 //            }
 //            else {
 //                // Safely update _Lxyz_ and _weightSum_ even with concurrency
@@ -132,84 +137,88 @@ void ImageFilm::AddSample(const CameraSample &sample,
 //                AtomicAdd(&pixel.Lxyz[2], filterWt * xyz[2]);
 //                AtomicAdd(&pixel.weightSum, filterWt);
 //            }
-//        }
-//    }
+        }
+    }
 }
 
 
 void ImageFilm::Splat(const CameraSample &sample, const Spectrum &L) {
-//    if (L.HasNaNs()) {
-//        Warning("ImageFilm ignoring splatted spectrum with NaN values");
-//        return;
-//    }
-//    float xyz[3];
-//    L.ToXYZ(xyz);
-//    int x = Floor2Int(sample.imageX), y = Floor2Int(sample.imageY);
-//    if (x < xPixelStart || x - xPixelStart >= xPixelCount ||
-//        y < yPixelStart || y - yPixelStart >= yPixelCount) return;
-//    Pixel &pixel = (*pixels)(x - xPixelStart, y - yPixelStart);
+    if (L.HasNaNs()) {
+        Warning("ImageFilm ignoring splatted spectrum with NaN values");
+        return;
+    }
+    float xyz[3];
+    L.ToXYZ(xyz);
+    int x = Floor2Int(sample.imageX), y = Floor2Int(sample.imageY);
+    if (x < xPixelStart || x - xPixelStart >= xPixelCount ||
+        y < yPixelStart || y - yPixelStart >= yPixelCount) return;
+    Pixel &pixel = (*pixels)(x - xPixelStart, y - yPixelStart);
 //    AtomicAdd(&pixel.splatXYZ[0], xyz[0]);
 //    AtomicAdd(&pixel.splatXYZ[1], xyz[1]);
 //    AtomicAdd(&pixel.splatXYZ[2], xyz[2]);
+
+    pixel.splatXYZ[0] += xyz[0];
+    pixel.splatXYZ[1] += xyz[1];
+    pixel.splatXYZ[2] += xyz[2];
 }
 
 
 void ImageFilm::GetSampleExtent(int *xstart, int *xend,
                                 int *ystart, int *yend) const {
-//    *xstart = Floor2Int(xPixelStart + 0.5f - filter->xWidth);
-//    *xend   = Ceil2Int(xPixelStart - 0.5f + xPixelCount +
-//                       filter->xWidth);
+    *xstart = Floor2Int(xPixelStart + 0.5f - filter->xWidth);
+    *xend   = Ceil2Int(xPixelStart - 0.5f + xPixelCount +
+                       filter->xWidth);
 
-//    *ystart = Floor2Int(yPixelStart + 0.5f - filter->yWidth);
-//    *yend   = Ceil2Int(yPixelStart - 0.5f + yPixelCount +
-//                       filter->yWidth);
+    *ystart = Floor2Int(yPixelStart + 0.5f - filter->yWidth);
+    *yend   = Ceil2Int(yPixelStart - 0.5f + yPixelCount +
+                       filter->yWidth);
 }
 
 
 void ImageFilm::GetPixelExtent(int *xstart, int *xend,
                                int *ystart, int *yend) const {
-//    *xstart = xPixelStart;
-//    *xend   = xPixelStart + xPixelCount;
-//    *ystart = yPixelStart;
-//    *yend   = yPixelStart + yPixelCount;
+    *xstart = xPixelStart;
+    *xend   = xPixelStart + xPixelCount;
+    *ystart = yPixelStart;
+    *yend   = yPixelStart + yPixelCount;
 }
 
 
 void ImageFilm::WriteImage(float splatScale) {
-//    // Convert image to RGB and compute final pixel values
-//    int nPix = xPixelCount * yPixelCount;
-//    float *rgb = new float[3*nPix];
-//    int offset = 0;
-//    for (int y = 0; y < yPixelCount; ++y) {
-//        for (int x = 0; x < xPixelCount; ++x) {
-//            // Convert pixel XYZ color to RGB
-//            XYZToRGB((*pixels)(x, y).Lxyz, &rgb[3*offset]);
+    // Convert image to RGB and compute final pixel values
+    int nPix = xPixelCount * yPixelCount;
+    float *rgb = new float[3*nPix];
+    int offset = 0;
+    for (int y = 0; y < yPixelCount; ++y) {
+        for (int x = 0; x < xPixelCount; ++x) {
+            // Convert pixel XYZ color to RGB
+            XYZToRGB((*pixels)(x, y).Lxyz, &rgb[3*offset]);
 
-//            // Normalize pixel with weight sum
-//            float weightSum = (*pixels)(x, y).weightSum;
-//            if (weightSum != 0.f) {
-//                float invWt = 1.f / weightSum;
-//                rgb[3*offset  ] = max(0.f, rgb[3*offset  ] * invWt);
-//                rgb[3*offset+1] = max(0.f, rgb[3*offset+1] * invWt);
-//                rgb[3*offset+2] = max(0.f, rgb[3*offset+2] * invWt);
-//            }
+            // Normalize pixel with weight sum
+            float weightSum = (*pixels)(x, y).weightSum;
+            if (weightSum != 0.f) {
+                float invWt = 1.f / weightSum;
+                rgb[3*offset  ] = max(0.f, rgb[3*offset  ] * invWt);
+                rgb[3*offset+1] = max(0.f, rgb[3*offset+1] * invWt);
+                rgb[3*offset+2] = max(0.f, rgb[3*offset+2] * invWt);
+            }
 
-//            // Add splat value at pixel
-//            float splatRGB[3];
-//            XYZToRGB((*pixels)(x, y).splatXYZ, splatRGB);
-//            rgb[3*offset  ] += splatScale * splatRGB[0];
-//            rgb[3*offset+1] += splatScale * splatRGB[1];
-//            rgb[3*offset+2] += splatScale * splatRGB[2];
-//            ++offset;
-//        }
-//    }
+            // Add splat value at pixel
+            float splatRGB[3];
+            XYZToRGB((*pixels)(x, y).splatXYZ, splatRGB);
+            rgb[3*offset  ] += splatScale * splatRGB[0];
+            rgb[3*offset+1] += splatScale * splatRGB[1];
+            rgb[3*offset+2] += splatScale * splatRGB[2];
+            ++offset;
+        }
+    }
 
-//    // Write RGB image
+    // Write RGB image
 //    ::WriteImage(filename, rgb, NULL, xPixelCount, yPixelCount,
 //                 xResolution, yResolution, xPixelStart, yPixelStart);
 
-//    // Release temporary image memory
-//    delete[] rgb;
+    // Release temporary image memory
+    delete[] rgb;
 }
 
 

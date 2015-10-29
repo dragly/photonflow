@@ -32,7 +32,14 @@ HEADERS += \
     core/intersection.h \
     core/diffgeom.h \
     core/light.h \
-    core/shape.h
+    core/shape.h \
+    core/memory.h \
+    filters/box.h \
+    filters/gaussian.h \
+    filters/mitchell.h \
+    filters/sinc.h \
+    filters/triangle.h \
+    stdafx.h
 
 SOURCES += main.cpp \
     visual/renderview.cpp \
@@ -58,13 +65,19 @@ SOURCES += main.cpp \
     core/intersection.cpp \
     core/diffgeom.cpp \
     core/light.cpp \
-    core/shape.cpp
+    core/shape.cpp \
+    core/memory.cpp \
+    filters/box.cpp \
+    filters/gaussian.cpp \
+    filters/mitchell.cpp \
+    filters/sinc.cpp \
+    filters/triangle.cpp
 
 RESOURCES += qml.qrc
 
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 
-LIBS += -lalglib
+#LIBS += -lalglib
 
 DISTFILES += \
     samplers/bestcandidate.out

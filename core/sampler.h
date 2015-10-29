@@ -96,6 +96,7 @@ struct Sample : public CameraSample {
     // Sample Public Data
     std::vector<uint32_t> n1D, n2D;
     float **oneD, **twoD;
+    void AllocateSampleMemory();
 private:
     // Sample Private Methods
     Sample() { oneD = twoD = NULL; }

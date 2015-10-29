@@ -29,60 +29,24 @@
 
  */
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
 
-#ifndef PBRT_FILM_IMAGE_H
-#define PBRT_FILM_IMAGE_H
-
-// film/image.h*
-#include "../core/common.h"
-#include "../core/film.h"
-#include "../core/sampler.h"
-#include "../core/filter.h"
-#include "../core/memory.h"
+// filters/triangle.cpp*
+#include "stdafx.h"
+#include "filters/triangle.h"
 //#include "paramset.h"
 
-
-class Pixel {
-public:
-    Pixel() {
-        for (int i = 0; i < 3; ++i) Lxyz[i] = splatXYZ[i] = 0.f;
-        weightSum = 0.f;
-    }
-    float Lxyz[3];
-    float weightSum;
-    float splatXYZ[3];
-    float pad;
-};
-
-// ImageFilm Declarations
-class ImageFilm : public Film {
-public:
-    // ImageFilm Public Methods
-    ImageFilm(int xres, int yres, Filter *filt, const float crop[4]);
-    ~ImageFilm() {
-        delete pixels;
-//        delete filter;
-        delete[] filterTable;
-    }
-    void AddSample(const CameraSample &sample, const Spectrum &L);
-    void Splat(const CameraSample &sample, const Spectrum &L);
-    void GetSampleExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void GetPixelExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void WriteImage(float splatScale);
-    void UpdateDisplay(int x0, int y0, int x1, int y1, float splatScale);
-//private:
-    // ImageFilm Private Data
-    Filter *filter;
-    float cropWindow[4];
-    int xPixelStart, yPixelStart, xPixelCount, yPixelCount;
-    BlockedArray<Pixel> *pixels;
-    float *filterTable;
-};
+// Triangle Filter Method Definitions
+float TriangleFilter::Evaluate(float x, float y) const {
+    return max(0.f, xWidth - fabsf(x)) *
+           max(0.f, yWidth - fabsf(y));
+}
 
 
-//ImageFilm *CreateImageFilm(const ParamSet &params, Filter *filter);
+//TriangleFilter *CreateTriangleFilter(const ParamSet &ps) {
+//    // Find common filter parameters
+//    float xw = ps.FindOneFloat("xwidth", 2.f);
+//    float yw = ps.FindOneFloat("ywidth", 2.f);
+//    return new TriangleFilter(xw, yw);
+//}
 
-#endif // PBRT_FILM_IMAGE_H
+

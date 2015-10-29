@@ -38,6 +38,7 @@
 
 // volumes/volumegrid.h*
 #include "../core/volume.h"
+#include <memory.h>
 
 // VolumeGridDensity Declarations
 class VolumeGridDensity : public DensityRegion {

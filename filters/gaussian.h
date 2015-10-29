@@ -33,56 +33,32 @@
 #pragma once
 #endif
 
-#ifndef PBRT_FILM_IMAGE_H
-#define PBRT_FILM_IMAGE_H
+#ifndef PBRT_FILTERS_GAUSSIAN_H
+#define PBRT_FILTERS_GAUSSIAN_H
 
-// film/image.h*
-#include "../core/common.h"
-#include "../core/film.h"
-#include "../core/sampler.h"
+// filters/gaussian.h*
 #include "../core/filter.h"
-#include "../core/memory.h"
-//#include "paramset.h"
 
-
-class Pixel {
+// Gaussian Filter Declarations
+class GaussianFilter : public Filter {
 public:
-    Pixel() {
-        for (int i = 0; i < 3; ++i) Lxyz[i] = splatXYZ[i] = 0.f;
-        weightSum = 0.f;
-    }
-    float Lxyz[3];
-    float weightSum;
-    float splatXYZ[3];
-    float pad;
-};
+    // GaussianFilter Public Methods
+    GaussianFilter(float xw, float yw, float a)
+        : Filter(xw, yw), alpha(a), expX(expf(-alpha * xWidth * xWidth)),
+          expY(expf(-alpha * yWidth * yWidth)) { }
+    float Evaluate(float x, float y) const;
+private:
+    // GaussianFilter Private Data
+    const float alpha;
+    const float expX, expY;
 
-// ImageFilm Declarations
-class ImageFilm : public Film {
-public:
-    // ImageFilm Public Methods
-    ImageFilm(int xres, int yres, Filter *filt, const float crop[4]);
-    ~ImageFilm() {
-        delete pixels;
-//        delete filter;
-        delete[] filterTable;
+    // GaussianFilter Utility Functions
+    float Gaussian(float d, float expv) const {
+        return max(0.f, float(expf(-alpha * d * d) - expv));
     }
-    void AddSample(const CameraSample &sample, const Spectrum &L);
-    void Splat(const CameraSample &sample, const Spectrum &L);
-    void GetSampleExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void GetPixelExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void WriteImage(float splatScale);
-    void UpdateDisplay(int x0, int y0, int x1, int y1, float splatScale);
-//private:
-    // ImageFilm Private Data
-    Filter *filter;
-    float cropWindow[4];
-    int xPixelStart, yPixelStart, xPixelCount, yPixelCount;
-    BlockedArray<Pixel> *pixels;
-    float *filterTable;
 };
 
 
-//ImageFilm *CreateImageFilm(const ParamSet &params, Filter *filter);
+//GaussianFilter *CreateGaussianFilter(const ParamSet &ps);
 
-#endif // PBRT_FILM_IMAGE_H
+#endif // PBRT_FILTERS_GAUSSIAN_H

@@ -33,56 +33,20 @@
 #pragma once
 #endif
 
-#ifndef PBRT_FILM_IMAGE_H
-#define PBRT_FILM_IMAGE_H
+#ifndef PBRT_FILTERS_TRIANGLE_H
+#define PBRT_FILTERS_TRIANGLE_H
 
-// film/image.h*
-#include "../core/common.h"
-#include "../core/film.h"
-#include "../core/sampler.h"
+// filters/triangle.h*
 #include "../core/filter.h"
-#include "../core/memory.h"
-//#include "paramset.h"
 
-
-class Pixel {
+// Triangle Filter Declarations
+class TriangleFilter : public Filter {
 public:
-    Pixel() {
-        for (int i = 0; i < 3; ++i) Lxyz[i] = splatXYZ[i] = 0.f;
-        weightSum = 0.f;
-    }
-    float Lxyz[3];
-    float weightSum;
-    float splatXYZ[3];
-    float pad;
-};
-
-// ImageFilm Declarations
-class ImageFilm : public Film {
-public:
-    // ImageFilm Public Methods
-    ImageFilm(int xres, int yres, Filter *filt, const float crop[4]);
-    ~ImageFilm() {
-        delete pixels;
-//        delete filter;
-        delete[] filterTable;
-    }
-    void AddSample(const CameraSample &sample, const Spectrum &L);
-    void Splat(const CameraSample &sample, const Spectrum &L);
-    void GetSampleExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void GetPixelExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void WriteImage(float splatScale);
-    void UpdateDisplay(int x0, int y0, int x1, int y1, float splatScale);
-//private:
-    // ImageFilm Private Data
-    Filter *filter;
-    float cropWindow[4];
-    int xPixelStart, yPixelStart, xPixelCount, yPixelCount;
-    BlockedArray<Pixel> *pixels;
-    float *filterTable;
+    TriangleFilter(float xw, float yw) : Filter(xw, yw) { }
+    float Evaluate(float x, float y) const;
 };
 
 
-//ImageFilm *CreateImageFilm(const ParamSet &params, Filter *filter);
+//TriangleFilter *CreateTriangleFilter(const ParamSet &ps);
 
-#endif // PBRT_FILM_IMAGE_H
+#endif // PBRT_FILTERS_TRIANGLE_H

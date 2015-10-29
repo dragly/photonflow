@@ -29,60 +29,45 @@
 
  */
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
 
-#ifndef PBRT_FILM_IMAGE_H
-#define PBRT_FILM_IMAGE_H
-
-// film/image.h*
-#include "../core/common.h"
-#include "../core/film.h"
-#include "../core/sampler.h"
-#include "../core/filter.h"
+// core/memory.cpp*
+#include "stdafx.h"
 #include "../core/memory.h"
-//#include "paramset.h"
+#include <malloc.h>
+
+// Memory Allocation Functions
+void *AllocAligned(size_t size) {
+#if defined(PBRT_IS_WINDOWS)
+    return _aligned_malloc(size, PBRT_L1_CACHE_LINE_SIZE);
+#elif defined (PBRT_IS_OPENBSD) || defined(PBRT_IS_APPLE)
+    // Allocate excess memory to ensure an aligned pointer can be returned
+    void *mem = malloc(size + (PBRT_L1_CACHE_LINE_SIZE-1) + sizeof(void*));
+    char *amem = ((char*)mem) + sizeof(void*);
+#if (PBRT_POINTER_SIZE == 8)
+    amem += PBRT_L1_CACHE_LINE_SIZE - (reinterpret_cast<uint64_t>(amem) &
+                                       (PBRT_L1_CACHE_LINE_SIZE - 1));
+#else
+    amem += PBRT_L1_CACHE_LINE_SIZE - (reinterpret_cast<uint32_t>(amem) &
+                                       (PBRT_L1_CACHE_LINE_SIZE - 1));
+#endif
+    ((void**)amem)[-1] = mem;
+    return amem;
+#else
+    return memalign(PBRT_L1_CACHE_LINE_SIZE, size);
+#endif
+}
 
 
-class Pixel {
-public:
-    Pixel() {
-        for (int i = 0; i < 3; ++i) Lxyz[i] = splatXYZ[i] = 0.f;
-        weightSum = 0.f;
-    }
-    float Lxyz[3];
-    float weightSum;
-    float splatXYZ[3];
-    float pad;
-};
-
-// ImageFilm Declarations
-class ImageFilm : public Film {
-public:
-    // ImageFilm Public Methods
-    ImageFilm(int xres, int yres, Filter *filt, const float crop[4]);
-    ~ImageFilm() {
-        delete pixels;
-//        delete filter;
-        delete[] filterTable;
-    }
-    void AddSample(const CameraSample &sample, const Spectrum &L);
-    void Splat(const CameraSample &sample, const Spectrum &L);
-    void GetSampleExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void GetPixelExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void WriteImage(float splatScale);
-    void UpdateDisplay(int x0, int y0, int x1, int y1, float splatScale);
-//private:
-    // ImageFilm Private Data
-    Filter *filter;
-    float cropWindow[4];
-    int xPixelStart, yPixelStart, xPixelCount, yPixelCount;
-    BlockedArray<Pixel> *pixels;
-    float *filterTable;
-};
+void FreeAligned(void *ptr) {
+    if (!ptr) return;
+#if defined(PBRT_IS_WINDOWS)
+    _aligned_free(ptr);
+#elif defined (PBRT_IS_OPENBSD) || defined(PBRT_IS_APPLE)
+    free(((void**)ptr)[-1]);
+#else
+    free(ptr);
+#endif
+}
 
 
-//ImageFilm *CreateImageFilm(const ParamSet &params, Filter *filter);
 
-#endif // PBRT_FILM_IMAGE_H

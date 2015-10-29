@@ -12,6 +12,7 @@ using std::max;
 using std::swap;
 using std::sort;
 using std::vector;
+using std::string;
 
 class LightSample;
 class VisibilityTester;
@@ -20,6 +21,9 @@ class Renderer;
 class Sample;
 class RNG;
 class LightSampleOffsets;
+template <typename T, int logBlockSize = 2> class BlockedArray;
+
+#define ALLOCA(TYPE, COUNT) (TYPE *)alloca((COUNT) * sizeof(TYPE))
 
 #ifdef M_PI
 #undef M_PI
@@ -28,6 +32,10 @@ class LightSampleOffsets;
 #define INV_PI     0.31830988618379067154f
 #define INV_TWOPI  0.15915494309189533577f
 #define INV_FOURPI 0.07957747154594766788f
+
+#ifndef PBRT_L1_CACHE_LINE_SIZE
+#define PBRT_L1_CACHE_LINE_SIZE 64
+#endif
 
 // Global Inline Functions
 inline float Lerp(float t, float v1, float v2) {

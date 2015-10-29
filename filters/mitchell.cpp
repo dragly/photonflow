@@ -29,60 +29,25 @@
 
  */
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
 
-#ifndef PBRT_FILM_IMAGE_H
-#define PBRT_FILM_IMAGE_H
-
-// film/image.h*
-#include "../core/common.h"
-#include "../core/film.h"
-#include "../core/sampler.h"
-#include "../core/filter.h"
-#include "../core/memory.h"
+// filters/mitchell.cpp*
+#include "stdafx.h"
+#include "filters/mitchell.h"
 //#include "paramset.h"
 
-
-class Pixel {
-public:
-    Pixel() {
-        for (int i = 0; i < 3; ++i) Lxyz[i] = splatXYZ[i] = 0.f;
-        weightSum = 0.f;
-    }
-    float Lxyz[3];
-    float weightSum;
-    float splatXYZ[3];
-    float pad;
-};
-
-// ImageFilm Declarations
-class ImageFilm : public Film {
-public:
-    // ImageFilm Public Methods
-    ImageFilm(int xres, int yres, Filter *filt, const float crop[4]);
-    ~ImageFilm() {
-        delete pixels;
-//        delete filter;
-        delete[] filterTable;
-    }
-    void AddSample(const CameraSample &sample, const Spectrum &L);
-    void Splat(const CameraSample &sample, const Spectrum &L);
-    void GetSampleExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void GetPixelExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void WriteImage(float splatScale);
-    void UpdateDisplay(int x0, int y0, int x1, int y1, float splatScale);
-//private:
-    // ImageFilm Private Data
-    Filter *filter;
-    float cropWindow[4];
-    int xPixelStart, yPixelStart, xPixelCount, yPixelCount;
-    BlockedArray<Pixel> *pixels;
-    float *filterTable;
-};
+// Mitchell Filter Method Definitions
+float MitchellFilter::Evaluate(float x, float y) const {
+    return Mitchell1D(x * invXWidth) * Mitchell1D(y * invYWidth);
+}
 
 
-//ImageFilm *CreateImageFilm(const ParamSet &params, Filter *filter);
+//MitchellFilter *CreateMitchellFilter(const ParamSet &ps) {
+//    // Find common filter parameters
+//    float xw = ps.FindOneFloat("xwidth", 2.f);
+//    float yw = ps.FindOneFloat("ywidth", 2.f);
+//    float B = ps.FindOneFloat("B", 1.f/3.f);
+//    float C = ps.FindOneFloat("C", 1.f/3.f);
+//    return new MitchellFilter(B, C, xw, yw);
+//}
 
-#endif // PBRT_FILM_IMAGE_H
+

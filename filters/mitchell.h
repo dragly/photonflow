@@ -33,56 +33,35 @@
 #pragma once
 #endif
 
-#ifndef PBRT_FILM_IMAGE_H
-#define PBRT_FILM_IMAGE_H
+#ifndef PBRT_FILTERS_MITCHELL_H
+#define PBRT_FILTERS_MITCHELL_H
 
-// film/image.h*
-#include "../core/common.h"
-#include "../core/film.h"
-#include "../core/sampler.h"
+// filters/mitchell.h*
 #include "../core/filter.h"
-#include "../core/memory.h"
-//#include "paramset.h"
 
-
-class Pixel {
+// Mitchell Filter Declarations
+class MitchellFilter : public Filter {
 public:
-    Pixel() {
-        for (int i = 0; i < 3; ++i) Lxyz[i] = splatXYZ[i] = 0.f;
-        weightSum = 0.f;
+    // MitchellFilter Public Methods
+    MitchellFilter(float b, float c, float xw, float yw)
+        : Filter(xw, yw), B(b), C(c) {
     }
-    float Lxyz[3];
-    float weightSum;
-    float splatXYZ[3];
-    float pad;
-};
-
-// ImageFilm Declarations
-class ImageFilm : public Film {
-public:
-    // ImageFilm Public Methods
-    ImageFilm(int xres, int yres, Filter *filt, const float crop[4]);
-    ~ImageFilm() {
-        delete pixels;
-//        delete filter;
-        delete[] filterTable;
+    float Evaluate(float x, float y) const;
+    float Mitchell1D(float x) const {
+        x = fabsf(2.f * x);
+        if (x > 1.f)
+            return ((-B - 6*C) * x*x*x + (6*B + 30*C) * x*x +
+                    (-12*B - 48*C) * x + (8*B + 24*C)) * (1.f/6.f);
+        else
+            return ((12 - 9*B - 6*C) * x*x*x +
+                    (-18 + 12*B + 6*C) * x*x +
+                    (6 - 2*B)) * (1.f/6.f);
     }
-    void AddSample(const CameraSample &sample, const Spectrum &L);
-    void Splat(const CameraSample &sample, const Spectrum &L);
-    void GetSampleExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void GetPixelExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void WriteImage(float splatScale);
-    void UpdateDisplay(int x0, int y0, int x1, int y1, float splatScale);
-//private:
-    // ImageFilm Private Data
-    Filter *filter;
-    float cropWindow[4];
-    int xPixelStart, yPixelStart, xPixelCount, yPixelCount;
-    BlockedArray<Pixel> *pixels;
-    float *filterTable;
+private:
+    const float B, C;
 };
 
 
-//ImageFilm *CreateImageFilm(const ParamSet &params, Filter *filter);
+//MitchellFilter *CreateMitchellFilter(const ParamSet &ps);
 
-#endif // PBRT_FILM_IMAGE_H
+#endif // PBRT_FILTERS_MITCHELL_H

@@ -29,60 +29,22 @@
 
  */
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
 
-#ifndef PBRT_FILM_IMAGE_H
-#define PBRT_FILM_IMAGE_H
-
-// film/image.h*
-#include "../core/common.h"
-#include "../core/film.h"
-#include "../core/sampler.h"
-#include "../core/filter.h"
-#include "../core/memory.h"
+// filters/box.cpp*
+#include "stdafx.h"
+#include "filters/box.h"
 //#include "paramset.h"
 
-
-class Pixel {
-public:
-    Pixel() {
-        for (int i = 0; i < 3; ++i) Lxyz[i] = splatXYZ[i] = 0.f;
-        weightSum = 0.f;
-    }
-    float Lxyz[3];
-    float weightSum;
-    float splatXYZ[3];
-    float pad;
-};
-
-// ImageFilm Declarations
-class ImageFilm : public Film {
-public:
-    // ImageFilm Public Methods
-    ImageFilm(int xres, int yres, Filter *filt, const float crop[4]);
-    ~ImageFilm() {
-        delete pixels;
-//        delete filter;
-        delete[] filterTable;
-    }
-    void AddSample(const CameraSample &sample, const Spectrum &L);
-    void Splat(const CameraSample &sample, const Spectrum &L);
-    void GetSampleExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void GetPixelExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void WriteImage(float splatScale);
-    void UpdateDisplay(int x0, int y0, int x1, int y1, float splatScale);
-//private:
-    // ImageFilm Private Data
-    Filter *filter;
-    float cropWindow[4];
-    int xPixelStart, yPixelStart, xPixelCount, yPixelCount;
-    BlockedArray<Pixel> *pixels;
-    float *filterTable;
-};
+// Box Filter Method Definitions
+float BoxFilter::Evaluate(float x, float y) const {
+    return 1.;
+}
 
 
-//ImageFilm *CreateImageFilm(const ParamSet &params, Filter *filter);
+//BoxFilter *CreateBoxFilter(const ParamSet &ps) {
+//    float xw = ps.FindOneFloat("xwidth", 0.5f);
+//    float yw = ps.FindOneFloat("ywidth", 0.5f);
+//    return new BoxFilter(xw, yw);
+//}
 
-#endif // PBRT_FILM_IMAGE_H
+
