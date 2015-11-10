@@ -10,6 +10,7 @@
 #include "core/randomnumbergenerator.h"
 #include "samplers/random.h"
 #include "volumes/volumegrid.h"
+#include "core/heyneygreenstein.h"
 
 #include "filters/box.h"
 #include "filters/mitchell.h"
@@ -149,26 +150,10 @@ void RenderView::integrate()
                 float t = t0;
                 for(int i = 0; i < 100; i++) {
 
-                    // TODO Need function to convert random number to
-                    // random distribution in PhaseHG. PhaseHG gives the
-                    // probability of a scatter given in and out directions and
-                    // a factor g.
-
                     t += stepSize;
                     scatterRay.o = scatterRay.o + scatterRay.d * stepSize;
                     double g = 0.2;
-                    double g2 = g*g;
-                    double eta = rng.RandomFloat();
-                    double cosTheta = 0.0;
-                    if(g > 1e-2) {
-                        double k = ((1 - g2) / (1 - g + 2.0 * g * eta));
-                        double k2 = k*k;
-                        cosTheta = 1.0 / (2.0 * g) * (1.0 + g2 - k2);
-                    } else {
-                        cosTheta = 2*eta - 1;
-                    }
-                    double theta = acos(cosTheta);
-
+                    double theta = Phases::phaseHeyneyGreenstein(g, rng);
                     double phi = 2.0 * M_PI * rng.RandomFloat();
 
                     Transform normalRotation = Rotate(phi, scatterRay.d);

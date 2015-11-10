@@ -22,6 +22,7 @@ Product {
         "core/filter.h",
         "core/geometry.cpp",
         "core/geometry.h",
+        "core/heyneygreenstein.h",
         "core/integrator.cpp",
         "core/integrator.h",
         "core/intersection.cpp",
