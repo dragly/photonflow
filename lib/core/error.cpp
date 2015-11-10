@@ -33,6 +33,8 @@
 // core/error.cpp*
 #include "stdafx.h"
 #include "ctype.h"
+#include <stdlib.h>
+#include <stdio.h>
 #include <string>
 //#include "progressreporter.h"
 

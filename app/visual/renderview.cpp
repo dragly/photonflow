@@ -3,16 +3,17 @@
 #include <QPainter>
 #include <iostream>
 #include <memory>
+#include <omp.h>
 
-#include "../cameras/perspective.h"
-#include "../film/image.h"
-#include "../core/randomnumbergenerator.h"
-#include "../samplers/random.h"
-#include "../volumes/volumegrid.h"
+#include "cameras/perspective.h"
+#include "film/image.h"
+#include "core/randomnumbergenerator.h"
+#include "samplers/random.h"
+#include "volumes/volumegrid.h"
 
-#include "../filters/box.h"
-#include "../filters/mitchell.h"
-#include "../filters/sinc.h"
+#include "filters/box.h"
+#include "filters/mitchell.h"
+#include "filters/sinc.h"
 
 using std::cout; using std::endl;
 using std::unique_ptr; using std::make_unique;
@@ -20,7 +21,6 @@ using std::unique_ptr; using std::make_unique;
 RenderView::RenderView(QQuickItem *parent)
     : QQuickPaintedItem(parent)
 {
-    rng.seed(0);
 }
 
 void RenderView::integrate()
@@ -64,7 +64,7 @@ void RenderView::integrate()
     }
     float sopen = 0.0;
     float sclose = 1.0;
-    float lensr = 0.6;
+    float lensr = 0.0;
     float focald = 2.5;
     float fov = 0.3;
     PerspectiveCamera camera(AnimatedTransform(&a, 0.0, &b, 0.0), screenWindow,
@@ -108,7 +108,6 @@ void RenderView::integrate()
 
     VolumeGridDensity vr(sigma_a, sigma_s, gg, emita, bbox, boxTransform, nx, ny, nz, data);
 
-    int actualCount = 0;
     if(m_image.size() != size) {
         m_image = QImage(size, QImage::Format_ARGB32);
         for(int x = 0; x < width; x++) {
@@ -117,53 +116,78 @@ void RenderView::integrate()
             }
         }
     }
-    RandomSampler sampler(0, width, 0, height, requestedSampleCount, 0.0, 1.0);
-    int maxSampleCount = sampler.MaximumSampleCount();
-    qDebug() << "Max count: " << maxSampleCount;
+#pragma omp parallel num_threads(3)       // OpenMP
+    {
+        RNG rng;
+        rng.seed(1290481 ^ omp_get_thread_num() + totalSampleCount);
+        int actualCount = 0;
+        RandomSampler sampler(0, width, 0, height, requestedSampleCount, 0.0, 1.0);
+        int maxSampleCount = sampler.MaximumSampleCount();
+        qDebug() << "Max count: " << maxSampleCount;
 
-    Sample origSample(&sampler);
-    int scatterSampleOffset = origSample.Add1D(1);
-    Sample* samples = origSample.Duplicate(maxSampleCount);
-    int sampleCount = 0;
-    while((sampleCount = sampler.GetMoreSamples(samples, rng)) > 0) {
-        for(int i = 0; i < sampleCount; i++) {
-            Sample sample = samples[i];
-            Ray intersectRay;
-            camera.GenerateRay(sample, &intersectRay);
+        Sample origSample(&sampler);
+        int scatterSampleOffset = origSample.Add1D(1);
+        Sample* samples = origSample.Duplicate(maxSampleCount);
+        int sampleCount = 0;
+        while((sampleCount = sampler.GetMoreSamples(samples, rng)) > 0) {
+            for(int i = 0; i < sampleCount; i++) {
+                Sample sample = samples[i];
+                Ray intersectRay;
+                camera.GenerateRay(sample, &intersectRay);
 
-            float t0, t1;
-            if (!vr.IntersectP(intersectRay, &t0, &t1) || (t1-t0) == 0.f) {
-                continue;
-            }
+                float t0, t1;
+                if (!vr.IntersectP(intersectRay, &t0, &t1) || (t1-t0) == 0.f) {
+                    continue;
+                }
 
-            Spectrum Lv(0.);
+                Spectrum Lv(0.);
 
-            float stepSize = 0.01;
-            Point p = intersectRay(t0);
-            Ray scatterRay(p, intersectRay.d, 0.0);
+                float stepSize = 0.01;
+                Point p = intersectRay(t0);
+                Ray scatterRay(p, intersectRay.d, 0.0);
 
-            float t = t0;
-            for(int i = 0; i < 100; i++) {
-//                t += sample.oneD[scatterSampleOffset][0] * stepSize;
-                t += stepSize;
-//                p = intersectRay(t);
-                scatterRay.o = scatterRay.o + scatterRay.d * stepSize;
-                Vector randomDir(2.0*rng.RandomFloat() - 1.0,
-                                 2.0*rng.RandomFloat() - 1.0,
-                                 2.0*rng.RandomFloat() - 1.0);
-                scatterRay.d = scatterRay.d + randomDir * 0.0;
-//                if(t >= t1) {
-//                    break;
-//                }
-                Lv += vr.sigma_t(scatterRay.o, Vector(), 0.0);
-            }
-            Spectrum final = Lv;
+                float t = t0;
+                for(int i = 0; i < 100; i++) {
 
-            film->AddSample(sample, final);
+                    // TODO Need function to convert random number to
+                    // random distribution in PhaseHG. PhaseHG gives the
+                    // probability of a scatter given in and out directions and
+                    // a factor g.
 
-            actualCount++;
-            if(!(actualCount % 10000)) {
-                qDebug() << "Sample count:" << actualCount;
+                    t += stepSize;
+                    scatterRay.o = scatterRay.o + scatterRay.d * stepSize;
+                    double g = 0.2;
+                    double g2 = g*g;
+                    double eta = rng.RandomFloat();
+                    double cosTheta = 0.0;
+                    if(g > 1e-2) {
+                        double k = ((1 - g2) / (1 - g + 2.0 * g * eta));
+                        double k2 = k*k;
+                        cosTheta = 1.0 / (2.0 * g) * (1.0 + g2 - k2);
+                    } else {
+                        cosTheta = 2*eta - 1;
+                    }
+                    double theta = acos(cosTheta);
+
+                    double phi = 2.0 * M_PI * rng.RandomFloat();
+
+                    Transform normalRotation = Rotate(phi, scatterRay.d);
+                    Vector normal = Cross(scatterRay.d, Vector(1.0, 0.0, 0.0));
+                    normal = Normalize(normal);
+                    normal = normalRotation(normal);
+                    Transform directionRotation = Rotate(theta, normal);
+
+                    scatterRay.d = directionRotation(scatterRay.d);
+                    Lv += vr.sigma_t(scatterRay.o, Vector(), 0.0);
+                }
+                Spectrum final = Lv;
+
+                film->AddSample(sample, final);
+
+                actualCount++;
+                if(!(actualCount % 10000)) {
+                    qDebug() << "Sample count:" << actualCount;
+                }
             }
         }
     }
@@ -176,7 +200,7 @@ void RenderView::integrate()
             Pixel& pixel = (*film->pixels)(x, y);
             Spectrum result = Spectrum::FromXYZ(pixel.Lxyz);
 
-            result /= totalSampleCount;
+            result /= totalSampleCount * 3;
 
             float rgb[3];
             result.ToRGB(rgb);
@@ -193,7 +217,6 @@ void RenderView::integrate()
         }
     }
 
-    qDebug() << actualCount;
     qDebug() << "Done!";
     update();
 }

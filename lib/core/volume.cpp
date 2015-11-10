@@ -33,6 +33,9 @@
 // core/volume.cpp*
 #include "stdafx.h"
 #include "volume.h"
+#include <iostream>
+
+using namespace std;
 
 inline float Fdr(float eta) {
     if (eta >= 1)

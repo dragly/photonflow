@@ -27,7 +27,6 @@ private:
     bool m_isDataLoaded = false;
     int times = 1;
     unique_ptr<ImageFilm> film;
-    RNG rng;
     int totalSampleCount = 0;
 };
 

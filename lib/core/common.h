@@ -6,6 +6,8 @@
 #include <assert.h>
 #include <algorithm>
 #include <vector>
+#include <string>
+#include <cmath>
 
 using std::min;
 using std::max;
