@@ -4,6 +4,8 @@
 #include "../core/randomnumbergenerator.h"
 
 namespace Phases {
+
+// TODO This is so wrong, see Binzoni 2006 for why
 double phaseHeyneyGreenstein(double g, RNG &rng)
 {
     double g2 = g*g;
