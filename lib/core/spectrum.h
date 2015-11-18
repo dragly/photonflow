@@ -205,6 +205,11 @@ public:
             if (c[i] != sp.c[i]) return false;
         return true;
     }
+    bool operator<(const CoefficientSpectrum &sp) const {
+        for (int i = 0; i < nSamples; ++i)
+            if (c[i] > sp.c[i]) return false;
+        return true;
+    }
     bool operator!=(const CoefficientSpectrum &sp) const {
         return !(*this == sp);
     }

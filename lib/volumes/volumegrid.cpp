@@ -37,23 +37,34 @@
 
 // VolumeGridDensity Method Definitions
 float VolumeGridDensity::Density(const Point &Pobj) const {
-    if (!extent.Inside(Pobj)) return 0;
+    Point local = WorldToVolume(Pobj);
+
+    if (!extent.Inside(local)) {
+        return 0;
+    }
+
     // Compute voxel coordinates and offsets for _Pobj_
-    Vector vox = extent.Offset(Pobj);
-    vox.x = vox.x * nx - .5f;
-    vox.y = vox.y * ny - .5f;
-    vox.z = vox.z * nz - .5f;
-    int vx = Floor2Int(vox.x), vy = Floor2Int(vox.y), vz = Floor2Int(vox.z);
-    float dx = vox.x - vx, dy = vox.y - vy, dz = vox.z - vz;
+    Vector vox = extent.Offset(local);
+    vox.x = vox.x * nx; // - .5f;
+    vox.y = vox.y * ny; // - .5f;
+    vox.z = vox.z * nz; // - .5f;
+    int vx = Floor2Int(vox.x);
+    int vy = Floor2Int(vox.y);
+    int vz = Floor2Int(vox.z);
+//    double dx = vox.x - vx;
+//    double dy = vox.y - vy;
+//    double dz = vox.z - vz;
+
+    return D(vx, vy, vz);
 
     // Trilinearly interpolate density values to compute local density
-    float d00 = Lerp(dx, D(vx, vy, vz),     D(vx+1, vy, vz));
-    float d10 = Lerp(dx, D(vx, vy+1, vz),   D(vx+1, vy+1, vz));
-    float d01 = Lerp(dx, D(vx, vy, vz+1),   D(vx+1, vy, vz+1));
-    float d11 = Lerp(dx, D(vx, vy+1, vz+1), D(vx+1, vy+1, vz+1));
-    float d0 = Lerp(dy, d00, d10);
-    float d1 = Lerp(dy, d01, d11);
-    return Lerp(dz, d0, d1);
+//    float d00 = Lerp(dx, D(vx, vy, vz),     D(vx+1, vy, vz));
+//    float d10 = Lerp(dx, D(vx, vy+1, vz),   D(vx+1, vy+1, vz));
+//    float d01 = Lerp(dx, D(vx, vy, vz+1),   D(vx+1, vy, vz+1));
+//    float d11 = Lerp(dx, D(vx, vy+1, vz+1), D(vx+1, vy+1, vz+1));
+//    float d0 = Lerp(dy, d00, d10);
+//    float d1 = Lerp(dy, d01, d11);
+//    return Lerp(dz, d0, d1);
 }
 
 

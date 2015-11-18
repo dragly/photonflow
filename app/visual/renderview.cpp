@@ -1,5 +1,6 @@
 #include "renderview.h"
 
+#include <QElapsedTimer>
 #include <QPainter>
 #include <iostream>
 #include <memory>
@@ -26,9 +27,13 @@ RenderView::RenderView(QQuickItem *parent)
 
 void RenderView::integrate()
 {
+    QElapsedTimer timer;
+    timer.start();
     QSize size = boundingRect().size().toSize();
 
     int requestedSampleCount = 1;
+    int bounces = 500;
+    double ds = 0.01;
 
     int width = size.width();
     int height = size.height();
@@ -38,7 +43,6 @@ void RenderView::integrate()
                          0.0, 0.0, 1.0, 0.0,
                          0.0, 0.0, 0.0, 1.0}});
 
-    qDebug() << "Working!";
     Transform a({{1.0, 0.0, 0.0, 0.0,
                   0.0, 1.0, 0.0, 0.0,
                   0.0, 0.0, 1.0, 0.0,
@@ -78,15 +82,15 @@ void RenderView::integrate()
     int nx = 3;
     int ny = 3;
     int nz = 3;
-    float data[27] = {1,0,1,
-                      0,1,0,
-                      1,0,1,
-                      0,1,0,
-                      1,0,1,
-                      0,1,0,
-                      1,0,1,
-                      0,1,0,
-                      1,0,1};
+    float data[27] = {1.0, 0.1, 1.0,
+                      0.1, 1.0, 0.1,
+                      1.0, 0.1, 1.0,
+                      0.1, 1.0, 0.1,
+                      1.0, 0.1, 1.0,
+                      0.1, 1.0, 0.1,
+                      1.0, 0.1, 1.0,
+                      0.1, 1.0, 0.1,
+                      1.0, 0.1, 1.0};
     float gg = 1.0;
 
     float angle = 0.6;
@@ -103,9 +107,9 @@ void RenderView::integrate()
 
     boxTransform = translate*rotate*boxTransform;
 
-    Spectrum sigma_a(2.0);
-    Spectrum sigma_s(2.0);
-    Spectrum emita(0.1);
+    Spectrum sigma_a(0.99);
+    Spectrum sigma_s(0.0);
+    Spectrum emita(10.0);
 
     VolumeGridDensity vr(sigma_a, sigma_s, gg, emita, bbox, boxTransform, nx, ny, nz, data);
 
@@ -117,10 +121,10 @@ void RenderView::integrate()
             }
         }
     }
-#pragma omp parallel num_threads(3)       // OpenMP
+#pragma omp parallel num_threads(8)       // OpenMP
     {
         RNG rng;
-        rng.seed(1290481 ^ omp_get_thread_num() + totalSampleCount);
+        rng.seed((1290481 ^ omp_get_thread_num()) + totalSampleCount);
         int actualCount = 0;
         RandomSampler sampler(0, width, 0, height, requestedSampleCount, 0.0, 1.0);
         int maxSampleCount = sampler.MaximumSampleCount();
@@ -130,6 +134,7 @@ void RenderView::integrate()
         int scatterSampleOffset = origSample.Add1D(1);
         Sample* samples = origSample.Duplicate(maxSampleCount);
         int sampleCount = 0;
+
         while((sampleCount = sampler.GetMoreSamples(samples, rng)) > 0) {
             for(int i = 0; i < sampleCount; i++) {
                 Sample sample = samples[i];
@@ -141,31 +146,42 @@ void RenderView::integrate()
                     continue;
                 }
 
+                Spectrum Tr(1.0);
                 Spectrum Lv(0.);
 
-                float stepSize = 0.01;
                 Point p = intersectRay(t0);
-                Ray scatterRay(p, intersectRay.d, 0.0);
+                Ray ray(p, intersectRay.d, 0.0);
 
                 float t = t0;
-                for(int i = 0; i < 100; i++) {
-
-                    t += stepSize;
-                    scatterRay.o = scatterRay.o + scatterRay.d * stepSize;
-                    double g = 0.2;
-                    double theta = Phases::phaseHeyneyGreenstein(g, rng);
+                for(int i = 0; i < bounces; i++) {
+//                    t += ds;
+                    double g = 0.98;
+//                    double theta = acos(Distribution::heyneyGreenstein(g, rng));
+                    double cosTheta = Distribution::heyneyGreenstein(g, rng);
+                    double sinTheta = sqrt(1 - cosTheta*cosTheta);
                     double phi = 2.0 * M_PI * rng.RandomFloat();
 
-                    Transform normalRotation = Rotate(phi, scatterRay.d);
-                    Vector normal = Cross(scatterRay.d, Vector(1.0, 0.0, 0.0));
-                    normal = Normalize(normal);
-                    normal = normalRotation(normal);
-                    Transform directionRotation = Rotate(theta, normal);
+                    Vector perpendicular = ray.d.perpendicular();
+                    Transform perpendicularRotation = Rotate(phi, ray.d);
+                    perpendicular = perpendicularRotation(perpendicular);
 
-                    scatterRay.d = directionRotation(scatterRay.d);
-                    Lv += vr.sigma_t(scatterRay.o, Vector(), 0.0);
+                    Transform directionRotation = Rotatec(cosTheta, sinTheta, perpendicular);
+                    ray.d = directionRotation(ray.d);
+                    ray.d = ray.d.normalized();
+
+                    ray.o += ray.d * ds;
+
+                    if(vr.Density(ray.o) <= 0.0) {
+                        break;
+                    }
+                    Tr *= sigma_a;
+                    Lv += Tr * vr.Lve(ray.o, Vector(), 0.0);
+                    if(Tr < Spectrum(0.01)) {
+                        break;
+                    }
                 }
-                Spectrum final = Lv;
+                Spectrum final = Lv / omp_get_num_threads();
+                final *= 1.0;
 
                 film->AddSample(sample, final);
 
@@ -185,7 +201,7 @@ void RenderView::integrate()
             Pixel& pixel = (*film->pixels)(x, y);
             Spectrum result = Spectrum::FromXYZ(pixel.Lxyz);
 
-            result /= totalSampleCount * 3;
+            result /= totalSampleCount;
 
             float rgb[3];
             result.ToRGB(rgb);
@@ -202,7 +218,7 @@ void RenderView::integrate()
         }
     }
 
-    qDebug() << "Done!";
+    qDebug() << "Done after" << timer.elapsed() << "ms";
     update();
 }
 

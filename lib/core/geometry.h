@@ -113,21 +113,48 @@ public:
         return (&x)[i];
     }
 
-    float &operator[](int i) {
+    float &operator[](int i)
+    {
         Assert(i >= 0 && i <= 2);
         return (&x)[i];
     }
-    float LengthSquared() const { return x*x + y*y + z*z; }
-    float Length() const { return sqrtf(LengthSquared()); }
+
+    float LengthSquared() const
+    {
+        return x*x + y*y + z*z;
+    }
+
+    float Length() const
+    {
+        return sqrtf(LengthSquared());
+    }
+
     explicit Vector(const Normal &n);
 
     bool operator==(const Vector &v) const {
         return x == v.x && y == v.y && z == v.z;
     }
+
     bool operator!=(const Vector &v) const {
         return x != v.x || y != v.y || z != v.z;
     }
+
     friend std::ostream& operator<< (std::ostream &out, const Vector &vector);
+
+    Vector perpendicular() const
+    {
+        if(x == 0.0 && y == 0.0) {
+            if(z == 0.0) {
+                return Vector(0.0, 0.0, 0.0);
+            }
+            return Vector(0.0, 1.0, 0.0);
+        }
+        return Vector(-y, x, 0.0);
+    }
+
+    Vector normalized() {
+        return *this / Length();
+    }
 
     // Vector Public Data
     float x, y, z;

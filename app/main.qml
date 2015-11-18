@@ -7,7 +7,7 @@ ApplicationWindow {
     visible: true
     width: 640
     height: 480
-    title: qsTr("Hello World")
+    title: qsTr("Photonflow")
 
     RenderView {
         id: renderView
@@ -33,6 +33,7 @@ ApplicationWindow {
         interval: 16
 
         onTriggered: {
+            console.log("Triggered!")
             totalTime += Date.now() - lastTime
             lastTime = Date.now()
             renderView.integrate()

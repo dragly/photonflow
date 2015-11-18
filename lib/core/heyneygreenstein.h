@@ -3,10 +3,8 @@
 
 #include "../core/randomnumbergenerator.h"
 
-namespace Phases {
-
-// TODO This is so wrong, see Binzoni 2006 for why
-double phaseHeyneyGreenstein(double g, RNG &rng)
+namespace Distribution {
+inline double heyneyGreenstein(double g, RNG &rng)
 {
     double g2 = g*g;
     double eta = rng.RandomFloat();
@@ -18,8 +16,7 @@ double phaseHeyneyGreenstein(double g, RNG &rng)
     } else {
         cosTheta = 2*eta - 1;
     }
-    double theta = acos(cosTheta);
-    return theta;
+    return cosTheta;
 }
 }
 

@@ -79,16 +79,16 @@ public:
           WorldToVolume(Inverse(VolumeToWorld)) { }
     virtual float Density(const Point &Pobj) const = 0;
     Spectrum sigma_a(const Point &p, const Vector &, float) const {
-        return Density(WorldToVolume(p)) * sig_a;
+        return Density(p) * sig_a;
     }
     Spectrum sigma_s(const Point &p, const Vector &, float) const {
-        return Density(WorldToVolume(p)) * sig_s;
+        return Density(p) * sig_s;
     }
     Spectrum sigma_t(const Point &p, const Vector &, float) const {
-        return Density(WorldToVolume(p)) * (sig_a + sig_s);
+        return Density(p) * (sig_a + sig_s);
     }
     Spectrum Lve(const Point &p, const Vector &, float) const {
-        return Density(WorldToVolume(p)) * le;
+        return Density(p) * le;
     }
     float p(const Point &p, const Vector &w, const Vector &wp, float) const {
         return PhaseHG(w, wp, g);

@@ -168,8 +168,8 @@ Transform Scale(float x, float y, float z) {
 
 
 Transform RotateX(float angle) {
-    float sin_t = sinf(Radians(angle));
-    float cos_t = cosf(Radians(angle));
+    float sin_t = sinf((angle));
+    float cos_t = cosf((angle));
     Matrix4x4 m(1,     0,      0, 0,
                 0, cos_t, -sin_t, 0,
                 0, sin_t,  cos_t, 0,
@@ -179,8 +179,8 @@ Transform RotateX(float angle) {
 
 
 Transform RotateY(float angle) {
-    float sin_t = sinf(Radians(angle));
-    float cos_t = cosf(Radians(angle));
+    float sin_t = sinf((angle));
+    float cos_t = cosf((angle));
     Matrix4x4 m( cos_t,   0,  sin_t, 0,
                  0,   1,      0, 0,
                 -sin_t,   0,  cos_t, 0,
@@ -191,8 +191,8 @@ Transform RotateY(float angle) {
 
 
 Transform RotateZ(float angle) {
-    float sin_t = sinf(Radians(angle));
-    float cos_t = cosf(Radians(angle));
+    float sin_t = sinf((angle));
+    float cos_t = cosf((angle));
     Matrix4x4 m(cos_t, -sin_t, 0, 0,
                 sin_t,  cos_t, 0, 0,
                 0,      0, 1, 0,
@@ -203,8 +203,38 @@ Transform RotateZ(float angle) {
 
 Transform Rotate(float angle, const Vector &axis) {
     Vector a = Normalize(axis);
-    float s = sinf(Radians(angle));
-    float c = cosf(Radians(angle));
+    float s = sinf((angle));
+    float c = cosf((angle));
+    float m[4][4];
+
+    m[0][0] = a.x * a.x + (1.f - a.x * a.x) * c;
+    m[0][1] = a.x * a.y * (1.f - c) - a.z * s;
+    m[0][2] = a.x * a.z * (1.f - c) + a.y * s;
+    m[0][3] = 0;
+
+    m[1][0] = a.x * a.y * (1.f - c) + a.z * s;
+    m[1][1] = a.y * a.y + (1.f - a.y * a.y) * c;
+    m[1][2] = a.y * a.z * (1.f - c) - a.x * s;
+    m[1][3] = 0;
+
+    m[2][0] = a.x * a.z * (1.f - c) - a.y * s;
+    m[2][1] = a.y * a.z * (1.f - c) + a.x * s;
+    m[2][2] = a.z * a.z + (1.f - a.z * a.z) * c;
+    m[2][3] = 0;
+
+    m[3][0] = 0;
+    m[3][1] = 0;
+    m[3][2] = 0;
+    m[3][3] = 1;
+
+    Matrix4x4 mat(m);
+    return Transform(mat, Transpose(mat));
+}
+
+Transform Rotatec(float cosAngle, float sinAngle, const Vector &axis) {
+    Vector a = Normalize(axis);
+    float s = sinAngle;
+    float c = cosAngle;
     float m[4][4];
 
     m[0][0] = a.x * a.x + (1.f - a.x * a.x) * c;
