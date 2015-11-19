@@ -32,7 +32,7 @@ void RenderView::integrate()
     QSize size = boundingRect().size().toSize();
 
     int requestedSampleCount = 1;
-    int bounces = 500;
+    int bounces = 200;
     double ds = 0.01;
 
     int width = size.width();
@@ -42,6 +42,7 @@ void RenderView::integrate()
                          0.0, 1.0, 0.0, 0.0,
                          0.0, 0.0, 1.0, 0.0,
                          0.0, 0.0, 0.0, 1.0}});
+
 
     Transform a({{1.0, 0.0, 0.0, 0.0,
                   0.0, 1.0, 0.0, 0.0,
@@ -60,8 +61,6 @@ void RenderView::integrate()
     crop[3] = 1.0;
 
     BoxFilter filter(0.5, 0.5);
-//    MitchellFilter filter(1.0/3.0, 1.0/3.0, 2.0, 2.0);
-//    LanczosSincFilter filter(4.0, 4.0, 3.0);
 
 
     if(!film) {
@@ -121,7 +120,7 @@ void RenderView::integrate()
             }
         }
     }
-#pragma omp parallel num_threads(8)       // OpenMP
+//#pragma omp parallel num_threads(8)       // OpenMP
     {
         RNG rng;
         rng.seed((1290481 ^ omp_get_thread_num()) + totalSampleCount);
@@ -191,6 +190,8 @@ void RenderView::integrate()
                 }
             }
         }
+
+        delete[] samples;
     }
 
     totalSampleCount += requestedSampleCount;

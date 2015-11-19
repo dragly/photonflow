@@ -77,29 +77,25 @@ struct CameraSample {
     float time;
 };
 
+struct SampleData {
+    int size;
+    int offset;
+};
 
 struct Sample : public CameraSample {
     // Sample Public Methods
     Sample(Sampler *sampler);
-    uint32_t Add1D(uint32_t num) {
-        n1D.push_back(num);
-        return n1D.size()-1;
-    }
-    uint32_t Add2D(uint32_t num) {
-        n2D.push_back(num);
-        return n2D.size()-1;
-    }
-    ~Sample() {
-    }
+    uint32_t Add1D(uint32_t num);
     Sample *Duplicate(int count) const;
-
-    // Sample Public Data
-    std::vector<uint32_t> n1D, n2D;
-    float **oneD, **twoD;
-    void AllocateSampleMemory();
+    int n1Dsize();
+    int n1Dsize(int i);
+    double& get(int i, int j);
 private:
     // Sample Private Methods
-    Sample() { oneD = twoD = NULL; }
+//    std::vector<uint32_t> n1D;
+    std::vector<SampleData> m_metaData;
+    std::vector<double> m_data;
+    Sample() {}
 };
 
 

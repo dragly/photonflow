@@ -46,6 +46,7 @@ public:
     RandomSampler(int xstart, int xend, int ystart,
         int yend, int ns, float sopen, float sclose);
     ~RandomSampler() {
+        delete[] imageSamples;
     }
     int MaximumSampleCount() { return 1; }
     int GetMoreSamples(Sample *sample, RNG &rng);

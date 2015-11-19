@@ -4,7 +4,7 @@
 
 int main(int argc, char *argv[])
 {
-    qmlRegisterType<RenderView>("VSDS", 1, 0, "RenderView");
+    qmlRegisterType<RenderView>("Photonflow", 1, 0, "RenderView");
     QApplication app(argc, argv);
 
     QQmlApplicationEngine engine;

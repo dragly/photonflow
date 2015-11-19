@@ -100,12 +100,12 @@ int RandomSampler::GetMoreSamples(Sample *sample, RNG &rng) {
     sample->lensV = lensSamples[2*samplePos+1];
     sample->time = Lerp(timeSamples[samplePos], shutterOpen, shutterClose);
     // Generate stratified samples for integrators
-    for (uint32_t i = 0; i < sample->n1D.size(); ++i)
-        for (uint32_t j = 0; j < sample->n1D[i]; ++j)
-            sample->oneD[i][j] = rng.RandomFloat();
-    for (uint32_t i = 0; i < sample->n2D.size(); ++i)
-        for (uint32_t j = 0; j < 2*sample->n2D[i]; ++j)
-            sample->twoD[i][j] = rng.RandomFloat();
+    for (uint32_t i = 0; i < sample->n1Dsize(); ++i)
+        for (uint32_t j = 0; j < sample->n1Dsize(i); ++j)
+            sample->get(i, j) = rng.RandomFloat();
+//    for (uint32_t i = 0; i < sample->n2D.size(); ++i)
+//        for (uint32_t j = 0; j < 2*sample->n2D[i]; ++j)
+//            sample->twoD[i][j] = rng.RandomFloat();
     ++samplePos;
     return 1;
 }

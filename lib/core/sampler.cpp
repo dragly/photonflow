@@ -31,6 +31,9 @@
 
 
 // core/sampler.cpp*
+#include <iostream>
+#include <numeric>
+
 #include "stdafx.h"
 #include "sampler.h"
 //#include "integrator.h"
@@ -79,45 +82,42 @@ void Sampler::ComputeSubWindow(int num, int count, int *newXStart,
 Sample::Sample(Sampler *sampler) {
 }
 
-
-void Sample::AllocateSampleMemory() {
-    // Allocate storage for sample pointers
-    int nPtrs = n1D.size() + n2D.size();
-    if (!nPtrs) {
-        oneD = twoD = NULL;
-        return;
+uint32_t Sample::Add1D(uint32_t num) {
+    SampleData d;
+    d.size = num;
+    if(m_metaData.size() > 0) {
+        d.offset = m_metaData.back().offset + m_metaData.back().size;
+    } else {
+        d.offset = 0;
     }
-    oneD = new float*[nPtrs];
-    twoD = oneD + n1D.size();
-
-    // Compute total number of sample values needed
-    int totSamples = 0;
-    for (uint32_t i = 0; i < n1D.size(); ++i)
-        totSamples += n1D[i];
-    for (uint32_t i = 0; i < n2D.size(); ++i)
-        totSamples += 2 * n2D[i];
-
-    // Allocate storage for sample values
-    float *mem = new float[totSamples];
-    for (uint32_t i = 0; i < n1D.size(); ++i) {
-        oneD[i] = mem;
-        mem += n1D[i];
-    }
-    for (uint32_t i = 0; i < n2D.size(); ++i) {
-        twoD[i] = mem;
-        mem += 2 * n2D[i];
-    }
+    m_data.resize(d.offset + d.size);
+    m_metaData.push_back(d);
+    return d.offset;
 }
-
 
 Sample *Sample::Duplicate(int count) const {
     Sample *ret = new Sample[count];
     for (int i = 0; i < count; ++i) {
-        ret[i].n1D = n1D;
-        ret[i].n2D = n2D;
-        ret[i].AllocateSampleMemory();
+        ret[i].m_data = m_data;
+        ret[i].m_metaData = m_metaData;
     }
     return ret;
+}
+
+int Sample::n1Dsize()
+{
+    return m_metaData.size();
+}
+
+
+int Sample::n1Dsize(int i)
+{
+    return m_metaData[i].size;
+}
+
+double &Sample::get(int i, int j)
+{
+    return m_data[m_metaData[i].offset + j];
 }
 
 

@@ -1,7 +1,7 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
 import QtQuick.Dialogs 1.2
-import VSDS 1.0
+import Photonflow 1.0
 
 ApplicationWindow {
     visible: true
