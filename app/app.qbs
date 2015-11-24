@@ -1,6 +1,7 @@
 import qbs
 
 Product {
+    property string hdf5LibraryName: "hdf5_serial"
     type: "application"
     name : "photonflow-app"
     files : [
@@ -11,7 +12,8 @@ Product {
     ]
     cpp.cxxFlags: ["-fopenmp"]
     cpp.linkerFlags: ["-fopenmp"]
-    cpp.dynamicLibraries: ["hdf5_serial"]
+    cpp.dynamicLibraries: [hdf5LibraryName]
+
     cpp.cxxLanguageVersion: "c++14"
     Depends {
         name: "photonflow-lib"

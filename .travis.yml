@@ -23,7 +23,7 @@ script:
      && cd build
      && /opt/qt55/bin/qbs setup-toolchains --detect
      && /opt/qt55/bin/qbs setup-qt /opt/qt55/bin/qmake qt5
-     && /opt/qt55/bin/qbs build -f ../photonflow.qbs release profile:qt5
+     && /opt/qt55/bin/qbs build -f ../photonflow.qbs photonflow-app.hdf5LibraryName:hdf5 profile:qt5 release
      && cd qt5-release
      && cd auto-tests*
      && ./auto-tests
