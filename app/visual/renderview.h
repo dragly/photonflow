@@ -25,7 +25,7 @@ private:
     QImage m_image;
     bool m_isDataLoaded = false;
     int times = 1;
-    std::unique_ptr<ImageFilm> film;
+    std::shared_ptr<ImageFilm> film;
     int totalSampleCount = 0;
     arma::Cube<short> data;
 };

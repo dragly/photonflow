@@ -41,15 +41,17 @@
 #include "../core/camera.h"
 #include "../core/film.h"
 
+#include <memory>
+
 class ParamSet;
 
 // PerspectiveCamera Declarations
 class PerspectiveCamera : public ProjectiveCamera {
 public:
     // PerspectiveCamera Public Methods
-    PerspectiveCamera(const AnimatedTransform &cam2world,
+    PerspectiveCamera(const Transform &cam2world,
         const float screenWindow[4], float sopen, float sclose,
-        float lensr, float focald, float fov, Film *film);
+        float lensr, float focald, float fov, std::shared_ptr<Film> film);
     float GenerateRay(const CameraSample &sample, Ray *) const;
     float GenerateRayDifferential(const CameraSample &sample,
                                   RayDifferential *ray) const;

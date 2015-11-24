@@ -43,16 +43,7 @@ void RenderView::integrate()
     int width = size.width();
     int height = size.height();
 
-    Transform identity({{1.0, 0.0, 0.0, 0.0,
-                         0.0, 1.0, 0.0, 0.0,
-                         0.0, 0.0, 1.0, 0.0,
-                         0.0, 0.0, 0.0, 1.0}});
-
-    Transform a({{1.0, 0.0, 0.0, 0.0,
-                  0.0, 1.0, 0.0, 0.0,
-                  0.0, 0.0, 1.0, 0.0,
-                  0.0, 0.0, 0.0, 1.0}});
-    Transform b = a;
+    Transform identity = Translate(Vector(0, 0, 0));
     float screenWindow[4];
     screenWindow[0] = -width / 2.0;
     screenWindow[1] = width / 2.0;
@@ -73,15 +64,14 @@ void RenderView::integrate()
                 m_image.setPixel(x, y, QColor(0.0, 0.0, 0.0, 255.0).rgba());
             }
         }
-        film = make_unique<ImageFilm>(width, height, &filter, crop);
+        film = make_shared<ImageFilm>(width, height, &filter, crop);
     }
     float sopen = 0.0;
     float sclose = 1.0;
     float lensr = 0.0;
     float focald = 2.5;
     float fov = 0.2;
-    PerspectiveCamera camera(AnimatedTransform(&a, 0.0, &b, 0.0), screenWindow,
-                             sopen, sclose, lensr, focald, fov, film.get());
+    PerspectiveCamera camera(identity, screenWindow, sopen, sclose, lensr, focald, fov, film);
 
     BBox bbox;
     bbox.pMin = Point(-1, -1, -0.3);

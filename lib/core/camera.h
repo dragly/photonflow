@@ -41,6 +41,8 @@
 #include "geometry.h"
 #include "transform.h"
 
+#include <memory>
+
 class Film;
 class CameraSample;
 
@@ -48,26 +50,26 @@ class CameraSample;
 class Camera {
 public:
     // Camera Interface
-    Camera(const AnimatedTransform &cam2world, float sopen, float sclose,
-           Film *film);
+    Camera(const Transform &cam2world, float sopen, float sclose,
+           std::shared_ptr<Film> film);
     virtual ~Camera();
     virtual float GenerateRay(const CameraSample &sample,
                               Ray *ray) const = 0;
     virtual float GenerateRayDifferential(const CameraSample &sample, RayDifferential *rd) const;
 
     // Camera Public Data
-    AnimatedTransform CameraToWorld;
+    Transform CameraToWorld;
     const float shutterOpen, shutterClose;
-    Film *film;
+    std::shared_ptr<Film> film;
 };
 
 
 class ProjectiveCamera : public Camera {
 public:
     // ProjectiveCamera Public Methods
-    ProjectiveCamera(const AnimatedTransform &cam2world,
+    ProjectiveCamera(const Transform &cam2world,
         const Transform &proj, const float screenWindow[4],
-        float sopen, float sclose, float lensr, float focald, Film *film);
+        float sopen, float sclose, float lensr, float focald, std::shared_ptr<Film> film);
 protected:
     // ProjectiveCamera Protected Data
     Transform CameraToScreen, RasterToCamera;

@@ -37,14 +37,16 @@
 #include "montecarlo.h"
 #include "sampler.h"
 
+using namespace std;
+
 // Camera Method Definitions
 Camera::~Camera() {
 //    delete film;
 }
 
 
-Camera::Camera(const AnimatedTransform &cam2world,
-               float sopen, float sclose, Film *f)
+Camera::Camera(const Transform &cam2world,
+               float sopen, float sclose, std::shared_ptr<Film> f)
     : CameraToWorld(cam2world), shutterOpen(sopen), shutterClose(sclose) {
     film = f;
     if (CameraToWorld.HasScale())
@@ -80,9 +82,9 @@ float Camera::GenerateRayDifferential(const CameraSample &sample,
 }
 
 
-ProjectiveCamera::ProjectiveCamera(const AnimatedTransform &cam2world,
+ProjectiveCamera::ProjectiveCamera(const Transform &cam2world,
         const Transform &proj, const float screenWindow[4], float sopen,
-        float sclose, float lensr, float focald, Film *f)
+        float sclose, float lensr, float focald, shared_ptr<Film> f)
     : Camera(cam2world, sopen, sclose, f) {
     // Initialize depth of field parameters
     lensRadius = lensr;

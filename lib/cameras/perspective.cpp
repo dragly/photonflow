@@ -38,9 +38,9 @@
 #include "../core/montecarlo.h"
 
 // PerspectiveCamera Method Definitions
-PerspectiveCamera:: PerspectiveCamera(const AnimatedTransform &cam2world,
+PerspectiveCamera:: PerspectiveCamera(const Transform &cam2world,
         const float screenWindow[4], float sopen, float sclose,
-        float lensr, float focald, float fov, Film *f)
+        float lensr, float focald, float fov, std::shared_ptr<Film> f)
     : ProjectiveCamera(cam2world, Perspective(fov, 1e-2f, 1000.f),
                        screenWindow, sopen, sclose, lensr, focald, f) {
     // Compute differential changes in origin for perspective camera rays
