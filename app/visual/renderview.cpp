@@ -28,6 +28,25 @@ RenderView::RenderView(QQuickItem *parent)
     data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
     qDebug() << "Data size:" << data.n_rows << data.n_cols << data.n_slices;
     qDebug() << "Data load time:" << timer.elapsed() << "ms";
+
+    BBox bbox;
+    bbox.pMin = Point(-1, -1, -0.3);
+    bbox.pMax = Point(1, 1, 0.3);
+
+    float gg = 1.0;
+
+    float angle = -0.6;
+
+    Transform rotation = Rotate(angle, Vector(0.0, 1.0, 0.0));
+    Transform translation = Translate(Vector(0.0, 0.0, 3.0));
+
+    Transform boxTransform = translation*rotation;
+
+    Spectrum sigma_a(0.95);
+    Spectrum sigma_s(0.0);
+    Spectrum emita(0.15);
+
+    vr = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, data);
 }
 
 void RenderView::integrate()
@@ -58,6 +77,7 @@ void RenderView::integrate()
     BoxFilter filter(0.5, 0.5);
 
     if(m_image.size() != size || !film) {
+        qDebug() << "Creating image of size" << size;
         m_image = QImage(size, QImage::Format_ARGB32);
         for(int x = 0; x < width; x++) {
             for(int y = 0; y < height; y++) {
@@ -73,25 +93,6 @@ void RenderView::integrate()
     float fov = 0.2;
     PerspectiveCamera camera(identity, screenWindow, sopen, sclose, lensr, focald, fov, film);
 
-    BBox bbox;
-    bbox.pMin = Point(-1, -1, -0.3);
-    bbox.pMax = Point(1, 1, 0.3);
-
-    float gg = 1.0;
-
-    float angle = -0.6;
-
-    Transform rotation = Rotate(angle, Vector(0.0, 1.0, 0.0));
-    Transform translation = Translate(Vector(0.0, 0.0, 3.0));
-
-    Transform boxTransform = translation*rotation;
-
-    Spectrum sigma_a(0.95);
-    Spectrum sigma_s(0.0);
-    Spectrum emita(0.15);
-
-    VolumeGridDensity vr(sigma_a, sigma_s, gg, emita, bbox, boxTransform, data);
-
 #pragma omp parallel num_threads(8)       // OpenMP
     {
         RNG rng;
@@ -104,9 +105,12 @@ void RenderView::integrate()
         Sample originalSample;
         originalSample.Add1D(1);
         Sample* samples = originalSample.Duplicate(maxSampleCount);
-        int sampleCount = 0;
 
-        while((sampleCount = sampler.GetMoreSamples(samples, rng)) > 0) {
+        while(true) {
+            int sampleCount = sampler.GetMoreSamples(samples, rng);
+            if(sampleCount < 1) {
+                break;
+            }
             for(int i = 0; i < sampleCount; i++) {
                 Sample sample = samples[i];
                 Ray intersectRay;
@@ -124,10 +128,7 @@ void RenderView::integrate()
                 Ray ray(p, intersectRay.d);
 
                 for(int i = 0; i < bounces; i++) {
-//                    t += ds;
-//                    double g = 0.99;
-                    double g = 1.0;
-//                    double theta = acos(Distribution::heyneyGreenstein(g, rng));
+                    double g = 0.98;
                     double cosTheta = Distribution::heyneyGreenstein(g, rng);
                     double sinTheta = sqrt(1 - cosTheta*cosTheta);
                     double phi = 2.0 * M_PI * rng.RandomFloat();
@@ -145,7 +146,7 @@ void RenderView::integrate()
                     if(vr.Density(ray.o) <= 0.0) {
                         break;
                     }
-                    Tr *= sigma_a;
+                    Tr *= vr.sigma_a(ray.o, Vector(), 0.0);
                     Lv += Tr * vr.Lve(ray.o, Vector(), 0.0);
                     if(Tr < Spectrum(0.01)) {
                         break;

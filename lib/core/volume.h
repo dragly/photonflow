@@ -53,7 +53,6 @@ float PhaseSchlick(const Vector &w, const Vector &wp, float g);
 class VolumeRegion {
 public:
     // VolumeRegion Interface
-    virtual ~VolumeRegion();
     virtual BBox WorldBound() const = 0;
     virtual bool IntersectP(const Ray &ray, float *t0, float *t1) const = 0;
     virtual Spectrum sigma_a(const Point &, const Vector &,
@@ -73,13 +72,15 @@ public:
 class DensityRegion : public VolumeRegion {
 public:
     // DensityRegion Public Methods
+    DensityRegion();
     DensityRegion(const Spectrum &sa, const Spectrum &ss, float gg,
                   const Spectrum &emita, const Transform &VolumeToWorld)
         : sig_a(sa), sig_s(ss), le(emita), g(gg),
           WorldToVolume(Inverse(VolumeToWorld)) { }
     virtual float Density(const Point &Pobj) const = 0;
     Spectrum sigma_a(const Point &p, const Vector &, float) const {
-        return Density(p) * sig_a;
+        UNUSED(p);
+        return sig_a;
     }
     Spectrum sigma_s(const Point &p, const Vector &, float) const {
         return Density(p) * sig_s;
@@ -97,8 +98,10 @@ public:
     Spectrum tau(const Ray &r, float stepSize, float offset) const;
 protected:
     // DensityRegion Protected Data
-    Spectrum sig_a, sig_s, le;
-    float g;
+    Spectrum sig_a;
+    Spectrum sig_s;
+    Spectrum le;
+    float g = 0.0;
     Transform WorldToVolume;
 };
 

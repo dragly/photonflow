@@ -4,6 +4,7 @@
 #include "armadillo_includer.h"
 #include "core/randomnumbergenerator.h"
 #include "film/image.h"
+#include "volumes/volumegrid.h"
 
 #include <QQuickItem>
 #include <QQuickPaintedItem>
@@ -28,6 +29,7 @@ private:
     std::shared_ptr<ImageFilm> film;
     int totalSampleCount = 0;
     arma::Cube<short> data;
+    VolumeGridDensity vr;
 };
 
 #endif // RENDERVIEW_H

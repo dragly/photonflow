@@ -41,7 +41,6 @@
 
 // Scene Method Definitions
 Scene::~Scene() {
-    delete volumeRegion;
 }
 
 

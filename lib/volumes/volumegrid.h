@@ -45,6 +45,7 @@
 class VolumeGridDensity : public DensityRegion {
 public:
     // VolumeGridDensity Public Methods
+    VolumeGridDensity();
     VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, float gg,
             const Spectrum &emita, const BBox &e, const Transform &v2w,
             arma::Cube<short> densitya);
@@ -55,7 +56,7 @@ public:
 private:
     // VolumeGridDensity Private Data
     arma::Cube<short> density;
-    const BBox extent;
+    BBox extent;
 };
 
 inline bool VolumeGridDensity::IntersectP(const Ray &r, float *t0, float *t1) const {

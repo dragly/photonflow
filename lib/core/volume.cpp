@@ -179,10 +179,6 @@ float PhaseSchlick(const Vector &w, const Vector &wp, float g) {
 }
 
 
-VolumeRegion::~VolumeRegion() {
-}
-
-
 Spectrum VolumeRegion::sigma_t(const Point &p, const Vector &w,
                                float time) const {
     return sigma_a(p, w, time) + sigma_s(p, w, time);
@@ -263,13 +259,6 @@ bool AggregateVolume::IntersectP(const Ray &ray,
     return (*t0 < *t1);
 }
 
-
-AggregateVolume::~AggregateVolume() {
-    for (uint32_t i = 0; i < regions.size(); ++i)
-        delete regions[i];
-}
-
-
 BBox AggregateVolume::WorldBound() const {
     return bound;
 }
@@ -306,6 +295,9 @@ void SubsurfaceFromDiffuse(const Spectrum &Kd, float meanPathLength,
     *sigma_prime_s = Spectrum::FromRGB(sigma_prime_s_rgb);
 }
 
+DensityRegion::DensityRegion()
+{
+}
 
 Spectrum DensityRegion::tau(const Ray &r, float stepSize,
                             float u) const {

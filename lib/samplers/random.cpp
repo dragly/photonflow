@@ -74,17 +74,21 @@ Sampler *RandomSampler::GetSubSampler(int num, int count) {
 
 int RandomSampler::GetMoreSamples(Sample *sample, RNG &rng) {
     if (samplePos == nSamples) {
-        if (xPixelStart == xPixelEnd || yPixelStart == yPixelEnd)
+        if (xPixelStart == xPixelEnd || yPixelStart == yPixelEnd) {
             return 0;
-        if (++xPos == xPixelEnd) {
-            xPos = xPixelStart;
-            ++yPos;
         }
-        if (yPos == yPixelEnd)
+        xPos += 1;
+        if (xPos == xPixelEnd) {
+            xPos = xPixelStart;
+            yPos += 1;
+        }
+        if (yPos == yPixelEnd) {
             return 0;
+        }
 
-        for (int i = 0; i < 5 * nSamples; ++i)
+        for (int i = 0; i < 4 * nSamples; ++i) {
             imageSamples[i] = rng.RandomFloat();
+        }
 
         // Shift image samples to pixel coordinates
         for (int o = 0; o < 2 * nSamples; o += 2) {
@@ -98,11 +102,13 @@ int RandomSampler::GetMoreSamples(Sample *sample, RNG &rng) {
     sample->imageY = imageSamples[2*samplePos+1];
     sample->lensU = lensSamples[2*samplePos];
     sample->lensV = lensSamples[2*samplePos+1];
-    sample->time = Lerp(timeSamples[samplePos], shutterOpen, shutterClose);
+    sample->time = shutterOpen;
     // Generate stratified samples for integrators
-    for (uint32_t i = 0; i < sample->n1Dsize(); ++i)
-        for (uint32_t j = 0; j < sample->n1Dsize(i); ++j)
+    for (uint32_t i = 0; i < sample->n1Dsize(); ++i) {
+        for (uint32_t j = 0; j < sample->n1Dsize(i); ++j) {
             sample->get(i, j) = rng.RandomFloat();
+        }
+    }
     ++samplePos;
     return 1;
 }
