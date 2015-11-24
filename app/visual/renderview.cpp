@@ -1,11 +1,5 @@
 #include "renderview.h"
 
-#include <QElapsedTimer>
-#include <QPainter>
-#include <iostream>
-#include <memory>
-#include <omp.h>
-
 #include "cameras/perspective.h"
 #include "film/image.h"
 #include "core/randomnumbergenerator.h"
@@ -17,8 +11,16 @@
 #include "filters/mitchell.h"
 #include "filters/sinc.h"
 
+#include <QElapsedTimer>
+#include <QPainter>
+#include <iostream>
+#include <memory>
+#include <omp.h>
+#include <armadillo>
+
 using std::cout; using std::endl;
 using std::unique_ptr; using std::make_unique;
+using namespace arma;
 
 RenderView::RenderView(QQuickItem *parent)
     : QQuickPaintedItem(parent)
@@ -81,15 +83,21 @@ void RenderView::integrate()
     int nx = 3;
     int ny = 3;
     int nz = 3;
-    float data[27] = {1.0, 0.1, 1.0,
-                      0.1, 1.0, 0.1,
-                      1.0, 0.1, 1.0,
-                      0.1, 1.0, 0.1,
-                      1.0, 0.1, 1.0,
-                      0.1, 1.0, 0.1,
-                      1.0, 0.1, 1.0,
-                      0.1, 1.0, 0.1,
-                      1.0, 0.1, 1.0};
+    mat data1 = {{1.0, 0.1, 1.0},
+                  {0.1, 1.0, 0.1},
+                  {1.0, 0.1, 1.0}};
+    mat data2 = {{0.1, 1.0, 0.1},
+                  {1.0, 0.1, 1.0},
+                  {0.1, 1.0, 0.1}};
+    mat data3 = {{1.0, 0.1, 1.0},
+                  {0.1, 1.0, 0.1},
+                  {1.0, 0.1, 1.0}};
+
+    cube data = zeros(3,3,3);
+    data.slice(0) = data1;
+    data.slice(1) = data2;
+    data.slice(2) = data3;
+
     float gg = 1.0;
 
     float angle = 0.6;
@@ -110,7 +118,7 @@ void RenderView::integrate()
     Spectrum sigma_s(0.0);
     Spectrum emita(10.0);
 
-    VolumeGridDensity vr(sigma_a, sigma_s, gg, emita, bbox, boxTransform, nx, ny, nz, data);
+    VolumeGridDensity vr(sigma_a, sigma_s, gg, emita, bbox, boxTransform, data);
 
     if(m_image.size() != size) {
         m_image = QImage(size, QImage::Format_ARGB32);
@@ -120,7 +128,7 @@ void RenderView::integrate()
             }
         }
     }
-//#pragma omp parallel num_threads(8)       // OpenMP
+#pragma omp parallel num_threads(8)       // OpenMP
     {
         RNG rng;
         rng.seed((1290481 ^ omp_get_thread_num()) + totalSampleCount);

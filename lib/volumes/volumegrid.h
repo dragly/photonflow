@@ -39,6 +39,7 @@
 // volumes/volumegrid.h*
 #include "../core/volume.h"
 #include <memory.h>
+#include <armadillo>
 
 // VolumeGridDensity Declarations
 class VolumeGridDensity : public DensityRegion {
@@ -46,30 +47,30 @@ public:
     // VolumeGridDensity Public Methods
     VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, float gg,
             const Spectrum &emita, const BBox &e, const Transform &v2w,
-            int x, int y, int z, const float *d)
-        : DensityRegion(sa, ss, gg, emita, v2w), nx(x), ny(y), nz(z), extent(e) {
-        density = new float[nx*ny*nz];
-        memcpy(density, d, nx*ny*nz*sizeof(float));
-    }
-    ~VolumeGridDensity() { delete[] density; }
+            arma::cube densitya);
     BBox WorldBound() const { return Inverse(WorldToVolume)(extent); }
-    bool IntersectP(const Ray &r, float *t0, float *t1) const {
-        Ray ray = WorldToVolume(r);
-        return extent.IntersectP(ray, t0, t1);
-    }
+    bool IntersectP(const Ray &r, float *t0, float *t1) const;
     float Density(const Point &Pobj) const;
-    float D(int x, int y, int z) const {
-        x = Clamp(x, 0, nx-1);
-        y = Clamp(y, 0, ny-1);
-        z = Clamp(z, 0, nz-1);
-        return density[z*nx*ny + y*nx + x];
-    }
+    float D(int x, int y, int z) const;
 private:
     // VolumeGridDensity Private Data
-    float *density;
-    const int nx, ny, nz;
+    arma::cube density;
     const BBox extent;
 };
+
+
+
+inline bool VolumeGridDensity::IntersectP(const Ray &r, float *t0, float *t1) const {
+    Ray ray = WorldToVolume(r);
+    return extent.IntersectP(ray, t0, t1);
+}
+
+inline float VolumeGridDensity::D(int x, int y, int z) const {
+    x = Clamp(x, 0, density.n_cols-1);
+    y = Clamp(y, 0, density.n_rows-1);
+    z = Clamp(z, 0, density.n_slices-1);
+    return density(x, y, z);
+}
 
 
 //VolumeGridDensity *CreateGridVolumeRegion(const Transform &volume2world,
