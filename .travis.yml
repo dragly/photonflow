@@ -1,0 +1,26 @@
+language: cpp
+os:
+  - linux
+branches:
+  only:
+    - master
+compiler:
+  - gcc
+  - clang
+sudo: required
+dist: trusty
+install:
+  - sudo add-apt-repository -y ppa:beineri/opt-qt551-trusty
+  - sudo apt-get -qq update
+  - sudo apt-get -qq install qt55declarative
+  - sudo apt-get -qq install qt55qbs
+script:
+  - source /opt/qt55/bin/qt55-env.sh
+     && mkdir build
+     && cd build
+     && /opt/qt55/bin/qbs setup-toolchains --detect
+     && /opt/qt55/bin/qbs setup-qt /opt/qt55/bin/qmake qt5
+     && /opt/qt55/bin/qbs build -f ../photonflow.qbs release profile:qt5
+     && cd qt5-release
+     && cd auto-tests*
+     && ./auto-tests
