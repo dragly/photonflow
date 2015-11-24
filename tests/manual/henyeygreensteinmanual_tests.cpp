@@ -58,7 +58,8 @@ SCENARIO( "Heyney Greenstein Distribution varies with different g", "[heyneygree
                 auto hist = density(acc);
                 for(unsigned int i = 5; i < hist.size() - 5; i++) {
                     double theta = (hist[i].first + hist[i+1].first) * 0.5;
-                    REQUIRE(2 * hist[i].second * binCount / M_PI / sin(theta) == Approx(1.0).epsilon(0.01));
+                    double probability = 2 * hist[i].second * binCount / M_PI / sin(theta);
+                    REQUIRE(probability == Approx(1.0).epsilon(0.01));
                 }
             }
         }
