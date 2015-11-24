@@ -8,6 +8,7 @@ Product {
     name: "photonflow-lib"
 
     files: [
+        "armadillo_includer.h",
         "cameras/perspective.cpp",
         "cameras/perspective.h",
         "core/camera.cpp",

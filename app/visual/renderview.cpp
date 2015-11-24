@@ -1,30 +1,30 @@
 #include "renderview.h"
 
+#include "armadillo_includer.h"
 #include "cameras/perspective.h"
-#include "film/image.h"
-#include "core/randomnumbergenerator.h"
-#include "samplers/random.h"
-#include "volumes/volumegrid.h"
 #include "core/heyneygreenstein.h"
-
+#include "core/randomnumbergenerator.h"
+#include "film/image.h"
 #include "filters/box.h"
 #include "filters/mitchell.h"
 #include "filters/sinc.h"
+#include "samplers/random.h"
+#include "volumes/volumegrid.h"
 
 #include <QElapsedTimer>
 #include <QPainter>
 #include <iostream>
 #include <memory>
 #include <omp.h>
-#include <armadillo>
 
-using std::cout; using std::endl;
-using std::unique_ptr; using std::make_unique;
+using namespace std;
 using namespace arma;
 
 RenderView::RenderView(QQuickItem *parent)
     : QQuickPaintedItem(parent)
 {
+    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
+    cout << "Data size: " << data.n_rows << " " << data.n_cols << " " << data.n_slices << endl;
 }
 
 void RenderView::integrate()
@@ -72,35 +72,18 @@ void RenderView::integrate()
     float sclose = 1.0;
     float lensr = 0.0;
     float focald = 2.5;
-    float fov = 0.3;
+    float fov = 0.2;
     PerspectiveCamera camera(AnimatedTransform(&a, 0.0, &b, 0.0), screenWindow,
                              sopen, sclose, lensr, focald, fov, film.get());
 
     BBox bbox;
-    bbox.pMin = Point(-1, -1, -1);
-    bbox.pMax = Point(1, 1, 1);
+    bbox.pMin = Point(-1, -1, -0.3);
+    bbox.pMax = Point(1, 1, 0.3);
     Transform boxTransform = identity;
-    int nx = 3;
-    int ny = 3;
-    int nz = 3;
-    mat data1 = {{1.0, 0.1, 1.0},
-                  {0.1, 1.0, 0.1},
-                  {1.0, 0.1, 1.0}};
-    mat data2 = {{0.1, 1.0, 0.1},
-                  {1.0, 0.1, 1.0},
-                  {0.1, 1.0, 0.1}};
-    mat data3 = {{1.0, 0.1, 1.0},
-                  {0.1, 1.0, 0.1},
-                  {1.0, 0.1, 1.0}};
-
-    cube data = zeros(3,3,3);
-    data.slice(0) = data1;
-    data.slice(1) = data2;
-    data.slice(2) = data3;
 
     float gg = 1.0;
 
-    float angle = 0.6;
+    float angle = -0.6;
     float ca = cos(angle);
     float sa = sin(angle);
     Transform rotate({ca,   0.0,    sa,     0.0,
@@ -114,9 +97,9 @@ void RenderView::integrate()
 
     boxTransform = translate*rotate*boxTransform;
 
-    Spectrum sigma_a(0.99);
+    Spectrum sigma_a(0.95);
     Spectrum sigma_s(0.0);
-    Spectrum emita(10.0);
+    Spectrum emita(0.15);
 
     VolumeGridDensity vr(sigma_a, sigma_s, gg, emita, bbox, boxTransform, data);
 
@@ -162,7 +145,8 @@ void RenderView::integrate()
                 float t = t0;
                 for(int i = 0; i < bounces; i++) {
 //                    t += ds;
-                    double g = 0.98;
+//                    double g = 0.99;
+                    double g = 1.0;
 //                    double theta = acos(Distribution::heyneyGreenstein(g, rng));
                     double cosTheta = Distribution::heyneyGreenstein(g, rng);
                     double sinTheta = sqrt(1 - cosTheta*cosTheta);

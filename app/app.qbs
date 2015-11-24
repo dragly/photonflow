@@ -11,6 +11,7 @@ Product {
     ]
     cpp.cxxFlags: ["-fopenmp"]
     cpp.linkerFlags: ["-fopenmp"]
+    cpp.dynamicLibraries: ["hdf5_serial"]
     cpp.cxxLanguageVersion: "c++14"
     Depends {
         name: "photonflow-lib"

@@ -38,8 +38,10 @@
 
 // volumes/volumegrid.h*
 #include "../core/volume.h"
+#include "armadillo_includer.h"
 #include <memory.h>
-#include <armadillo>
+
+
 
 // VolumeGridDensity Declarations
 class VolumeGridDensity : public DensityRegion {
@@ -66,10 +68,18 @@ inline bool VolumeGridDensity::IntersectP(const Ray &r, float *t0, float *t1) co
 }
 
 inline float VolumeGridDensity::D(int x, int y, int z) const {
-    x = Clamp(x, 0, density.n_cols-1);
-    y = Clamp(y, 0, density.n_rows-1);
+    x = Clamp(x, 0, density.n_rows-1);
+    y = Clamp(y, 0, density.n_cols-1);
     z = Clamp(z, 0, density.n_slices-1);
-    return density(x, y, z);
+    double value = 0.0;
+    try {
+        value = density(x, y, z);
+    } catch(std::logic_error &e) {
+        std::cout << "Error on fetching value for " << x << " " << y << " " << z << std::endl;
+        std::cout << "Size is " << density.n_rows << " " << density.n_cols << " " << density.n_slices << std::endl;
+    }
+
+    return value;
 }
 
 
