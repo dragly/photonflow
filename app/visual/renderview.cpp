@@ -54,30 +54,26 @@ void RenderView::integrate()
     QElapsedTimer timer;
     timer.start();
 
-    QSize size = boundingRect().size().toSize();
+    const QSize size = boundingRect().size().toSize();
     if(size.width() <= 0 || size.height() <= 0 || size.width() > 1e6 || size.height() > 1e6) {
         qWarning() << "WARNING: Integrate returns due to invalid size:" << size;
         return;
     }
 
-    int requestedSampleCount = 1;
-    int bounces = 200;
-    double ds = 0.01;
+    const int requestedSampleCount = 1;
+    const int bounces = 200;
+    const double ds = 0.01;
 
-    int width = size.width();
-    int height = size.height();
+    const int width = size.width();
+    const int height = size.height();
 
-    Transform identity = Translate(Vector(0, 0, 0));
+    const Transform identity = Translate(Vector(0, 0, 0));
     float screenWindow[4];
     screenWindow[0] = -width / 2.0;
     screenWindow[1] = width / 2.0;
     screenWindow[2] = - height / 2.0;
     screenWindow[3] = height / 2.0;
-    float crop[4];
-    crop[0] = 0.0;
-    crop[1] = 1.0;
-    crop[2] = 0.0;
-    crop[3] = 1.0;
+    const float crop[4] = {0.0, 1.0, 0.0, 1.0};
 
     BoxFilter filter(0.5, 0.5);
 
@@ -91,12 +87,12 @@ void RenderView::integrate()
         }
         film = make_shared<ImageFilm>(width, height, &filter, crop);
     }
-    float sopen = 0.0;
-    float sclose = 1.0;
-    float lensr = 0.0;
-    float focald = 2.5;
-    float fov = 0.2;
-    PerspectiveCamera camera(identity, screenWindow, sopen, sclose, lensr, focald, fov, film);
+    const float sopen = 0.0;
+    const float sclose = 1.0;
+    const float lensr = 0.0;
+    const float focald = 2.5;
+    const float fov = 0.2;
+    const PerspectiveCamera camera(identity, screenWindow, sopen, sclose, lensr, focald, fov, film);
 
 #pragma omp parallel num_threads(8)       // OpenMP
     {
