@@ -53,7 +53,12 @@ void RenderView::integrate()
 {
     QElapsedTimer timer;
     timer.start();
+
     QSize size = boundingRect().size().toSize();
+    if(size.width() <= 0 || size.height() <= 0 || size.width() > 1e6 || size.height() > 1e6) {
+        qWarning() << "WARNING: Integrate returns due to invalid size:" << size;
+        return;
+    }
 
     int requestedSampleCount = 1;
     int bounces = 200;
