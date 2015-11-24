@@ -23,8 +23,11 @@ using namespace arma;
 RenderView::RenderView(QQuickItem *parent)
     : QQuickPaintedItem(parent)
 {
+    QElapsedTimer timer;
+    timer.start();
     data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
-    cout << "Data size: " << data.n_rows << " " << data.n_cols << " " << data.n_slices << endl;
+    qDebug() << "Data size:" << data.n_rows << data.n_cols << data.n_slices;
+    qDebug() << "Data load time:" << timer.elapsed() << "ms";
 }
 
 void RenderView::integrate()

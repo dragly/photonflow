@@ -49,14 +49,14 @@ public:
     // VolumeGridDensity Public Methods
     VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, float gg,
             const Spectrum &emita, const BBox &e, const Transform &v2w,
-            arma::cube densitya);
+            arma::Cube<short> densitya);
     BBox WorldBound() const { return Inverse(WorldToVolume)(extent); }
     bool IntersectP(const Ray &r, float *t0, float *t1) const;
     float Density(const Point &Pobj) const;
     float D(int x, int y, int z) const;
 private:
     // VolumeGridDensity Private Data
-    arma::cube density;
+    arma::Cube<short> density;
     const BBox extent;
 };
 

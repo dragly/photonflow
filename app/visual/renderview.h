@@ -10,8 +10,6 @@
 #include <QImage>
 #include <memory>
 
-using std::unique_ptr;
-
 class RenderView : public QQuickPaintedItem
 {
     Q_OBJECT
@@ -27,9 +25,9 @@ private:
     QImage m_image;
     bool m_isDataLoaded = false;
     int times = 1;
-    unique_ptr<ImageFilm> film;
+    std::unique_ptr<ImageFilm> film;
     int totalSampleCount = 0;
-    arma::cube data;
+    arma::Cube<short> data;
 };
 
 #endif // RENDERVIEW_H

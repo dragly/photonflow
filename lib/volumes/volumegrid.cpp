@@ -37,7 +37,7 @@
 
 using namespace arma;
 
-VolumeGridDensity::VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, float gg, const Spectrum &emita, const BBox &e, const Transform &v2w, arma::cube densitya)
+VolumeGridDensity::VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, float gg, const Spectrum &emita, const BBox &e, const Transform &v2w, arma::Cube<short> densitya)
     : DensityRegion(sa, ss, gg, emita, v2w)
     , extent(e)
 {
