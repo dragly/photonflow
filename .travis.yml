@@ -13,6 +13,7 @@ install:
   - sudo apt-get -qq update
   - sudo apt-get -qq install catch
   - sudo apt-get -qq install libarmadillo-dev
+  - sudo apt-get -qq install libboost-all-dev
   - sudo apt-get -qq install libhdf5-dev
   - sudo apt-get -qq install qt55declarative
   - sudo apt-get -qq install qt55qbs
