@@ -16,7 +16,9 @@ using namespace boost;
 using namespace boost::accumulators;
 using namespace std;
 
-double writeFile(string filename, auto hist, int binCount)
+using histogram_type = iterator_range<std::vector<std::pair<double, double> >::iterator >;
+
+double writeFile(string filename, histogram_type hist, int binCount)
 {
     ofstream out(filename);
     double total = 0.0;
@@ -48,7 +50,7 @@ SCENARIO( "Heyney Greenstein Distribution varies with different g", "[heyneygree
                 acc(theta);
             }
             THEN("the total should be 1") {
-                auto hist = density(acc);
+                histogram_type hist = density(acc);
                 double total = writeFile("distribution_0_0.dat", hist, binCount);
                 REQUIRE(total == Approx(1.0));
             }
