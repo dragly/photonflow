@@ -28,8 +28,6 @@ Product {
         "core/integrator.h",
         "core/intersection.cpp",
         "core/intersection.h",
-        "core/light.cpp",
-        "core/light.h",
         "core/memory.cpp",
         "core/memory.h",
         "core/montecarlo.cpp",

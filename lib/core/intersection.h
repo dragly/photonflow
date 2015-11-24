@@ -46,17 +46,13 @@
 struct Intersection {
     // Intersection Public Methods
     Intersection() {
-//        primitive = NULL;
         shapeId = primitiveId = 0;
         rayEpsilon = 0.f;
     }
-//    BSDF *GetBSDF(const RayDifferential &ray, MemoryArena &arena) const;
-//    BSSRDF *GetBSSRDF(const RayDifferential &ray, MemoryArena &arena) const;
     Spectrum Le(const Vector &wo) const;
 
     // Intersection Public Data
     DifferentialGeometry dg;
-//    const Primitive *primitive;
     Transform WorldToObject, ObjectToWorld;
     uint32_t shapeId, primitiveId;
     float rayEpsilon;

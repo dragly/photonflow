@@ -37,29 +37,19 @@
 #include "film.h"
 #include "sampler.h"
 #include "volume.h"
-//#include "parallel.h"
-//#include "progressreporter.h"
 #include "renderer.h"
 
 // Scene Method Definitions
 Scene::~Scene() {
-//    delete aggregate;
     delete volumeRegion;
-    for (uint32_t i = 0; i < lights.size(); ++i)
-        delete lights[i];
 }
 
 
-Scene::Scene(const vector<Light *> &lts, VolumeRegion *vr) {
-    lights = lts;
-//    aggregate = accel;
+Scene::Scene(VolumeRegion *vr) {
     volumeRegion = vr;
-    // Scene Constructor Implementation
-//    bound = aggregate->WorldBound();
-
-    // TODO insert bound here as alternative to primitive
-
-    if (volumeRegion) bound = Union(bound, volumeRegion->WorldBound());
+    if (volumeRegion) {
+        bound = Union(bound, volumeRegion->WorldBound());
+    }
 }
 
 

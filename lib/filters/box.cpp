@@ -37,6 +37,8 @@
 
 // Box Filter Method Definitions
 float BoxFilter::Evaluate(float x, float y) const {
+    UNUSED(x);
+    UNUSED(y);
     return 1.;
 }
 

@@ -51,6 +51,11 @@ Sampler::Sampler(int xstart, int xend, int ystart, int yend, int spp,
       shutterClose(sclose) { }
 bool Sampler::ReportResults(Sample *samples, const RayDifferential *rays,
         const Spectrum *Ls, const Intersection *isects, int count) {
+    UNUSED(samples);
+    UNUSED(rays);
+    UNUSED(Ls);
+    UNUSED(isects);
+    UNUSED(count);
     return true;
 }
 
@@ -79,7 +84,7 @@ void Sampler::ComputeSubWindow(int num, int count, int *newXStart,
 
 
 // Sample Method Definitions
-Sample::Sample(Sampler *sampler) {
+Sample::Sample() {
 }
 
 uint32_t Sample::Add1D(uint32_t num) {
@@ -104,13 +109,13 @@ Sample *Sample::Duplicate(int count) const {
     return ret;
 }
 
-int Sample::n1Dsize()
+size_t Sample::n1Dsize()
 {
     return m_metaData.size();
 }
 
 
-int Sample::n1Dsize(int i)
+size_t Sample::n1Dsize(int i)
 {
     return m_metaData[i].size;
 }

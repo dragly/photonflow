@@ -25,6 +25,8 @@ class RNG;
 class LightSampleOffsets;
 template <typename T, int logBlockSize = 2> class BlockedArray;
 
+#define UNUSED(x) (void)(x)
+
 #define ALLOCA(TYPE, COUNT) (TYPE *)alloca((COUNT) * sizeof(TYPE))
 
 #ifdef M_PI

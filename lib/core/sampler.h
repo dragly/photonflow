@@ -84,18 +84,17 @@ struct SampleData {
 
 struct Sample : public CameraSample {
     // Sample Public Methods
-    Sample(Sampler *sampler);
+    Sample();
     uint32_t Add1D(uint32_t num);
     Sample *Duplicate(int count) const;
-    int n1Dsize();
-    int n1Dsize(int i);
+    size_t n1Dsize();
+    size_t n1Dsize(int i);
     double& get(int i, int j);
 private:
     // Sample Private Methods
 //    std::vector<uint32_t> n1D;
     std::vector<SampleData> m_metaData;
     std::vector<double> m_data;
-    Sample() {}
 };
 
 

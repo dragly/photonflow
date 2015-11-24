@@ -34,33 +34,9 @@
 #include "stdafx.h"
 #include "intersection.h"
 #include "shape.h"
-//#include "primitive.h"
-#include "light.h"
-
-// Intersection Method Definitions
-//BSDF *Intersection::GetBSDF(const RayDifferential &ray,
-//                            MemoryArena &arena) const {
-//    PBRT_STARTED_BSDF_SHADING(const_cast<RayDifferential *>(&ray));
-//    dg.ComputeDifferentials(ray);
-//    BSDF *bsdf = primitive->GetBSDF(dg, ObjectToWorld, arena);
-//    PBRT_FINISHED_BSDF_SHADING(const_cast<RayDifferential *>(&ray), bsdf);
-//    return bsdf;
-//}
-
-
-//BSSRDF *Intersection::GetBSSRDF(const RayDifferential &ray,
-//          MemoryArena &arena) const {
-//    PBRT_STARTED_BSSRDF_SHADING(const_cast<RayDifferential *>(&ray));
-//    dg.ComputeDifferentials(ray);
-//    BSSRDF *bssrdf = primitive->GetBSSRDF(dg, ObjectToWorld, arena);
-//    PBRT_FINISHED_BSSRDF_SHADING(const_cast<RayDifferential *>(&ray), bssrdf);
-//    return bssrdf;
-//}
-
 
 Spectrum Intersection::Le(const Vector &w) const {
-//    const AreaLight *area = primitive->GetAreaLight();
-//    return area ? area->L(dg.p, dg.nn, w) : Spectrum(0.);
+    UNUSED(w);
     return Spectrum(0.);
 }
 

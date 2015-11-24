@@ -123,6 +123,8 @@ static float RdToAlphap(float reflectance, float A) {
     float alphaLow = 0., alphaHigh = 1.f;
     float kd0 = RdIntegral(alphaLow, A);
     float kd1 = RdIntegral(alphaHigh, A);
+    UNUSED(kd0);
+    UNUSED(kd1);
     for (int i = 0; i < 16; ++i) {
         Assert(kd0 <= reflectance && kd1 >= reflectance);
         float alphaMid = (alphaLow + alphaHigh) * 0.5f;

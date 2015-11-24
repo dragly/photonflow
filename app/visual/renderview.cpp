@@ -101,9 +101,9 @@ void RenderView::integrate()
         int maxSampleCount = sampler.MaximumSampleCount();
         qDebug() << "Max count: " << maxSampleCount;
 
-        Sample origSample(&sampler);
-        int scatterSampleOffset = origSample.Add1D(1);
-        Sample* samples = origSample.Duplicate(maxSampleCount);
+        Sample originalSample;
+        originalSample.Add1D(1);
+        Sample* samples = originalSample.Duplicate(maxSampleCount);
         int sampleCount = 0;
 
         while((sampleCount = sampler.GetMoreSamples(samples, rng)) > 0) {
@@ -121,9 +121,8 @@ void RenderView::integrate()
                 Spectrum Lv(0.);
 
                 Point p = intersectRay(t0);
-                Ray ray(p, intersectRay.d, 0.0);
+                Ray ray(p, intersectRay.d);
 
-                float t = t0;
                 for(int i = 0; i < bounces; i++) {
 //                    t += ds;
 //                    double g = 0.99;

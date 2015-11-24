@@ -60,18 +60,24 @@ bool Shape::CanIntersect() const {
 
 
 void Shape::Refine(vector<Shape> &refined) const {
+    UNUSED(refined);
     Severe("Unimplemented Shape::Refine() method called");
 }
 
 
 bool Shape::Intersect(const Ray &ray, float *tHit, float *rayEpsilon,
                       DifferentialGeometry *dg) const {
+    UNUSED(ray);
+    UNUSED(tHit);
+    UNUSED(rayEpsilon);
+    UNUSED(dg);
     Severe("Unimplemented Shape::Intersect() method called");
     return false;
 }
 
 
 bool Shape::IntersectP(const Ray &ray) const {
+    UNUSED(ray);
     Severe("Unimplemented Shape::IntersectP() method called");
     return false;
 }

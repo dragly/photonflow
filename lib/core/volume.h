@@ -91,6 +91,7 @@ public:
         return Density(p) * le;
     }
     float p(const Point &p, const Vector &w, const Vector &wp, float) const {
+        UNUSED(p);
         return PhaseHG(w, wp, g);
     }
     Spectrum tau(const Ray &r, float stepSize, float offset) const;

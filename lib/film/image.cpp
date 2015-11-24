@@ -222,8 +222,12 @@ void ImageFilm::WriteImage(float splatScale) {
 }
 
 
-void ImageFilm::UpdateDisplay(int x0, int y0, int x1, int y1,
-    float splatScale) {
+void ImageFilm::UpdateDisplay(int x0, int y0, int x1, int y1, float splatScale) {
+    UNUSED(x0);
+    UNUSED(x1);
+    UNUSED(y0);
+    UNUSED(y1);
+    UNUSED(splatScale);
 }
 
 

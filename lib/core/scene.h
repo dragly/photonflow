@@ -29,46 +29,24 @@
 
  */
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
-
 #ifndef PBRT_CORE_SCENE_H
 #define PBRT_CORE_SCENE_H
 
 // core/scene.h*
 #include "../core/common.h"
-//#include "primitive.h"
 #include "integrator.h"
 
-class Light;
 class VolumeRegion;
 
 // Scene Declarations
 class Scene {
 public:
     // Scene Public Methods
-    Scene(const vector<Light *> &lts, VolumeRegion *vr);
+    Scene(VolumeRegion *vr);
     ~Scene();
-    bool Intersect(const Ray &ray, Intersection *isect) const {
-//        PBRT_STARTED_RAY_INTERSECTION(const_cast<Ray *>(&ray));
-//        bool hit = aggregate->Intersect(ray, isect);
-//        PBRT_FINISHED_RAY_INTERSECTION(const_cast<Ray *>(&ray), isect, int(hit));
-//        return hit;
-        return false;
-    }
-    bool IntersectP(const Ray &ray) const {
-//        PBRT_STARTED_RAY_INTERSECTIONP(const_cast<Ray *>(&ray));
-//        bool hit = aggregate->IntersectP(ray);
-//        PBRT_FINISHED_RAY_INTERSECTIONP(const_cast<Ray *>(&ray), int(hit));
-//        return hit;
-        return false;
-    }
     const BBox &WorldBound() const;
 
     // Scene Public Data
-//    Primitive *aggregate;
-    vector<Light *> lights;
     VolumeRegion *volumeRegion;
     BBox bound;
 };

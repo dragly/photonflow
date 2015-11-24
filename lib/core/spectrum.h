@@ -403,12 +403,11 @@ public:
     RGBSpectrum(float v = 0.f) : CoefficientSpectrum<3>(v) { }
     RGBSpectrum(const CoefficientSpectrum<3> &v)
         : CoefficientSpectrum<3>(v) { }
-    RGBSpectrum(const RGBSpectrum &s, SpectrumType type = SPECTRUM_REFLECTANCE)
+    RGBSpectrum(const RGBSpectrum &s)
         : CoefficientSpectrum<3>(s) {
         *this = s;
     }
-    static RGBSpectrum FromRGB(const float rgb[3],
-            SpectrumType type = SPECTRUM_REFLECTANCE) {
+    static RGBSpectrum FromRGB(const float rgb[3]) {
         RGBSpectrum s;
         s.c[0] = rgb[0];
         s.c[1] = rgb[1];
@@ -427,8 +426,7 @@ public:
     void ToXYZ(float xyz[3]) const {
         RGBToXYZ(c, xyz);
     }
-    static RGBSpectrum FromXYZ(const float xyz[3],
-            SpectrumType type = SPECTRUM_REFLECTANCE) {
+    static RGBSpectrum FromXYZ(const float xyz[3]) {
         RGBSpectrum r;
         XYZToRGB(xyz, r.c);
         return r;

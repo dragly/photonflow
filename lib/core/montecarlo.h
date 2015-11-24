@@ -138,7 +138,7 @@ inline Vector CosineSampleHemisphere(float u1, float u2) {
 
 
 inline float CosineHemispherePdf(float costheta, float phi) {
-    (void)(phi);
+    UNUSED((phi));
     return costheta * INV_PI;
 }
 

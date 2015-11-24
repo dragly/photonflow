@@ -55,19 +55,31 @@ public:
     // Integrator Interface
     virtual ~Integrator();
     virtual void Preprocess(const Scene *scene, const Camera *camera,
-                            const Renderer *renderer) {
-    }
+                            const Renderer *renderer);
     virtual void RequestSamples(Sampler *sampler, Sample *sample,
-                                const Scene *scene) {
-    }
+                                const Scene *scene);
 };
+
+inline void Integrator::Preprocess(const Scene *scene, const Camera *camera, const Renderer *renderer)
+{
+    UNUSED(scene);
+    UNUSED(camera);
+    UNUSED(renderer);
+}
+
+inline void Integrator::RequestSamples(Sampler *sampler, Sample *sample, const Scene *scene)
+{
+    UNUSED(sampler);
+    UNUSED(sample);
+    UNUSED(scene);
+}
 
 
 class SurfaceIntegrator : public Integrator {
 public:
     // SurfaceIntegrator Interface
     virtual Spectrum Li(const Scene *scene, const Renderer *renderer,
-        const RayDifferential &ray, const Intersection &isect,
+                        const RayDifferential &ray, const Intersection &isect,
         const Sample *sample, RNG &rng) const = 0;
 };
 

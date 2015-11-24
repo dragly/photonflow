@@ -59,18 +59,24 @@ public:
     virtual void GetShadingGeometry(const Transform &obj2world,
             const DifferentialGeometry &dg,
             DifferentialGeometry *dgShading) const {
+        UNUSED(obj2world);
         *dgShading = dg;
     }
     virtual float Area() const;
     virtual Point Sample(float u1, float u2, Normal *Ns) const {
+        UNUSED(u1);
+        UNUSED(u2);
+        UNUSED(Ns);
         Severe("Unimplemented Shape::Sample() method called");
         return Point();
     }
     virtual float Pdf(const Point &Pshape) const {
+        UNUSED(Pshape);
         return 1.f / Area();
     }
     virtual Point Sample(const Point &P, float u1, float u2,
                          Normal *Ns) const {
+        UNUSED(P);
         return Sample(u1, u2, Ns);
     }
     virtual float Pdf(const Point &p, const Vector &wi) const;
