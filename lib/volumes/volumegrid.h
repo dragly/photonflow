@@ -41,8 +41,6 @@
 #include "armadillo_includer.h"
 #include <memory.h>
 
-
-
 // VolumeGridDensity Declarations
 class VolumeGridDensity : public DensityRegion {
 public:
@@ -59,8 +57,6 @@ private:
     arma::Cube<short> density;
     const BBox extent;
 };
-
-
 
 inline bool VolumeGridDensity::IntersectP(const Ray &r, float *t0, float *t1) const {
     Ray ray = WorldToVolume(r);

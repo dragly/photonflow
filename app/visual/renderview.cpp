@@ -48,7 +48,6 @@ void RenderView::integrate()
                          0.0, 0.0, 1.0, 0.0,
                          0.0, 0.0, 0.0, 1.0}});
 
-
     Transform a({{1.0, 0.0, 0.0, 0.0,
                   0.0, 1.0, 0.0, 0.0,
                   0.0, 0.0, 1.0, 0.0,
@@ -67,8 +66,13 @@ void RenderView::integrate()
 
     BoxFilter filter(0.5, 0.5);
 
-
-    if(!film) {
+    if(m_image.size() != size || !film) {
+        m_image = QImage(size, QImage::Format_ARGB32);
+        for(int x = 0; x < width; x++) {
+            for(int y = 0; y < height; y++) {
+                m_image.setPixel(x, y, QColor(0.0, 0.0, 0.0, 255.0).rgba());
+            }
+        }
         film = make_unique<ImageFilm>(width, height, &filter, crop);
     }
     float sopen = 0.0;
@@ -82,23 +86,15 @@ void RenderView::integrate()
     BBox bbox;
     bbox.pMin = Point(-1, -1, -0.3);
     bbox.pMax = Point(1, 1, 0.3);
-    Transform boxTransform = identity;
 
     float gg = 1.0;
 
     float angle = -0.6;
-    float ca = cos(angle);
-    float sa = sin(angle);
-    Transform rotate({ca,   0.0,    sa,     0.0,
-                      0.0,          1.0,    0.0,            0.0,
-                      -sa,  0.0,    ca,     0.0,
-                      0.0,          0.0,    0.0,            1.0});
-    Transform translate({{1.0, 0.0, 0.0, 0.0,
-                          0.0, 1.0, 0.0, 0.0,
-                          0.0, 0.0, 1.0, 3.0,
-                          0.0, 0.0, 0.0, 1.0}});
 
-    boxTransform = translate*rotate*boxTransform;
+    Transform rotation = Rotate(angle, Vector(0.0, 1.0, 0.0));
+    Transform translation = Translate(Vector(0.0, 0.0, 3.0));
+
+    Transform boxTransform = translation*rotation;
 
     Spectrum sigma_a(0.95);
     Spectrum sigma_s(0.0);
@@ -106,14 +102,6 @@ void RenderView::integrate()
 
     VolumeGridDensity vr(sigma_a, sigma_s, gg, emita, bbox, boxTransform, data);
 
-    if(m_image.size() != size) {
-        m_image = QImage(size, QImage::Format_ARGB32);
-        for(int x = 0; x < width; x++) {
-            for(int y = 0; y < height; y++) {
-                m_image.setPixel(x, y, QColor(0.0, 0.0, 0.0, 255.0).rgba());
-            }
-        }
-    }
 #pragma omp parallel num_threads(8)       // OpenMP
     {
         RNG rng;
