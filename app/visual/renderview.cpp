@@ -126,8 +126,7 @@ void RenderView::integrate()
 
                 Point p = intersectRay(t0);
                 Ray startRay(p, intersectRay.m_direction);
-//                cout << "Z: " << startRay.origin().z << endl;
-//                cout << vr.WorldBound().pMin << " " << vr.WorldBound().pMax << endl;
+
                 startRay = Ray(startRay.origin() + intersectRay.m_direction * 0.01, startRay.direction());
 
                 Integrator integrator(startRay, bounces, rng);
@@ -142,35 +141,7 @@ void RenderView::integrate()
                         break;
                     }
                 }
-//                Ray ray(p, intersectRay.m_direction);
-//                for(int i = 0; i < bounces; i++) {
-//                    double g = 0.01;
 
-//                    double cosTheta = Distribution::heyneyGreenstein(g, rng);
-//                    double sinTheta = sqrt(1 - cosTheta*cosTheta);
-//                    double phi = 2.0 * M_PI * rng.RandomFloat();
-
-//                    Vector perpendicular = ray.m_direction.perpendicular();
-//                    Transform perpendicularRotation = Rotate(phi, ray.m_direction);
-//                    perpendicular = perpendicularRotation(perpendicular);
-
-//                    Transform directionRotation = Rotatec(cosTheta, sinTheta, perpendicular);
-
-//                    Vector direction = directionRotation(ray.direction());
-//                    direction = direction.normalized();
-
-//                    Point origin = ray.origin() + direction * ds;
-//                    ray = Ray(origin, direction);
-
-////                    if(vr.Density(ray.m_origin) <= 0.0) {
-////                        break;
-////                    }
-//                    Tr *= vr.sigma_a(ray.m_origin, Vector(), 0.0);
-//                    Lv += Tr * vr.Lve(ray.m_origin, Vector(), 0.0);
-////                    if(Tr < Spectrum(0.01)) {
-////                        break;
-////                    }
-//                }
                 Spectrum final = Lv / omp_get_num_threads();
                 final *= 1.0;
 
