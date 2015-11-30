@@ -35,12 +35,15 @@ RenderView::RenderView(QQuickItem *parent)
 
     float gg = 1.0;
 
-    float angle = -0.6;
+    float angle = 0.6;
 
+    Transform translation = Translate(Vector(0.0, 0.0, 0.0));
     Transform rotation = Rotate(angle, Vector(0.0, 1.0, 0.0));
-    Transform translation = Translate(Vector(0.0, 0.0, 3.0));
 
     Transform boxTransform = translation*rotation;
+
+//    Transform boxTransform;
+    cout << "Identity: " << boxTransform.IsIdentity() << endl;
 
     Spectrum sigma_a(0.98);
     Spectrum sigma_s(0.0);
@@ -67,7 +70,7 @@ void RenderView::integrate()
     const int width = size.width();
     const int height = size.height();
 
-    const Transform identity = Translate(Vector(0, 0, 0));
+    const Transform cameraTransform = Translate(Vector(0, 0, -3.0));
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const float crop[4] = {0.0, 1.0, 0.0, 1.0};
 
@@ -88,7 +91,7 @@ void RenderView::integrate()
     const float lensr = 0.0;
     const float focald = 2.5;
     const float fov = 0.2;
-    const PerspectiveCamera camera(identity, screenWindow, sopen, sclose, lensr, focald, fov, film);
+    const PerspectiveCamera camera(cameraTransform, screenWindow, sopen, sclose, lensr, focald, fov, film);
 
 #pragma omp parallel num_threads(8)       // OpenMP
     {
@@ -122,33 +125,52 @@ void RenderView::integrate()
                 Spectrum Lv(0.);
 
                 Point p = intersectRay(t0);
-                Ray ray(p, intersectRay.m_direction);
+                Ray startRay(p, intersectRay.m_direction);
+//                cout << "Z: " << startRay.origin().z << endl;
+//                cout << vr.WorldBound().pMin << " " << vr.WorldBound().pMax << endl;
+                startRay = Ray(startRay.origin() + intersectRay.m_direction * 0.01, startRay.direction());
 
-                for(int i = 0; i < bounces; i++) {
-                    double g = 1.0;
-                    double cosTheta = Distribution::heyneyGreenstein(g, rng);
-                    double sinTheta = sqrt(1 - cosTheta*cosTheta);
-                    double phi = 2.0 * M_PI * rng.RandomFloat();
-
-                    Vector perpendicular = ray.m_direction.perpendicular();
-                    Transform perpendicularRotation = Rotate(phi, ray.m_direction);
-                    perpendicular = perpendicularRotation(perpendicular);
-
-                    Transform directionRotation = Rotatec(cosTheta, sinTheta, perpendicular);
-                    ray.m_direction = directionRotation(ray.m_direction);
-                    ray.m_direction = ray.m_direction.normalized();
-
-                    ray.m_origin += ray.m_direction * ds;
-
-                    if(vr.Density(ray.m_origin) <= 0.0) {
+                Integrator integrator(startRay, bounces, rng);
+                int ia = 0;
+                for(Ray& ray : integrator) {
+                    if(!vr.inside(ray.origin())) {
                         break;
                     }
-                    Tr *= vr.sigma_a(ray.m_origin, Vector(), 0.0);
-                    Lv += Tr * vr.Lve(ray.m_origin, Vector(), 0.0);
+                    Tr *= vr.sigma_a(ray.origin(), Vector(), 0.0);
+                    Lv += Tr * vr.Lve(ray.origin(), Vector(), 0.0);
                     if(Tr < Spectrum(0.01)) {
                         break;
                     }
                 }
+//                Ray ray(p, intersectRay.m_direction);
+//                for(int i = 0; i < bounces; i++) {
+//                    double g = 0.01;
+
+//                    double cosTheta = Distribution::heyneyGreenstein(g, rng);
+//                    double sinTheta = sqrt(1 - cosTheta*cosTheta);
+//                    double phi = 2.0 * M_PI * rng.RandomFloat();
+
+//                    Vector perpendicular = ray.m_direction.perpendicular();
+//                    Transform perpendicularRotation = Rotate(phi, ray.m_direction);
+//                    perpendicular = perpendicularRotation(perpendicular);
+
+//                    Transform directionRotation = Rotatec(cosTheta, sinTheta, perpendicular);
+
+//                    Vector direction = directionRotation(ray.direction());
+//                    direction = direction.normalized();
+
+//                    Point origin = ray.origin() + direction * ds;
+//                    ray = Ray(origin, direction);
+
+////                    if(vr.Density(ray.m_origin) <= 0.0) {
+////                        break;
+////                    }
+//                    Tr *= vr.sigma_a(ray.m_origin, Vector(), 0.0);
+//                    Lv += Tr * vr.Lve(ray.m_origin, Vector(), 0.0);
+////                    if(Tr < Spectrum(0.01)) {
+////                        break;
+////                    }
+//                }
                 Spectrum final = Lv / omp_get_num_threads();
                 final *= 1.0;
 

@@ -29,58 +29,101 @@
 
  */
 
-#if defined(_MSC_VER)
-#pragma once
-#endif
-
 #ifndef PBRT_CORE_INTEGRATOR_H
 #define PBRT_CORE_INTEGRATOR_H
 
-// core/integrator.h*
-#include "../core/common.h"
-//#include "../core/primitive.h"
-#include "../core/spectrum.h"
-//#include "../core/light.h"
-//#include "../core/reflection.h"
-#include "../core/sampler.h"
-//#include "../core/material.h"
-//#include "../core/probes.h"
-#include "../core/renderer.h"
+#include <functional>
+#include "../core/geometry.h"
+#include "../core/transform.h"
+#include "../core/heyneygreenstein.h"
 
-//class Camera;
+class Integrator
+{
+public:
+    class iterator {
+    public:
+        typedef Ray value_type;
+        typedef Ray& reference_type;
+        typedef std::input_iterator_tag iterator_category;
 
-//// Integrator Declarations
-//class Integrator {
-//public:
-//    // Integrator Interface
-//    virtual ~Integrator();
-//    virtual void Preprocess(const Scene *scene, const Camera *camera,
-//                            const Renderer *renderer);
-//    virtual void RequestSamples(Sampler *sampler, Sample *sample,
-//                                const Scene *scene);
-//};
+        iterator(int bounce)
+        {
+            m_bounce = bounce;
+        }
 
-//inline void Integrator::Preprocess(const Scene *scene, const Camera *camera, const Renderer *renderer)
-//{
-//    UNUSED(scene);
-//    UNUSED(camera);
-//    UNUSED(renderer);
-//}
+        iterator(Ray ray, RNG *rng)
+            : m_ray(ray)
+            , m_rng(rng)
+        {
+//            next();
+        }
 
-//inline void Integrator::RequestSamples(Sampler *sampler, Sample *sample, const Scene *scene)
-//{
-//    UNUSED(sampler);
-//    UNUSED(sample);
-//    UNUSED(scene);
-//}
+        bool operator==(const iterator& other) const {
+            return other.m_bounce == m_bounce;
+        }
+        bool operator!=(const iterator& other) const {
+            return !(other == *this);
+        }
 
+        iterator& next() {
+            double dt = 0.01;
+            double g = 0.99;
 
-//class SurfaceIntegrator : public Integrator {
-//public:
-//    // SurfaceIntegrator Interface
-//    virtual Spectrum Li(const Scene *scene, const Renderer *renderer,
-//                        const RayDifferential &ray, const Intersection &isect,
-//        const Sample *sample, RNG &rng) const = 0;
-//};
+            double cosTheta = Distribution::heyneyGreenstein(g, *m_rng);
+            double sinTheta = sqrt(1 - cosTheta*cosTheta);
+            double phi = 2.0 * M_PI * m_rng->RandomFloat();
+
+            Vector perpendicular = m_ray.direction().perpendicular();
+            Transform phiRotation = Rotate(phi, m_ray.direction());
+            perpendicular = phiRotation(perpendicular);
+
+            Transform directionRotation = Rotatec(cosTheta, sinTheta, perpendicular);
+
+            Vector direction = directionRotation(m_ray.direction());
+            direction = direction.normalized();
+
+            Point origin = m_ray.origin() + direction * dt;
+            m_ray = Ray(origin, direction);
+
+            m_bounce += 1;
+
+            return *this;
+        }
+
+        iterator& operator++() {
+            return next();
+        }
+
+        Ray& operator*() {
+            return m_ray;
+        }
+
+        int m_bounce = 0;
+        Ray m_ray;
+        RNG *m_rng;
+
+        bool m_final = false;
+    };
+
+    Integrator(Ray startRay, int bounces, RNG &rng)
+        : m_startRay(startRay)
+        , m_bounces(bounces)
+        , m_rng(&rng)
+    {
+    }
+
+    iterator begin() {
+        return iterator(m_startRay, m_rng);
+    }
+
+    iterator end() {
+        return iterator(m_bounces);
+    }
+
+private:
+    Ray m_startRay;
+    int m_bounces;
+    RNG *m_rng;
+};
 
 #endif // PBRT_CORE_INTEGRATOR_H

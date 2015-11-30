@@ -74,9 +74,10 @@ public:
     // DensityRegion Public Methods
     DensityRegion();
     DensityRegion(const Spectrum &sa, const Spectrum &ss, float gg,
-                  const Spectrum &emita, const Transform &VolumeToWorld)
+                  const Spectrum &emita, const Transform &VolumeToWorldIn)
         : sig_a(sa), sig_s(ss), le(emita), g(gg),
-          WorldToVolume(Inverse(VolumeToWorld)) { }
+          WorldToVolume(Inverse(VolumeToWorldIn)),
+          VolumeToWorld(VolumeToWorldIn) { }
     virtual float Density(const Point &Pobj) const = 0;
     Spectrum sigma_a(const Point &p, const Vector &, float) const {
         UNUSED(p);
@@ -96,13 +97,14 @@ public:
         return PhaseHG(w, wp, g);
     }
     Spectrum tau(const Ray &r, float stepSize, float offset) const;
+    Transform WorldToVolume;
 protected:
     // DensityRegion Protected Data
     Spectrum sig_a;
     Spectrum sig_s;
     Spectrum le;
     float g = 0.0;
-    Transform WorldToVolume;
+    Transform VolumeToWorld;
 };
 
 
@@ -141,6 +143,6 @@ bool GetVolumeScatteringProperties(const std::string &name, Spectrum *sigma_a,
 
 
 void SubsurfaceFromDiffuse(const Spectrum &Kd, float meanPathLength, float eta,
-        Spectrum *sigma_a, Spectrum *sigma_prime_s);
+                           Spectrum *sigma_a, Spectrum *sigma_prime_s);
 
 #endif // PBRT_CORE_VOLUME_H

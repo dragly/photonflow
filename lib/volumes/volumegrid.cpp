@@ -45,6 +45,7 @@ VolumeGridDensity::VolumeGridDensity()
 VolumeGridDensity::VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, float gg, const Spectrum &emita, const BBox &e, const Transform &v2w, arma::Cube<short> densitya)
     : DensityRegion(sa, ss, gg, emita, v2w)
     , extent(e)
+    , m_worldBound(VolumeToWorld(extent))
 {
     density = densitya;
 }
@@ -78,6 +79,12 @@ float VolumeGridDensity::Density(const Point &Pobj) const {
 //    float d11 = Lerp(dx, D(vx, vy+1, vz+1), D(vx+1, vy+1, vz+1));
 //    float d0 = Lerp(dy, d00, d10);
 //    float d1 = Lerp(dy, d01, d11);
-//    return Lerp(dz, d0, d1);
+    //    return Lerp(dz, d0, d1);
+}
+
+bool VolumeGridDensity::inside(const Point &p) const
+{
+    Point local = WorldToVolume(p);
+    return extent.Inside(local);
 }
 
