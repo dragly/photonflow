@@ -46,82 +46,78 @@ public:
         typedef Ray& reference_type;
         typedef std::input_iterator_tag iterator_category;
 
-        iterator(int bounce)
+        iterator(Integrator* parent, int bounce)
+            : m_parent(parent)
+            , m_bounce(bounce)
         {
-            m_bounce = bounce;
         }
 
-        iterator(Ray ray, RNG *rng)
-            : m_ray(ray)
-            , m_rng(rng)
+        iterator(Integrator* parent)
+            : m_parent(parent)
         {
-//            next();
         }
 
         bool operator==(const iterator& other) const {
             return other.m_bounce == m_bounce;
         }
+
         bool operator!=(const iterator& other) const {
             return !(other == *this);
         }
 
-        iterator& next() {
-            double dt = 0.01;
-            double g = 0.99;
-
-            double cosTheta = Distribution::heyneyGreenstein(g, *m_rng);
-            double sinTheta = sqrt(1 - cosTheta*cosTheta);
-            double phi = 2.0 * M_PI * m_rng->RandomFloat();
-
-            Vector perpendicular = m_ray.direction().perpendicular();
-            Transform phiRotation = Rotate(phi, m_ray.direction());
-            perpendicular = phiRotation(perpendicular);
-
-            Transform directionRotation = Rotatec(cosTheta, sinTheta, perpendicular);
-
-            Vector direction = directionRotation(m_ray.direction());
-            direction = direction.normalized();
-
-            Point origin = m_ray.origin() + direction * dt;
-            m_ray = Ray(origin, direction);
-
-            m_bounce += 1;
-
+        iterator& operator++() {
+            m_bounce++;
+            m_parent->next();
             return *this;
         }
 
-        iterator& operator++() {
-            return next();
+        Ray& operator*() {
+            return m_parent->m_ray;
         }
 
-        Ray& operator*() {
-            return m_ray;
-        }
+        Integrator* m_parent;
 
         int m_bounce = 0;
-        Ray m_ray;
-        RNG *m_rng;
-
-        bool m_final = false;
     };
 
     Integrator(Ray startRay, int bounces, RNG &rng)
-        : m_startRay(startRay)
+        : m_ray(startRay)
         , m_bounces(bounces)
         , m_rng(&rng)
     {
     }
 
     iterator begin() {
-        return iterator(m_startRay, m_rng);
+        return iterator(this);
     }
 
     iterator end() {
-        return iterator(m_bounces);
+        return iterator(this, m_bounces);
+    }
+
+    void next() {
+        double dt = 0.01;
+        double g = 0.99;
+
+        double cosTheta = Distribution::heyneyGreenstein(g, *m_rng);
+        double sinTheta = sqrt(1 - cosTheta*cosTheta);
+        double phi = 2.0 * M_PI * m_rng->RandomFloat();
+
+        Vector perpendicular = m_ray.direction().perpendicular();
+        Transform phiRotation = Rotate(phi, m_ray.direction());
+        perpendicular = phiRotation(perpendicular);
+
+        Transform directionRotation = Rotatec(cosTheta, sinTheta, perpendicular);
+
+        Vector direction = directionRotation(m_ray.direction());
+        direction = direction.normalized();
+
+        Point origin = m_ray.origin() + direction * dt;
+        m_ray = Ray(origin, direction);
     }
 
 private:
-    Ray m_startRay;
+    Ray m_ray;
     int m_bounces;
     RNG *m_rng;
 };
