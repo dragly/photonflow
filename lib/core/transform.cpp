@@ -443,31 +443,31 @@ BBox AnimatedTransform::MotionBounds(const BBox &b,
 
 
 void AnimatedTransform::operator()(const Ray &r, Ray *tr) const {
-    if (!actuallyAnimated || r.time <= startTime)
+    if (!actuallyAnimated || r.m_time <= startTime)
         (*startTransform)(r, tr);
-    else if (r.time >= endTime)
+    else if (r.m_time >= endTime)
         (*endTransform)(r, tr);
     else {
         Transform t;
-        Interpolate(r.time, &t);
+        Interpolate(r.m_time, &t);
         t(r, tr);
     }
-    tr->time = r.time;
+    tr->m_time = r.m_time;
 }
 
 
 void AnimatedTransform::operator()(const RayDifferential &r,
     RayDifferential *tr) const {
-    if (!actuallyAnimated || r.time <= startTime)
+    if (!actuallyAnimated || r.m_time <= startTime)
         (*startTransform)(r, tr);
-    else if (r.time >= endTime)
+    else if (r.m_time >= endTime)
         (*endTransform)(r, tr);
     else {
         Transform t;
-        Interpolate(r.time, &t);
+        Interpolate(r.m_time, &t);
         t(r, tr);
     }
-    tr->time = r.time;
+    tr->m_time = r.m_time;
 }
 
 

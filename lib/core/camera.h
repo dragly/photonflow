@@ -40,6 +40,7 @@
 #include "common.h"
 #include "geometry.h"
 #include "transform.h"
+#include "../geometry/rectangle.h"
 
 #include <memory>
 
@@ -68,7 +69,7 @@ class ProjectiveCamera : public Camera {
 public:
     // ProjectiveCamera Public Methods
     ProjectiveCamera(const Transform &cam2world,
-        const Transform &proj, const float screenWindow[4],
+        const Transform &proj, const Rectangle &screenWindow,
         float sopen, float sclose, float lensr, float focald, std::shared_ptr<Film> film);
 protected:
     // ProjectiveCamera Protected Data

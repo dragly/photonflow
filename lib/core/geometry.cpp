@@ -67,12 +67,12 @@ void BBox::BoundingSphere(Point *c, float *rad) const {
 
 bool BBox::IntersectP(const Ray &ray, float *hitt0,
                       float *hitt1) const {
-    float t0 = ray.mint, t1 = ray.maxt;
+    float t0 = ray.m_mint, t1 = ray.m_maxt;
     for (int i = 0; i < 3; ++i) {
         // Update interval for _i_th bounding box slab
-        float invRayDir = 1.f / ray.d[i];
-        float tNear = (pMin[i] - ray.o[i]) * invRayDir;
-        float tFar  = (pMax[i] - ray.o[i]) * invRayDir;
+        float invRayDir = 1.f / ray.m_direction[i];
+        float tNear = (pMin[i] - ray.m_origin[i]) * invRayDir;
+        float tFar  = (pMax[i] - ray.m_origin[i]) * invRayDir;
 
         // Update parametric interval from slab intersection $t$s
         if (tNear > tFar) swap(tNear, tFar);

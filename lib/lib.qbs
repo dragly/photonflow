@@ -62,6 +62,8 @@ Product {
         "filters/sinc.h",
         "filters/triangle.cpp",
         "filters/triangle.h",
+        "geometry/rectangle.cpp",
+        "geometry/rectangle.h",
         "samplers/random.cpp",
         "samplers/random.h",
         "stdafx.h",

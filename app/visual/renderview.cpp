@@ -42,7 +42,7 @@ RenderView::RenderView(QQuickItem *parent)
 
     Transform boxTransform = translation*rotation;
 
-    Spectrum sigma_a(0.95);
+    Spectrum sigma_a(0.98);
     Spectrum sigma_s(0.0);
     Spectrum emita(0.15);
 
@@ -68,11 +68,7 @@ void RenderView::integrate()
     const int height = size.height();
 
     const Transform identity = Translate(Vector(0, 0, 0));
-    float screenWindow[4];
-    screenWindow[0] = -width / 2.0;
-    screenWindow[1] = width / 2.0;
-    screenWindow[2] = - height / 2.0;
-    screenWindow[3] = height / 2.0;
+    Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const float crop[4] = {0.0, 1.0, 0.0, 1.0};
 
     BoxFilter filter(0.5, 0.5);
@@ -126,29 +122,29 @@ void RenderView::integrate()
                 Spectrum Lv(0.);
 
                 Point p = intersectRay(t0);
-                Ray ray(p, intersectRay.d);
+                Ray ray(p, intersectRay.m_direction);
 
                 for(int i = 0; i < bounces; i++) {
-                    double g = 0.98;
+                    double g = 1.0;
                     double cosTheta = Distribution::heyneyGreenstein(g, rng);
                     double sinTheta = sqrt(1 - cosTheta*cosTheta);
                     double phi = 2.0 * M_PI * rng.RandomFloat();
 
-                    Vector perpendicular = ray.d.perpendicular();
-                    Transform perpendicularRotation = Rotate(phi, ray.d);
+                    Vector perpendicular = ray.m_direction.perpendicular();
+                    Transform perpendicularRotation = Rotate(phi, ray.m_direction);
                     perpendicular = perpendicularRotation(perpendicular);
 
                     Transform directionRotation = Rotatec(cosTheta, sinTheta, perpendicular);
-                    ray.d = directionRotation(ray.d);
-                    ray.d = ray.d.normalized();
+                    ray.m_direction = directionRotation(ray.m_direction);
+                    ray.m_direction = ray.m_direction.normalized();
 
-                    ray.o += ray.d * ds;
+                    ray.m_origin += ray.m_direction * ds;
 
-                    if(vr.Density(ray.o) <= 0.0) {
+                    if(vr.Density(ray.m_origin) <= 0.0) {
                         break;
                     }
-                    Tr *= vr.sigma_a(ray.o, Vector(), 0.0);
-                    Lv += Tr * vr.Lve(ray.o, Vector(), 0.0);
+                    Tr *= vr.sigma_a(ray.m_origin, Vector(), 0.0);
+                    Lv += Tr * vr.Lve(ray.m_origin, Vector(), 0.0);
                     if(Tr < Spectrum(0.01)) {
                         break;
                     }

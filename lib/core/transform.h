@@ -246,20 +246,20 @@ inline void Transform::operator()(const Normal &n,
 
 inline Ray Transform::operator()(const Ray &r) const {
     Ray ret = r;
-    (*this)(ret.o, &ret.o);
-    (*this)(ret.d, &ret.d);
+    (*this)(ret.m_origin, &ret.m_origin);
+    (*this)(ret.m_direction, &ret.m_direction);
     return ret;
 }
 
 
 inline void Transform::operator()(const Ray &r, Ray *rt) const {
-    (*this)(r.o, &rt->o);
-    (*this)(r.d, &rt->d);
+    (*this)(r.m_origin, &rt->m_origin);
+    (*this)(r.m_direction, &rt->m_direction);
     if (rt != &r) {
-        rt->mint = r.mint;
-        rt->maxt = r.maxt;
-        rt->time = r.time;
-        rt->depth = r.depth;
+        rt->m_mint = r.m_mint;
+        rt->m_maxt = r.m_maxt;
+        rt->m_time = r.m_time;
+        rt->m_depth = r.m_depth;
     }
 }
 

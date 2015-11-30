@@ -66,16 +66,16 @@ float Camera::GenerateRayDifferential(const CameraSample &sample,
     ++(sshift.imageX);
     Ray rx;
     float wtx = GenerateRay(sshift, &rx);
-    rd->rxOrigin = rx.o;
-    rd->rxDirection = rx.d;
+    rd->rxOrigin = rx.m_origin;
+    rd->rxDirection = rx.m_direction;
 
     // Find ray after shifting one pixel in the $y$ direction
     --(sshift.imageX);
     ++(sshift.imageY);
     Ray ry;
     float wty = GenerateRay(sshift, &ry);
-    rd->ryOrigin = ry.o;
-    rd->ryDirection = ry.d;
+    rd->ryOrigin = ry.m_origin;
+    rd->ryDirection = ry.m_direction;
     if (wtx == 0.f || wty == 0.f) return 0.f;
     rd->hasDifferentials = true;
     return wt;
@@ -83,7 +83,7 @@ float Camera::GenerateRayDifferential(const CameraSample &sample,
 
 
 ProjectiveCamera::ProjectiveCamera(const Transform &cam2world,
-        const Transform &proj, const float screenWindow[4], float sopen,
+        const Transform &proj, const Rectangle &screenWindow, float sopen,
         float sclose, float lensr, float focald, shared_ptr<Film> f)
     : Camera(cam2world, sopen, sclose, f) {
     // Initialize depth of field parameters
@@ -96,9 +96,9 @@ ProjectiveCamera::ProjectiveCamera(const Transform &cam2world,
     // Compute projective camera screen transformations
     ScreenToRaster = Scale(float(film->xResolution),
                            float(film->yResolution), 1.f) *
-        Scale(1.f / (screenWindow[1] - screenWindow[0]),
-              1.f / (screenWindow[2] - screenWindow[3]), 1.f) *
-        Translate(Vector(-screenWindow[0], -screenWindow[3], 0.f));
+        Scale(1.f / (screenWindow.width()),
+              1.f / (screenWindow.height()), 1.f) *
+        Translate(Vector(-screenWindow.x(), -screenWindow.y(), 0.f));
     RasterToScreen = Inverse(ScreenToRaster);
     RasterToCamera = Inverse(CameraToScreen) * RasterToScreen;
 }

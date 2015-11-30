@@ -93,7 +93,7 @@ float Shape::Pdf(const Point &p, const Vector &wi) const {
     // Intersect sample ray with area light geometry
     DifferentialGeometry dgLight;
     Ray ray(p, wi, 1e-3f);
-    ray.depth = -1; // temporary hack to ignore alpha mask
+    ray.m_depth = -1; // temporary hack to ignore alpha mask
     float thit, rayEpsilon;
     if (!Intersect(ray, &thit, &rayEpsilon, &dgLight)) return 0.;
 

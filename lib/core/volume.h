@@ -128,16 +128,16 @@ private:
 
 bool GetVolumeScatteringProperties(const std::string &name, Spectrum *sigma_a,
                                    Spectrum *sigma_prime_s);
-class VolumeIntegrator : public Integrator {
-public:
-    // VolumeIntegrator Interface
-    virtual Spectrum Li(const Scene *scene, const Renderer *renderer,
-        const RayDifferential &ray, const Sample *sample, RNG &rng,
-        Spectrum *transmittance) const = 0;
-    virtual Spectrum Transmittance(const Scene *scene,
-        const Renderer *renderer, const RayDifferential &ray,
-        const Sample *sample, RNG &rng) const = 0;
-};
+//class VolumeIntegrator : public Integrator {
+//public:
+//    // VolumeIntegrator Interface
+//    virtual Spectrum Li(const Scene *scene, const Renderer *renderer,
+//        const RayDifferential &ray, const Sample *sample, RNG &rng,
+//        Spectrum *transmittance) const = 0;
+//    virtual Spectrum Transmittance(const Scene *scene,
+//        const Renderer *renderer, const RayDifferential &ray,
+//        const Sample *sample, RNG &rng) const = 0;
+//};
 
 
 void SubsurfaceFromDiffuse(const Spectrum &Kd, float meanPathLength, float eta,

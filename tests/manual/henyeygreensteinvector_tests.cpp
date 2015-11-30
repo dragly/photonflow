@@ -9,6 +9,8 @@
 
 using namespace std;
 
+
+
 void vectors() {
     ofstream out("out.dat");
 
@@ -23,16 +25,18 @@ void vectors() {
         double theta = acos(Distribution::heyneyGreenstein(g, rng));
         double phi = 2.0 * M_PI * rng.RandomFloat();
 
-        Vector perpendicular = ray.d.perpendicular();
-        Transform perpendicularRotation = Rotate(phi, ray.d);
-        perpendicular = perpendicularRotation(perpendicular);
+        Vector perpendicular = ray.direction().perpendicular();
+        Transform phiRotation = Rotate(phi, ray.direction());
+        perpendicular = phiRotation(perpendicular);
 
         Transform directionRotation = Rotate(theta, perpendicular);
-        ray.d = directionRotation(ray.d);
-        ray.d = ray.d.normalized();
 
-        ray.o += ray.d * dt;
-        out << ray.o.x << " " << ray.o.y << " " << ray.o.z << endl;
+        Vector direction = directionRotation(ray.direction());
+        direction = direction.normalized();
+
+        Point origin = ray.origin() + direction * dt;
+        ray = Ray(origin, direction);
+        out << ray.origin() << endl;
     }
 }
 

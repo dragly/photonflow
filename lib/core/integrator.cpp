@@ -38,7 +38,7 @@
 #include "montecarlo.h"
 
 // Integrator Method Definitions
-Integrator::~Integrator() {
-}
+//Integrator::~Integrator() {
+//}
 
 

@@ -302,14 +302,14 @@ DensityRegion::DensityRegion()
 Spectrum DensityRegion::tau(const Ray &r, float stepSize,
                             float u) const {
     float t0, t1;
-    float length = r.d.Length();
+    float length = r.m_direction.Length();
     if (length == 0.f) return 0.f;
-    Ray rn(r.o, r.d / length, r.mint * length, r.maxt * length, r.time);
+    Ray rn(r.m_origin, r.m_direction / length, r.m_mint * length, r.m_maxt * length, r.m_time);
     if (!IntersectP(rn, &t0, &t1)) return 0.;
     Spectrum tau(0.);
     t0 += u * stepSize;
     while (t0 < t1) {
-        tau += sigma_t(rn(t0), -rn.d, r.time);
+        tau += sigma_t(rn(t0), -rn.m_direction, r.m_time);
         t0 += stepSize;
     }
     return tau * stepSize;

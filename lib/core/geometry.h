@@ -354,26 +354,33 @@ public:
 class Ray {
 public:
     // Ray Public Methods
-    Ray() : mint(0.f), maxt(INFINITY), time(0.f), depth(0) { }
+    Ray() : m_mint(0.f), m_maxt(INFINITY), m_time(0.f), m_depth(0) { }
     Ray(const Point &origin, const Vector &direction,
         float start = 0.0, float end = INFINITY, float t = 0.f, int d = 0)
-        : o(origin), d(direction), mint(start), maxt(end), time(t), depth(d) { }
+        : m_origin(origin), m_direction(direction), m_mint(start), m_maxt(end), m_time(t), m_depth(d) { }
     Ray(const Point &origin, const Vector &direction, const Ray &parent,
         float start = 0.0, float end = INFINITY)
-        : o(origin), d(direction), mint(start), maxt(end),
-          time(parent.time), depth(parent.depth+1) { }
-    Point operator()(float t) const { return o + d * t; }
+        : m_origin(origin), m_direction(direction), m_mint(start), m_maxt(end),
+          m_time(parent.m_time), m_depth(parent.m_depth+1) { }
+    Point operator()(float t) const { return m_origin + m_direction * t; }
     bool HasNaNs() const {
-        return (o.HasNaNs() || d.HasNaNs() ||
-                isnan(mint) || isnan(maxt));
+        return (m_origin.HasNaNs() || m_direction.HasNaNs() ||
+                isnan(m_mint) || isnan(m_maxt));
+    }
+
+    Point origin() const {
+        return m_origin;
+    }
+    Vector direction() const {
+        return m_direction;
     }
 
     // Ray Public Data
-    Point o;
-    Vector d;
-    mutable float mint, maxt;
-    float time;
-    int depth;
+    Point m_origin;
+    Vector m_direction;
+    mutable float m_mint, m_maxt;
+    float m_time;
+    int m_depth;
 };
 
 
@@ -388,7 +395,7 @@ public:
     }
     RayDifferential(const Point &org, const Vector &dir, const Ray &parent,
         float start, float end = INFINITY)
-            : Ray(org, dir, start, end, parent.time, parent.depth+1) {
+            : Ray(org, dir, start, end, parent.m_time, parent.m_depth+1) {
         hasDifferentials = false;
     }
     explicit RayDifferential(const Ray &ray) : Ray(ray) {
@@ -400,10 +407,10 @@ public:
                                  rxDirection.HasNaNs() || ryDirection.HasNaNs()));
     }
     void ScaleDifferentials(float s) {
-        rxOrigin = o + (rxOrigin - o) * s;
-        ryOrigin = o + (ryOrigin - o) * s;
-        rxDirection = d + (rxDirection - d) * s;
-        ryDirection = d + (ryDirection - d) * s;
+        rxOrigin = m_origin + (rxOrigin - m_origin) * s;
+        ryOrigin = m_origin + (ryOrigin - m_origin) * s;
+        rxDirection = m_direction + (rxDirection - m_direction) * s;
+        ryDirection = m_direction + (ryDirection - m_direction) * s;
     }
 
     // RayDifferential Public Data
@@ -678,7 +685,6 @@ inline float SphericalPhi(const Vector &v) {
     float p = atan2f(v.y, v.x);
     return (p < 0.f) ? p + 2.f*M_PI : p;
 }
-
 
 
 #endif // PBRT_CORE_GEOMETRY_H

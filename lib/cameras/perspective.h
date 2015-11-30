@@ -50,7 +50,7 @@ class PerspectiveCamera : public ProjectiveCamera {
 public:
     // PerspectiveCamera Public Methods
     PerspectiveCamera(const Transform &cam2world,
-        const float screenWindow[4], float sopen, float sclose,
+        const Rectangle &screenWindow, float sopen, float sclose,
         float lensr, float focald, float fov, std::shared_ptr<Film> film);
     float GenerateRay(const CameraSample &sample, Ray *) const;
     float GenerateRayDifferential(const CameraSample &sample,

@@ -39,7 +39,7 @@
 
 // PerspectiveCamera Method Definitions
 PerspectiveCamera:: PerspectiveCamera(const Transform &cam2world,
-        const float screenWindow[4], float sopen, float sclose,
+        const Rectangle &screenWindow, float sopen, float sclose,
         float lensr, float focald, float fov, std::shared_ptr<Film> f)
     : ProjectiveCamera(cam2world, Perspective(fov, 1e-2f, 1000.f),
                        screenWindow, sopen, sclose, lensr, focald, f) {
@@ -65,14 +65,14 @@ float PerspectiveCamera::GenerateRay(const CameraSample &sample,
         lensV *= lensRadius;
 
         // Compute point on plane of focus
-        float ft = focalDistance / ray->d.z;
+        float ft = focalDistance / ray->m_direction.z;
         Point Pfocus = (*ray)(ft);
 
         // Update ray for effect of lens
-        ray->o = Point(lensU, lensV, 0.f);
-        ray->d = Normalize(Pfocus - ray->o);
+        ray->m_origin = Point(lensU, lensV, 0.f);
+        ray->m_direction = Normalize(Pfocus - ray->m_origin);
     }
-    ray->time = sample.time;
+    ray->m_time = sample.time;
     CameraToWorld(*ray, ray);
     return 1.f;
 }
@@ -95,12 +95,12 @@ float PerspectiveCamera::GenerateRayDifferential(const CameraSample &sample,
         lensV *= lensRadius;
 
         // Compute point on plane of focus
-        float ft = focalDistance / ray->d.z;
+        float ft = focalDistance / ray->m_direction.z;
         Point Pfocus = (*ray)(ft);
 
         // Update ray for effect of lens
-        ray->o = Point(lensU, lensV, 0.f);
-        ray->d = Normalize(Pfocus - ray->o);
+        ray->m_origin = Point(lensU, lensV, 0.f);
+        ray->m_direction = Normalize(Pfocus - ray->m_origin);
     }
 
     // Compute offset rays for _PerspectiveCamera_ ray differentials
@@ -126,12 +126,12 @@ float PerspectiveCamera::GenerateRayDifferential(const CameraSample &sample,
         ray->ryDirection = Normalize(pFocus - ray->ryOrigin);
     }
     else {
-        ray->rxOrigin = ray->ryOrigin = ray->o;
+        ray->rxOrigin = ray->ryOrigin = ray->m_origin;
         ray->rxDirection = Normalize(Vector(Pcamera) + dxCamera);
         ray->ryDirection = Normalize(Vector(Pcamera) + dyCamera);
     }
 
-    ray->time = sample.time;
+    ray->m_time = sample.time;
     CameraToWorld(*ray, ray);
     ray->hasDifferentials = true;
     return 1.f;
