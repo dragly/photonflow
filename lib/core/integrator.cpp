@@ -29,16 +29,33 @@
 
  */
 
-
-// core/integrator.cpp*
-#include "stdafx.h"
 #include "integrator.h"
-#include "scene.h"
-#include "intersection.h"
-#include "montecarlo.h"
+#include "../volumes/volumegrid.h"
 
-// Integrator Method Definitions
-//Integrator::~Integrator() {
-//}
+#include <iostream>
 
+using namespace std;
 
+void Integrator::next() {
+    VolumeGridDensity *vr = m_volumeGridDensity;
+    double ds = 0.12  / (vr->Density(m_ray.origin()) / 40.0);
+//    double ds = 0.08;
+    double g = 0.98;
+//    double g = 1.0;
+
+    double cosTheta = Distribution::heyneyGreenstein(g, *m_rng);
+    double sinTheta = sqrt(1 - cosTheta*cosTheta);
+    double phi = 2.0 * M_PI * m_rng->RandomFloat();
+
+    Vector perpendicular = m_ray.direction().perpendicular();
+    Transform phiRotation = Rotate(phi, m_ray.direction());
+    perpendicular = phiRotation(perpendicular);
+
+    Transform directionRotation = Rotatec(cosTheta, sinTheta, perpendicular);
+
+    Vector direction = directionRotation(m_ray.direction());
+    direction = direction.normalized();
+
+    Point origin = m_ray.origin() + direction * ds;
+    m_ray = Ray(origin, direction);
+}

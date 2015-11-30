@@ -35,7 +35,7 @@ RenderView::RenderView(QQuickItem *parent)
 
     float gg = 1.0;
 
-    float angle = 0.6;
+    float angle = -2.8;
 
     Transform translation = Translate(Vector(0.0, 0.0, 0.0));
     Transform rotation = Rotate(angle, Vector(0.0, 1.0, 0.0));
@@ -45,9 +45,9 @@ RenderView::RenderView(QQuickItem *parent)
 //    Transform boxTransform;
     cout << "Identity: " << boxTransform.IsIdentity() << endl;
 
-    Spectrum sigma_a(0.98);
+    Spectrum sigma_a(0.97);
     Spectrum sigma_s(0.0);
-    Spectrum emita(0.15);
+    Spectrum emita(0.25);
 
     vr = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, data);
 }
@@ -129,8 +129,8 @@ void RenderView::integrate()
 
                 startRay = Ray(startRay.origin() + intersectRay.m_direction * 0.01, startRay.direction());
 
-                Integrator integrator(startRay, bounces, rng);
-                int ia = 0;
+                Integrator integrator(&vr, startRay, bounces, rng);
+
                 for(Ray& ray : integrator) {
                     if(!vr.inside(ray.origin())) {
                         break;
@@ -143,7 +143,6 @@ void RenderView::integrate()
                 }
 
                 Spectrum final = Lv / omp_get_num_threads();
-                final *= 1.0;
 
                 film->AddSample(sample, final);
 

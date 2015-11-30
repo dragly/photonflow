@@ -37,6 +37,8 @@
 #include "../core/transform.h"
 #include "../core/heyneygreenstein.h"
 
+class VolumeGridDensity;
+
 class Integrator
 {
 public:
@@ -80,8 +82,9 @@ public:
         int m_bounce = 0;
     };
 
-    Integrator(Ray startRay, int bounces, RNG &rng)
-        : m_ray(startRay)
+    Integrator(VolumeGridDensity *volumeGridDensity, Ray startRay, int bounces, RNG &rng)
+        : m_volumeGridDensity(volumeGridDensity)
+        , m_ray(startRay)
         , m_bounces(bounces)
         , m_rng(&rng)
     {
@@ -95,28 +98,10 @@ public:
         return iterator(this, m_bounces);
     }
 
-    void next() {
-        double dt = 0.01;
-        double g = 0.99;
-
-        double cosTheta = Distribution::heyneyGreenstein(g, *m_rng);
-        double sinTheta = sqrt(1 - cosTheta*cosTheta);
-        double phi = 2.0 * M_PI * m_rng->RandomFloat();
-
-        Vector perpendicular = m_ray.direction().perpendicular();
-        Transform phiRotation = Rotate(phi, m_ray.direction());
-        perpendicular = phiRotation(perpendicular);
-
-        Transform directionRotation = Rotatec(cosTheta, sinTheta, perpendicular);
-
-        Vector direction = directionRotation(m_ray.direction());
-        direction = direction.normalized();
-
-        Point origin = m_ray.origin() + direction * dt;
-        m_ray = Ray(origin, direction);
-    }
+    void next();
 
 private:
+    VolumeGridDensity *m_volumeGridDensity;
     Ray m_ray;
     int m_bounces;
     RNG *m_rng;
