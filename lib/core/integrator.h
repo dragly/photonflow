@@ -42,63 +42,31 @@ class VolumeGridDensity;
 class Integrator
 {
 public:
+    Integrator(VolumeGridDensity *volumeGridDensity, Ray startRay, int bounces, RNG &rng);
+    void next();
+
     class iterator {
     public:
         typedef Ray value_type;
         typedef Ray& reference_type;
         typedef std::input_iterator_tag iterator_category;
 
-        iterator(Integrator* parent, int bounce)
-            : m_parent(parent)
-            , m_bounce(bounce)
-        {
-        }
+        iterator(Integrator* parent, int bounce);
+        iterator(Integrator* parent);
 
-        iterator(Integrator* parent)
-            : m_parent(parent)
-        {
-        }
+        bool operator==(const iterator& other) const;
+        bool operator!=(const iterator& other) const;
 
-        bool operator==(const iterator& other) const {
-            return other.m_bounce == m_bounce;
-        }
+        iterator& operator++();
+        Ray& operator*();
 
-        bool operator!=(const iterator& other) const {
-            return !(other == *this);
-        }
-
-        iterator& operator++() {
-            m_bounce++;
-            m_parent->next();
-            return *this;
-        }
-
-        Ray& operator*() {
-            return m_parent->m_ray;
-        }
-
+    private:
         Integrator* m_parent;
-
         int m_bounce = 0;
     };
 
-    Integrator(VolumeGridDensity *volumeGridDensity, Ray startRay, int bounces, RNG &rng)
-        : m_volumeGridDensity(volumeGridDensity)
-        , m_ray(startRay)
-        , m_bounces(bounces)
-        , m_rng(&rng)
-    {
-    }
-
-    iterator begin() {
-        return iterator(this);
-    }
-
-    iterator end() {
-        return iterator(this, m_bounces);
-    }
-
-    void next();
+    iterator begin();
+    iterator end();
 
 private:
     VolumeGridDensity *m_volumeGridDensity;

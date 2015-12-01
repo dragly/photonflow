@@ -36,12 +36,28 @@
 
 using namespace std;
 
+Integrator::Integrator(VolumeGridDensity *volumeGridDensity, Ray startRay, int bounces, RNG &rng)
+    : m_volumeGridDensity(volumeGridDensity)
+    , m_ray(startRay)
+    , m_bounces(bounces)
+    , m_rng(&rng)
+{
+}
+
+Integrator::iterator Integrator::begin() {
+    return iterator(this);
+}
+
+Integrator::iterator Integrator::end() {
+    return iterator(this, m_bounces);
+}
+
 void Integrator::next() {
     VolumeGridDensity *vr = m_volumeGridDensity;
     double ds = 0.12  / (vr->Density(m_ray.origin()) / 40.0);
-//    double ds = 0.08;
+    //    double ds = 0.08;
     double g = 0.98;
-//    double g = 1.0;
+    //    double g = 1.0;
 
     double cosTheta = Distribution::heyneyGreenstein(g, *m_rng);
     double sinTheta = sqrt(1 - cosTheta*cosTheta);
@@ -58,4 +74,33 @@ void Integrator::next() {
 
     Point origin = m_ray.origin() + direction * ds;
     m_ray = Ray(origin, direction);
+}
+
+Integrator::iterator::iterator(Integrator *parent, int bounce)
+    : m_parent(parent)
+    , m_bounce(bounce)
+{
+}
+
+Integrator::iterator::iterator(Integrator *parent)
+    : m_parent(parent)
+{
+}
+
+bool Integrator::iterator::operator==(const Integrator::iterator &other) const {
+    return other.m_bounce == m_bounce;
+}
+
+bool Integrator::iterator::operator!=(const Integrator::iterator &other) const {
+    return !(other == *this);
+}
+
+Integrator::iterator &Integrator::iterator::operator++() {
+    m_bounce++;
+    m_parent->next();
+    return *this;
+}
+
+Ray &Integrator::iterator::operator*() {
+    return m_parent->m_ray;
 }

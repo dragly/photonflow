@@ -97,13 +97,13 @@ public:
         return PhaseHG(w, wp, g);
     }
     Spectrum tau(const Ray &r, float stepSize, float offset) const;
-    Transform WorldToVolume;
 protected:
     // DensityRegion Protected Data
     Spectrum sig_a;
     Spectrum sig_s;
     Spectrum le;
     float g = 0.0;
+    Transform WorldToVolume;
     Transform VolumeToWorld;
 };
 

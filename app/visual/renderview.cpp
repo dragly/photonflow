@@ -65,7 +65,6 @@ void RenderView::integrate()
 
     const int requestedSampleCount = 1;
     const int bounces = 200;
-    const double ds = 0.01;
 
     const int width = size.width();
     const int height = size.height();
