@@ -30,6 +30,7 @@ private:
     int totalSampleCount = 0;
     arma::Cube<short> data;
     VolumeGridDensity vr;
+    vector<RNG> rngs;
 };
 
 #endif // RENDERVIEW_H

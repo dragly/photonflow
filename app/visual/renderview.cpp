@@ -25,17 +25,21 @@ RenderView::RenderView(QQuickItem *parent)
 {
     QElapsedTimer timer;
     timer.start();
-    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
+//    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
+    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/volume.hdf5", hdf5_binary);
     qDebug() << "Data size:" << data.n_rows << data.n_cols << data.n_slices;
     qDebug() << "Data load time:" << timer.elapsed() << "ms";
+    qDebug() << "Data max value: " << data.max();
+
+    data *= 255;
 
     BBox bbox;
-    bbox.pMin = Point(-1, -1, -0.3);
-    bbox.pMax = Point(1, 1, 0.3);
+    bbox.pMin = Point(-1, -1, -1);
+    bbox.pMax = Point(1, 1, 1);
 
     float gg = 1.0;
 
-    float angle = -2.8;
+    float angle = 3.14;
 
     Transform translation = Translate(Vector(0.0, 0.0, 0.0));
     Transform rotation = Rotate(angle, Vector(0.0, 1.0, 0.0));
@@ -45,15 +49,25 @@ RenderView::RenderView(QQuickItem *parent)
 //    Transform boxTransform;
     cout << "Identity: " << boxTransform.IsIdentity() << endl;
 
-    Spectrum sigma_a(0.97);
+    Spectrum sigma_a(0.99);
     Spectrum sigma_s(0.0);
-    Spectrum emita(0.25);
+    Spectrum emita(10.0);
 
     vr = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, data);
 }
 
+static const int threadCount = 1;
+
 void RenderView::integrate()
 {
+    if(rngs.size() < threadCount) {
+        rngs.resize(threadCount);
+        int i = 0;
+        for(RNG& rng : rngs) {
+            rng.seed(1325125 ^ i);
+            i++;
+        }
+    }
     QElapsedTimer timer;
     timer.start();
 
@@ -64,12 +78,12 @@ void RenderView::integrate()
     }
 
     const int requestedSampleCount = 1;
-    const int bounces = 200;
+    const int bounces = 1000;
 
     const int width = size.width();
     const int height = size.height();
 
-    const Transform cameraTransform = Translate(Vector(0, 0, -3.0));
+    const Transform cameraTransform = Translate(Vector(0.0, 0.0, -3.0));
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const float crop[4] = {0.0, 1.0, 0.0, 1.0};
 
@@ -88,14 +102,14 @@ void RenderView::integrate()
     const float sopen = 0.0;
     const float sclose = 1.0;
     const float lensr = 0.0;
-    const float focald = 2.5;
+    const float focald = 3.5;
     const float fov = 0.2;
     const PerspectiveCamera camera(cameraTransform, screenWindow, sopen, sclose, lensr, focald, fov, film);
 
-#pragma omp parallel num_threads(8)       // OpenMP
+#pragma omp parallel num_threads(threadCount) // OpenMP
     {
-        RNG rng;
-        rng.seed((1290481 ^ omp_get_thread_num()) + totalSampleCount);
+        cout << "Thread num: " << omp_get_thread_num() << " rngs size: " << rngs.size() << endl;
+        RNG& rng = rngs.at(omp_get_thread_num());
         int actualCount = 0;
         RandomSampler sampler(0, width, 0, height, requestedSampleCount, 0.0, 1.0);
         int maxSampleCount = sampler.MaximumSampleCount();
@@ -121,21 +135,24 @@ void RenderView::integrate()
                 }
 
                 Spectrum Tr(1.0);
-                Spectrum Lv(0.);
+                Spectrum Lv(0.1);
 
                 Point p = intersectRay(t0);
                 Ray startRay(p, intersectRay.m_direction);
 
-                startRay = Ray(startRay.origin() + intersectRay.m_direction * 0.01, startRay.direction());
+//                startRay = Ray(startRay.origin() + intersectRay.m_direction * 0.01, startRay.direction());
 
                 Integrator integrator(&vr, startRay, bounces, rng);
 
                 for(Ray& ray : integrator) {
-                    if(!vr.inside(ray.origin())) {
+                    if(!vr.fuzzyInside(ray.origin())) {
                         break;
                     }
                     Tr *= vr.sigma_a(ray.origin(), Vector(), 0.0);
-                    Lv += Tr * vr.Lve(ray.origin(), Vector(), 0.0);
+                    if(vr.Density(ray.origin()) > 60) {
+                        Lv += Tr * vr.Lve(ray.origin(), Vector(), 0.0);
+                        Assert(!Lv.HasNaNs());
+                    }
                     if(Tr < Spectrum(0.01)) {
                         break;
                     }
@@ -146,7 +163,7 @@ void RenderView::integrate()
                 film->AddSample(sample, final);
 
                 actualCount++;
-                if(!(actualCount % 10000)) {
+                if(!(actualCount % 10000) && omp_get_thread_num() == 0) {
                     qDebug() << "Sample count:" << actualCount;
                 }
             }

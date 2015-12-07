@@ -53,11 +53,12 @@ Integrator::iterator Integrator::end() {
 }
 
 void Integrator::next() {
-    VolumeGridDensity *vr = m_volumeGridDensity;
-    double ds = 0.12  / (vr->Density(m_ray.origin()) / 40.0);
-    //    double ds = 0.08;
+//    VolumeGridDensity *vr = m_volumeGridDensity;
+//    double ds = 0.12  / (vr->Density(m_ray.origin()) / 40.0);
+    double ds = 0.4 * -log(m_rng->RandomFloat());
+//        double ds = 0.01;
     double g = 0.98;
-    //    double g = 1.0;
+//        double g = 1.0;
 
     double cosTheta = Distribution::heyneyGreenstein(g, *m_rng);
     double sinTheta = sqrt(1 - cosTheta*cosTheta);

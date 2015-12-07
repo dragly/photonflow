@@ -88,3 +88,9 @@ bool VolumeGridDensity::inside(const Point &p) const
     return extent.Inside(local);
 }
 
+bool VolumeGridDensity::fuzzyInside(const Point &p) const
+{
+    Point local = WorldToVolume(p);
+    return extent.fuzzyInside(local);
+}
+

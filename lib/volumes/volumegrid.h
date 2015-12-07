@@ -54,6 +54,7 @@ public:
     float Density(const Point &Pobj) const;
     float D(int x, int y, int z) const;
     bool inside(const Point &p) const;
+    bool fuzzyInside(const Point &p) const;
 private:
     // VolumeGridDensity Private Data
     BBox extent;

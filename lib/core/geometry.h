@@ -445,6 +445,12 @@ public:
                 pt.y >= pMin.y && pt.y <= pMax.y &&
                 pt.z >= pMin.z && pt.z <= pMax.z);
     }
+    bool fuzzyInside(const Point &pt) const {
+        const double eps = 0.01;
+        return (pt.x >= pMin.x - eps && pt.x <= pMax.x + eps &&
+                pt.y >= pMin.y - eps && pt.y <= pMax.y + eps &&
+                pt.z >= pMin.z - eps && pt.z <= pMax.z + eps);
+    }
     void Expand(float delta) {
         pMin -= Vector(delta, delta, delta);
         pMax += Vector(delta, delta, delta);

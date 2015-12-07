@@ -61,7 +61,7 @@ float RNG::RandomFloat() const
 uint32_t RNG::RandomUInt() const
 {
     unsigned long y;
-    static unsigned long mag01[2]={0x0UL, MATRIX_A};
+    static const unsigned long mag01[2]={0x0UL, MATRIX_A};
     /* mag01[x] = x * MATRIX_A  for x=0,1 */
 
     if (mti >= N) { /* generate N words at one time */
