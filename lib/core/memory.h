@@ -87,13 +87,13 @@
 //};
 
 
-void *AllocAligned(size_t size);
-template <typename T> T *AllocAligned(uint32_t count) {
-    return (T *)AllocAligned(count * sizeof(T));
+void *allocateAligned(size_t size);
+template <typename T> T *allocateAligned(uint32_t count) {
+    return (T *)allocateAligned(count * sizeof(T));
 }
 
 
-void FreeAligned(void *);
+void freeAligned(void *);
 //class MemoryArena {
 //public:
 //    // MemoryArena Public Methods
@@ -157,9 +157,9 @@ public:
     BlockedArray(uint32_t nu, uint32_t nv, const T *d = NULL) {
         uRes = nu;
         vRes = nv;
-        uBlocks = RoundUp(uRes) >> logBlockSize;
-        uint32_t nAlloc = RoundUp(uRes) * RoundUp(vRes);
-        data = AllocAligned<T>(nAlloc);
+        uBlocks = roundUp(uRes) >> logBlockSize;
+        uint32_t nAlloc = roundUp(uRes) * roundUp(vRes);
+        data = allocateAligned<T>(nAlloc);
         for (uint32_t i = 0; i < nAlloc; ++i)
             new (&data[i]) T();
         if (d)
@@ -167,34 +167,34 @@ public:
                 for (uint32_t u = 0; u < uRes; ++u)
                     (*this)(u, v) = d[v * uRes + u];
     }
-    uint32_t BlockSize() const { return 1 << logBlockSize; }
-    uint32_t RoundUp(uint32_t x) const {
-        return (x + BlockSize() - 1) & ~(BlockSize() - 1);
+    uint32_t blockSize() const { return 1 << logBlockSize; }
+    uint32_t roundUp(uint32_t x) const {
+        return (x + blockSize() - 1) & ~(blockSize() - 1);
     }
     uint32_t uSize() const { return uRes; }
     uint32_t vSize() const { return vRes; }
     ~BlockedArray() {
         for (uint32_t i = 0; i < uRes * vRes; ++i)
             data[i].~T();
-        FreeAligned(data);
+        freeAligned(data);
     }
-    uint32_t Block(uint32_t a) const { return a >> logBlockSize; }
-    uint32_t Offset(uint32_t a) const { return (a & (BlockSize() - 1)); }
+    uint32_t block(uint32_t a) const { return a >> logBlockSize; }
+    uint32_t offset(uint32_t a) const { return (a & (blockSize() - 1)); }
     T &operator()(uint32_t u, uint32_t v) {
-        uint32_t bu = Block(u), bv = Block(v);
-        uint32_t ou = Offset(u), ov = Offset(v);
-        uint32_t offset = BlockSize() * BlockSize() * (uBlocks * bv + bu);
-        offset += BlockSize() * ov + ou;
+        uint32_t bu = block(u), bv = block(v);
+        uint32_t ou = offset(u), ov = offset(v);
+        uint32_t offset = blockSize() * blockSize() * (uBlocks * bv + bu);
+        offset += blockSize() * ov + ou;
         return data[offset];
     }
     const T &operator()(uint32_t u, uint32_t v) const {
-        uint32_t bu = Block(u), bv = Block(v);
-        uint32_t ou = Offset(u), ov = Offset(v);
-        uint32_t offset = BlockSize() * BlockSize() * (uBlocks * bv + bu);
-        offset += BlockSize() * ov + ou;
+        uint32_t bu = block(u), bv = block(v);
+        uint32_t ou = offset(u), ov = offset(v);
+        uint32_t offset = blockSize() * blockSize() * (uBlocks * bv + bu);
+        offset += blockSize() * ov + ou;
         return data[offset];
     }
-    void GetLinearArray(T *a) const {
+    void linearArray(T *a) const {
         for (uint32_t v = 0; v < vRes; ++v)
             for (uint32_t u = 0; u < uRes; ++u)
                 *a++ = (*this)(u, v);

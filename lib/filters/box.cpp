@@ -36,7 +36,7 @@
 //#include "paramset.h"
 
 // Box Filter Method Definitions
-double BoxFilter::Evaluate(double x, double y) const {
+double BoxFilter::evaluate(double x, double y) const {
     UNUSED(x);
     UNUSED(y);
     return 1.;

@@ -54,12 +54,12 @@ VolumeGridDensity::VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, dou
 double VolumeGridDensity::Density(const Point3D &Pobj) const {
     Point3D local = WorldToVolume(Pobj);
 
-    if (!extent.Inside(local)) {
+    if (!extent.inside(local)) {
         return 0;
     }
 
     // Compute voxel coordinates and offsets for _Pobj_
-    Vector3D vox = extent.Offset(local);
+    Vector3D vox = extent.offset(local);
     vox.x = vox.x * density.n_rows; // - .5f;
     vox.y = vox.y * density.n_cols; // - .5f;
     vox.z = vox.z * density.n_slices; // - .5f;
@@ -85,7 +85,7 @@ double VolumeGridDensity::Density(const Point3D &Pobj) const {
 bool VolumeGridDensity::inside(const Point3D &p) const
 {
     Point3D local = WorldToVolume(p);
-    return extent.Inside(local);
+    return extent.inside(local);
 }
 
 bool VolumeGridDensity::fuzzyInside(const Point3D &p) const

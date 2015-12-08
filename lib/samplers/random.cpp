@@ -50,7 +50,7 @@ RandomSampler::RandomSampler(int xstart, int xend,
 
     RNG rng(xstart + ystart * (xend-xstart));
     for (int i = 0; i < 5 * nSamples; ++i)
-        imageSamples[i] = rng.RandomFloat();
+        imageSamples[i] = rng.randomFloat();
 
     // Shift image samples to pixel coordinates
     for (int o = 0; o < 2 * nSamples; o += 2) {
@@ -62,9 +62,9 @@ RandomSampler::RandomSampler(int xstart, int xend,
 
 
 
-Sampler *RandomSampler::GetSubSampler(int num, int count) {
+Sampler *RandomSampler::subSampler(int num, int count) {
     int x0, x1, y0, y1;
-    ComputeSubWindow(num, count, &x0, &x1, &y0, &y1);
+    computeSubWindow(num, count, &x0, &x1, &y0, &y1);
     if (x0 == x1 || y0 == y1) return NULL;
     return new RandomSampler(x0, x1, y0, y1, nSamples,
        shutterOpen, shutterClose);
@@ -72,7 +72,7 @@ Sampler *RandomSampler::GetSubSampler(int num, int count) {
 
 
 
-int RandomSampler::GetMoreSamples(Sample *sample, RNG &rng) {
+int RandomSampler::moreSamples(Sample *sample, RNG &rng) {
     if (samplePos == nSamples) {
         if (xPixelStart == xPixelEnd || yPixelStart == yPixelEnd) {
             return 0;
@@ -87,7 +87,7 @@ int RandomSampler::GetMoreSamples(Sample *sample, RNG &rng) {
         }
 
         for (int i = 0; i < 4 * nSamples; ++i) {
-            imageSamples[i] = rng.RandomFloat();
+            imageSamples[i] = rng.randomFloat();
         }
 
         // Shift image samples to pixel coordinates
@@ -106,7 +106,7 @@ int RandomSampler::GetMoreSamples(Sample *sample, RNG &rng) {
     // Generate stratified samples for integrators
     for (uint32_t i = 0; i < sample->n1Dsize(); ++i) {
         for (uint32_t j = 0; j < sample->n1Dsize(i); ++j) {
-            sample->get(i, j) = rng.RandomFloat();
+            sample->get(i, j) = rng.randomFloat();
         }
     }
     ++samplePos;

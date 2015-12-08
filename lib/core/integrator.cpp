@@ -55,20 +55,20 @@ Integrator::iterator Integrator::end() {
 void Integrator::next() {
 //    VolumeGridDensity *vr = m_volumeGridDensity;
 //    double ds = 0.12  / (vr->Density(m_ray.origin()) / 40.0);
-    double ds = 0.4 * -log(m_rng->RandomFloat());
+    double ds = 0.4 * -log(m_rng->randomFloat());
 //        double ds = 0.01;
     double g = 0.98;
 //        double g = 1.0;
 
     double cosTheta = Distribution::heyneyGreenstein(g, *m_rng);
     double sinTheta = sqrt(1 - cosTheta*cosTheta);
-    double phi = 2.0 * M_PI * m_rng->RandomFloat();
+    double phi = 2.0 * M_PI * m_rng->randomFloat();
 
     Vector3D perpendicular = m_ray.direction().perpendicular();
-    Transform phiRotation = Rotate(phi, m_ray.direction());
+    Transform phiRotation = rotate(phi, m_ray.direction());
     perpendicular = phiRotation(perpendicular);
 
-    Transform directionRotation = Rotatec(cosTheta, sinTheta, perpendicular);
+    Transform directionRotation = rotatec(cosTheta, sinTheta, perpendicular);
 
     Vector3D direction = directionRotation(m_ray.direction());
     direction = direction.normalized();

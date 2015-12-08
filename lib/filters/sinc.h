@@ -45,7 +45,7 @@ public:
     // LanczosSincFilter Public Methods
     LanczosSincFilter(double xw, double yw, double t)
         : Filter(xw, yw), tau(t) { }
-    double Evaluate(double x, double y) const;
+    double evaluate(double x, double y) const;
     double Sinc1D(double x) const {
         x = fabsf(x);
         if (x < 1e-5) return 1.f;

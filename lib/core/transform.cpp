@@ -35,7 +35,7 @@
 #include <memory.h>
 
 // Matrix4x4 Method Definitions
-bool SolveLinearSystem2x2(const double A[2][2],
+bool solveLinearSystem2x2(const double A[2][2],
         const double B[2], double *x0, double *x1) {
     double det = A[0][0]*A[1][1] - A[0][1]*A[1][0];
     if (fabsf(det) < 1e-10f)
@@ -136,12 +136,12 @@ Matrix4x4 Inverse(const Matrix4x4 &m) {
 
 
 // Transform Method Definitions
-void Transform::Print(FILE *f) const {
+void Transform::print(FILE *f) const {
     m.Print(f);
 }
 
 
-Transform Translate(const Vector3D &delta) {
+Transform translate(const Vector3D &delta) {
     Matrix4x4 m(1, 0, 0, delta.x,
                 0, 1, 0, delta.y,
                 0, 0, 1, delta.z,
@@ -154,7 +154,7 @@ Transform Translate(const Vector3D &delta) {
 }
 
 
-Transform Scale(double x, double y, double z) {
+Transform scale(double x, double y, double z) {
     Matrix4x4 m(x, 0, 0, 0,
                 0, y, 0, 0,
                 0, 0, z, 0,
@@ -167,7 +167,7 @@ Transform Scale(double x, double y, double z) {
 }
 
 
-Transform RotateX(double angle) {
+Transform rotateX(double angle) {
     double sin_t = sinf((angle));
     double cos_t = cosf((angle));
     Matrix4x4 m(1,     0,      0, 0,
@@ -178,7 +178,7 @@ Transform RotateX(double angle) {
 }
 
 
-Transform RotateY(double angle) {
+Transform rotateY(double angle) {
     double sin_t = sinf((angle));
     double cos_t = cosf((angle));
     Matrix4x4 m( cos_t,   0,  sin_t, 0,
@@ -190,7 +190,7 @@ Transform RotateY(double angle) {
 
 
 
-Transform RotateZ(double angle) {
+Transform rotateZ(double angle) {
     double sin_t = sinf((angle));
     double cos_t = cosf((angle));
     Matrix4x4 m(cos_t, -sin_t, 0, 0,
@@ -201,8 +201,8 @@ Transform RotateZ(double angle) {
 }
 
 
-Transform Rotate(double angle, const Vector3D &axis) {
-    Vector3D a = Normalize(axis);
+Transform rotate(double angle, const Vector3D &axis) {
+    Vector3D a = normalize(axis);
     double s = sinf((angle));
     double c = cosf((angle));
     double m[4][4];
@@ -231,8 +231,8 @@ Transform Rotate(double angle, const Vector3D &axis) {
     return Transform(mat, Transpose(mat));
 }
 
-Transform Rotatec(double cosAngle, double sinAngle, const Vector3D &axis) {
-    Vector3D a = Normalize(axis);
+Transform rotatec(double cosAngle, double sinAngle, const Vector3D &axis) {
+    Vector3D a = normalize(axis);
     double s = sinAngle;
     double c = cosAngle;
     double m[4][4];
@@ -262,7 +262,7 @@ Transform Rotatec(double cosAngle, double sinAngle, const Vector3D &axis) {
 }
 
 
-Transform LookAt(const Point3D &pos, const Point3D &look, const Vector3D &up) {
+Transform lookAt(const Point3D &pos, const Point3D &look, const Vector3D &up) {
     double m[4][4];
     // Initialize fourth column of viewing matrix
     m[0][3] = pos.x;
@@ -271,16 +271,16 @@ Transform LookAt(const Point3D &pos, const Point3D &look, const Vector3D &up) {
     m[3][3] = 1;
 
     // Initialize first three columns of viewing matrix
-    Vector3D dir = Normalize(look - pos);
-    if (Cross(Normalize(up), dir).Length() == 0) {
+    Vector3D dir = normalize(look - pos);
+    if (cross(normalize(up), dir).length() == 0) {
         Error("\"up\" vector (%f, %f, %f) and viewing direction (%f, %f, %f) "
               "passed to LookAt are pointing in the same direction.  Using "
               "the identity transformation.", up.x, up.y, up.z, dir.x, dir.y,
               dir.z);
         return Transform();
     }
-    Vector3D left = Normalize(Cross(Normalize(up), dir));
-    Vector3D newUp = Cross(dir, left);
+    Vector3D left = normalize(cross(normalize(up), dir));
+    Vector3D newUp = cross(dir, left);
     m[0][0] = left.x;
     m[1][0] = left.y;
     m[2][0] = left.z;
@@ -301,13 +301,13 @@ Transform LookAt(const Point3D &pos, const Point3D &look, const Vector3D &up) {
 BBox Transform::operator()(const BBox &b) const {
     const Transform &M = *this;
     BBox ret(        M(Point3D(b.pMin.x, b.pMin.y, b.pMin.z)));
-    ret = Union(ret, M(Point3D(b.pMax.x, b.pMin.y, b.pMin.z)));
-    ret = Union(ret, M(Point3D(b.pMin.x, b.pMax.y, b.pMin.z)));
-    ret = Union(ret, M(Point3D(b.pMin.x, b.pMin.y, b.pMax.z)));
-    ret = Union(ret, M(Point3D(b.pMin.x, b.pMax.y, b.pMax.z)));
-    ret = Union(ret, M(Point3D(b.pMax.x, b.pMax.y, b.pMin.z)));
-    ret = Union(ret, M(Point3D(b.pMax.x, b.pMin.y, b.pMax.z)));
-    ret = Union(ret, M(Point3D(b.pMax.x, b.pMax.y, b.pMax.z)));
+    ret = makeUnion(ret, M(Point3D(b.pMax.x, b.pMin.y, b.pMin.z)));
+    ret = makeUnion(ret, M(Point3D(b.pMin.x, b.pMax.y, b.pMin.z)));
+    ret = makeUnion(ret, M(Point3D(b.pMin.x, b.pMin.y, b.pMax.z)));
+    ret = makeUnion(ret, M(Point3D(b.pMin.x, b.pMax.y, b.pMax.z)));
+    ret = makeUnion(ret, M(Point3D(b.pMax.x, b.pMax.y, b.pMin.z)));
+    ret = makeUnion(ret, M(Point3D(b.pMax.x, b.pMin.y, b.pMax.z)));
+    ret = makeUnion(ret, M(Point3D(b.pMax.x, b.pMax.y, b.pMax.z)));
     return ret;
 }
 
@@ -319,7 +319,7 @@ Transform Transform::operator*(const Transform &t2) const {
 }
 
 
-bool Transform::SwapsHandedness() const {
+bool Transform::swapsHandedness() const {
     double det = ((m.m[0][0] *
                   (m.m[1][1] * m.m[2][2] -
                    m.m[1][2] * m.m[2][1])) -
@@ -333,13 +333,13 @@ bool Transform::SwapsHandedness() const {
 }
 
 
-Transform Orthographic(double znear, double zfar) {
-    return Scale(1.f, 1.f, 1.f / (zfar-znear)) *
-           Translate(Vector3D(0.0, 0.0, -znear));
+Transform orthographic(double znear, double zfar) {
+    return scale(1.f, 1.f, 1.f / (zfar-znear)) *
+           translate(Vector3D(0.0, 0.0, -znear));
 }
 
 
-Transform Perspective(double fov, double n, double f) {
+Transform perspective(double fov, double n, double f) {
     // Perform projective divide
     Matrix4x4 persp = Matrix4x4(1, 0,           0,              0,
                                 0, 1,           0,              0,
@@ -348,13 +348,13 @@ Transform Perspective(double fov, double n, double f) {
 
     // Scale to canonical viewing volume
     double invTanAng = 1.f / tanf(Radians(fov) / 2.f);
-    return Scale(invTanAng, invTanAng, 1) * Transform(persp);
+    return scale(invTanAng, invTanAng, 1) * Transform(persp);
 }
 
 
 
 // AnimatedTransform Method Definitions
-void AnimatedTransform::Decompose(const Matrix4x4 &m, Vector3D *T,
+void AnimatedTransform::decompose(const Matrix4x4 &m, Vector3D *T,
                                   Quaternion *Rquat, Matrix4x4 *S) {
     // Extract translation _T_ from transformation matrix
     T->x = m.m[0][3];
@@ -397,7 +397,7 @@ void AnimatedTransform::Decompose(const Matrix4x4 &m, Vector3D *T,
 }
 
 
-void AnimatedTransform::Interpolate(double time, Transform *t) const {
+void AnimatedTransform::interpolate(double time, Transform *t) const {
     // Handle boundary conditions for matrix interpolation
     if (!actuallyAnimated || time <= startTime) {
         *t = *startTransform;
@@ -412,20 +412,20 @@ void AnimatedTransform::Interpolate(double time, Transform *t) const {
     Vector3D trans = (1.f - dt) * T[0] + dt * T[1];
 
     // Interpolate rotation at _dt_
-    Quaternion rotate = Slerp(dt, R[0], R[1]);
+    Quaternion rotate = slerp(dt, R[0], R[1]);
 
     // Interpolate scale at _dt_
     Matrix4x4 scale;
     for (int i = 0; i < 3; ++i)
         for (int j = 0; j < 3; ++j)
-            scale.m[i][j] = Lerp(dt, S[0].m[i][j], S[1].m[i][j]);
+            scale.m[i][j] = lerp(dt, S[0].m[i][j], S[1].m[i][j]);
 
     // Compute interpolated matrix as product of interpolated components
-    *t = Translate(trans) * rotate.ToTransform() * Transform(scale);
+    *t = translate(trans) * rotate.toTransform() * Transform(scale);
 }
 
 
-BBox AnimatedTransform::MotionBounds(const BBox &b,
+BBox AnimatedTransform::motionBounds(const BBox &b,
                                      bool useInverse) const {
     if (!actuallyAnimated)
       return useInverse ? Inverse(*startTransform)(b) : (*startTransform)(b);
@@ -433,10 +433,10 @@ BBox AnimatedTransform::MotionBounds(const BBox &b,
     const int nSteps = 128;
     for (int i = 0; i < nSteps; ++i) {
         Transform t;
-        double time = Lerp(double(i)/double(nSteps-1), startTime, endTime);
-        Interpolate(time, &t);
+        double time = lerp(double(i)/double(nSteps-1), startTime, endTime);
+        interpolate(time, &t);
         if (useInverse) t = Inverse(t);
-        ret = Union(ret, t(b));
+        ret = makeUnion(ret, t(b));
     }
     return ret;
 }
@@ -449,7 +449,7 @@ void AnimatedTransform::operator()(const Ray &r, Ray *tr) const {
         (*endTransform)(r, tr);
     else {
         Transform t;
-        Interpolate(r.m_time, &t);
+        interpolate(r.m_time, &t);
         t(r, tr);
     }
     tr->m_time = r.m_time;
@@ -464,7 +464,7 @@ void AnimatedTransform::operator()(const RayDifferential &r,
         (*endTransform)(r, tr);
     else {
         Transform t;
-        Interpolate(r.m_time, &t);
+        interpolate(r.m_time, &t);
         t(r, tr);
     }
     tr->m_time = r.m_time;
@@ -477,7 +477,7 @@ Point3D AnimatedTransform::operator()(double time, const Point3D &p) const {
     else if (time >= endTime)
         return (*endTransform)(p);
     Transform t;
-    Interpolate(time, &t);
+    interpolate(time, &t);
     return t(p);
 }
 
@@ -488,7 +488,7 @@ Vector3D AnimatedTransform::operator()(double time, const Vector3D &v) const {
     else if (time >= endTime)
         return (*endTransform)(v);
     Transform t;
-    Interpolate(time, &t);
+    interpolate(time, &t);
     return t(v);
 }
 

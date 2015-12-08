@@ -36,7 +36,7 @@
 //#include "paramset.h"
 
 // Mitchell Filter Method Definitions
-double MitchellFilter::Evaluate(double x, double y) const {
+double MitchellFilter::evaluate(double x, double y) const {
     return Mitchell1D(x * invXWidth) * Mitchell1D(y * invYWidth);
 }
 

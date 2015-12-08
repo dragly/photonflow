@@ -42,13 +42,13 @@ RenderView::RenderView(QQuickItem *parent)
 
     double angle = 3.14;
 
-    Transform translation = Translate(Vector3D(0.0, 0.0, 0.0));
-    Transform rotation = Rotate(angle, Vector3D(0.0, 1.0, 0.0));
+    Transform translation = translate(Vector3D(0.0, 0.0, 0.0));
+    Transform rotation = rotate(angle, Vector3D(0.0, 1.0, 0.0));
 
     Transform boxTransform = translation*rotation;
 
 //    Transform boxTransform;
-    cout << "Identity: " << boxTransform.IsIdentity() << endl;
+    cout << "Identity: " << boxTransform.isIdentity() << endl;
 
     Spectrum sigma_a(0.99);
     Spectrum sigma_s(0.0);
@@ -84,7 +84,7 @@ void RenderView::integrate()
     const int width = size.width();
     const int height = size.height();
 
-    const Transform cameraTransform = Translate(Vector3D(0.0, 0.0, -3.0));
+    const Transform cameraTransform = translate(Vector3D(0.0, 0.0, -3.0));
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const double crop[4] = {0.0, 1.0, 0.0, 1.0};
 
@@ -113,7 +113,7 @@ void RenderView::integrate()
         RNG& rng = rngs.at(omp_get_thread_num());
         int actualCount = 0;
         RandomSampler sampler(0, width, 0, height, requestedSampleCount, 0.0, 1.0);
-        int maxSampleCount = sampler.MaximumSampleCount();
+        int maxSampleCount = sampler.maximumSampleCount();
         qDebug() << "Max count: " << maxSampleCount;
 
         Sample originalSample;
@@ -121,17 +121,17 @@ void RenderView::integrate()
         Sample* samples = originalSample.Duplicate(maxSampleCount);
 
         while(true) {
-            int sampleCount = sampler.GetMoreSamples(samples, rng);
+            int sampleCount = sampler.moreSamples(samples, rng);
             if(sampleCount < 1) {
                 break;
             }
             for(int i = 0; i < sampleCount; i++) {
                 Sample sample = samples[i];
                 Ray intersectRay;
-                camera.GenerateRay(sample, &intersectRay);
+                camera.generateRay(sample, &intersectRay);
 
                 double t0, t1;
-                if (!vr.IntersectP(intersectRay, &t0, &t1) || (t1-t0) == 0.0) {
+                if (!vr.intersectP(intersectRay, &t0, &t1) || (t1-t0) == 0.0) {
                     continue;
                 }
 
@@ -152,7 +152,7 @@ void RenderView::integrate()
                     Tr *= vr.sigma_a(ray.origin(), Vector3D(), 0.0);
                     if(vr.Density(ray.origin()) > 60) {
                         Lv += Tr * vr.Lve(ray.origin(), Vector3D(), 0.0);
-                        Assert(!Lv.HasNaNs());
+                        photonFlowAssert(!Lv.hasNaNs());
                     }
                     if(Tr < Spectrum(0.01)) {
                         break;
@@ -161,7 +161,7 @@ void RenderView::integrate()
 
                 Spectrum final = Lv / omp_get_num_threads();
 
-                film->AddSample(sample, final);
+                film->addSample(sample, final);
 
                 actualCount++;
                 if(!(actualCount % 10000) && omp_get_thread_num() == 0) {
@@ -179,19 +179,19 @@ void RenderView::integrate()
         for(int x = 0; x < width; x++) {
 
             Pixel& pixel = (*film->pixels)(x, y);
-            Spectrum result = Spectrum::FromXYZ(pixel.Lxyz);
+            Spectrum result = Spectrum::fromXYZ(pixel.Lxyz);
 
             result /= totalSampleCount;
 
             double rgb[3];
-            result.ToRGB(rgb);
+            result.toRGB(rgb);
 
 //            qDebug() << rgb[0] << rgb[1] << rgb[2];
 
             double factor = 1.0;
-            QColor color(Clamp(rgb[0]*factor, 0.0, 255.0),
-                    Clamp(rgb[1]*factor, 0.0, 255.0),
-                    Clamp(rgb[2]*factor, 0.0, 255.0),
+            QColor color(clamp(rgb[0]*factor, 0.0, 255.0),
+                    clamp(rgb[1]*factor, 0.0, 255.0),
+                    clamp(rgb[2]*factor, 0.0, 255.0),
                     255.0);
 
             m_image.setPixel(x, y, color.rgba());

@@ -36,7 +36,7 @@
 //#include "paramset.h"
 
 // Triangle Filter Method Definitions
-double TriangleFilter::Evaluate(double x, double y) const {
+double TriangleFilter::evaluate(double x, double y) const {
     return max(0.0, xWidth - fabsf(x)) *
            max(0.0, yWidth - fabsf(y));
 }

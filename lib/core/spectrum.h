@@ -50,9 +50,9 @@ using Spectrum=RGBSpectrum;
 static const int sampledLambdaStart = 400;
 static const int sampledLambdaEnd = 700;
 static const int nSpectralSamples = 30;
-extern bool SpectrumSamplesSorted(const double *lambda, const double *vals, int n);
-extern void SortSpectrumSamples(double *lambda, double *vals, int n);
-extern double AverageSpectrumSamples(const double *lambda, const double *vals,
+extern bool spectrumSamplesSorted(const double *lambda, const double *vals, int n);
+extern void sortSpectrumSamples(double *lambda, double *vals, int n);
+extern double averageSpectrumSamples(const double *lambda, const double *vals,
     int n, double lambdaStart, double lambdaEnd);
 inline void XYZToRGB(const double xyz[3], double rgb[3]) {
     rgb[0] =  3.240479f*xyz[0] - 1.537150f*xyz[1] - 0.498535f*xyz[2];
@@ -104,23 +104,23 @@ public:
     CoefficientSpectrum(double v = 0.0) {
         for (int i = 0; i < nSamples; ++i)
             c[i] = v;
-        Assert(!HasNaNs());
+        photonFlowAssert(!hasNaNs());
     }
 #ifdef DEBUG
     CoefficientSpectrum(const CoefficientSpectrum &s) {
-        Assert(!s.HasNaNs());
+        Assert(!s.hasNaNs());
         for (int i = 0; i < nSamples; ++i)
             c[i] = s.c[i];
     }
     
     CoefficientSpectrum &operator=(const CoefficientSpectrum &s) {
-        Assert(!s.HasNaNs());
+        Assert(!s.hasNaNs());
         for (int i = 0; i < nSamples; ++i)
             c[i] = s.c[i];
         return *this;
     }
 #endif // DEBUG
-    void Print(FILE *f) const {
+    void print(FILE *f) const {
         fprintf(f, "[ ");
         for (int i = 0; i < nSamples; ++i) {
             fprintf(f, "%f", c[i]);
@@ -129,41 +129,41 @@ public:
         fprintf(f, "]");
     }
     CoefficientSpectrum &operator+=(const CoefficientSpectrum &s2) {
-        Assert(!s2.HasNaNs());
+        photonFlowAssert(!s2.hasNaNs());
         for (int i = 0; i < nSamples; ++i)
             c[i] += s2.c[i];
         return *this;
     }
     CoefficientSpectrum operator+(const CoefficientSpectrum &s2) const {
-        Assert(!s2.HasNaNs());
+        photonFlowAssert(!s2.hasNaNs());
         CoefficientSpectrum ret = *this;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] += s2.c[i];
         return ret;
     }
     CoefficientSpectrum operator-(const CoefficientSpectrum &s2) const {
-        Assert(!s2.HasNaNs());
+        photonFlowAssert(!s2.hasNaNs());
         CoefficientSpectrum ret = *this;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] -= s2.c[i];
         return ret;
     }
     CoefficientSpectrum operator/(const CoefficientSpectrum &s2) const {
-        Assert(!s2.HasNaNs());
+        photonFlowAssert(!s2.hasNaNs());
         CoefficientSpectrum ret = *this;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] /= s2.c[i];
         return ret;
     }
     CoefficientSpectrum operator*(const CoefficientSpectrum &sp) const {
-        Assert(!sp.HasNaNs());
+        photonFlowAssert(!sp.hasNaNs());
         CoefficientSpectrum ret = *this;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] *= sp.c[i];
         return ret;
     }
     CoefficientSpectrum &operator*=(const CoefficientSpectrum &sp) {
-        Assert(!sp.HasNaNs());
+        photonFlowAssert(!sp.hasNaNs());
         for (int i = 0; i < nSamples; ++i)
             c[i] *= sp.c[i];
         return *this;
@@ -172,30 +172,30 @@ public:
         CoefficientSpectrum ret = *this;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] *= a;
-        Assert(!ret.HasNaNs());
+        photonFlowAssert(!ret.hasNaNs());
         return ret;
     }
     CoefficientSpectrum &operator*=(double a) {
         for (int i = 0; i < nSamples; ++i)
             c[i] *= a;
-        Assert(!HasNaNs());
+        photonFlowAssert(!hasNaNs());
         return *this;
     }
     friend inline
     CoefficientSpectrum operator*(double a, const CoefficientSpectrum &s) {
-        Assert(!isnan(a) && !s.HasNaNs());
+        photonFlowAssert(!isnan(a) && !s.hasNaNs());
         return s * a;
     }
     CoefficientSpectrum operator/(double a) const {
-        Assert(!isnan(a));
+        photonFlowAssert(!isnan(a));
         CoefficientSpectrum ret = *this;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] /= a;
-        Assert(!ret.HasNaNs());
+        photonFlowAssert(!ret.hasNaNs());
         return ret;
     }
     CoefficientSpectrum &operator/=(double a) {
-        Assert(!isnan(a));
+        photonFlowAssert(!isnan(a));
         for (int i = 0; i < nSamples; ++i)
             c[i] /= a;
         return *this;
@@ -222,7 +222,7 @@ public:
         CoefficientSpectrum ret;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] = sqrtf(s.c[i]);
-        Assert(!ret.HasNaNs());
+        photonFlowAssert(!ret.hasNaNs());
         return ret;
     }
     template <int n> friend inline CoefficientSpectrum<n> Pow(const CoefficientSpectrum<n> &s, double e);
@@ -236,17 +236,17 @@ public:
         CoefficientSpectrum ret;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] = expf(s.c[i]);
-        Assert(!ret.HasNaNs());
+        photonFlowAssert(!ret.hasNaNs());
         return ret;
     }
-    CoefficientSpectrum Clamp(double low = 0, double high = INFINITY) const {
+    CoefficientSpectrum clamp(double low = 0, double high = INFINITY) const {
         CoefficientSpectrum ret;
         for (int i = 0; i < nSamples; ++i)
-            ret.c[i] = ::Clamp(c[i], low, high);
-        Assert(!ret.HasNaNs());
+            ret.c[i] = ::clamp(c[i], low, high);
+        photonFlowAssert(!ret.hasNaNs());
         return ret;
     }
-    bool HasNaNs() const {
+    bool hasNaNs() const {
         for (int i = 0; i < nSamples; ++i)
             if (isnan(c[i])) return true;
         return false;
@@ -278,72 +278,72 @@ public:
     static SampledSpectrum FromSampled(const double *lambda,
                                        const double *v, int n) {
         // Sort samples if unordered, use sorted for returned spectrum
-        if (!SpectrumSamplesSorted(lambda, v, n)) {
+        if (!spectrumSamplesSorted(lambda, v, n)) {
             vector<double> slambda(&lambda[0], &lambda[n]);
             vector<double> sv(&v[0], &v[n]);
-            SortSpectrumSamples(&slambda[0], &sv[0], n);
+            sortSpectrumSamples(&slambda[0], &sv[0], n);
             return FromSampled(&slambda[0], &sv[0], n);
         }
         SampledSpectrum r;
         for (int i = 0; i < nSpectralSamples; ++i) {
             // Compute average value of given SPD over $i$th sample's range
-            double lambda0 = Lerp(double(i) / double(nSpectralSamples),
+            double lambda0 = lerp(double(i) / double(nSpectralSamples),
                                  sampledLambdaStart, sampledLambdaEnd);
-            double lambda1 = Lerp(double(i+1) / double(nSpectralSamples),
+            double lambda1 = lerp(double(i+1) / double(nSpectralSamples),
                                  sampledLambdaStart, sampledLambdaEnd);
-            r.c[i] = AverageSpectrumSamples(lambda, v, n, lambda0, lambda1);
+            r.c[i] = averageSpectrumSamples(lambda, v, n, lambda0, lambda1);
         }
         return r;
     }
     static void Init() {
         // Compute XYZ matching functions for _SampledSpectrum_
         for (int i = 0; i < nSpectralSamples; ++i) {
-            double wl0 = Lerp(double(i) / double(nSpectralSamples),
+            double wl0 = lerp(double(i) / double(nSpectralSamples),
                              sampledLambdaStart, sampledLambdaEnd);
-            double wl1 = Lerp(double(i+1) / double(nSpectralSamples),
+            double wl1 = lerp(double(i+1) / double(nSpectralSamples),
                              sampledLambdaStart, sampledLambdaEnd);
-            X.c[i] = AverageSpectrumSamples(CIE_lambda, CIE_X, nCIESamples,
+            X.c[i] = averageSpectrumSamples(CIE_lambda, CIE_X, nCIESamples,
                                             wl0, wl1);
-            Y.c[i] = AverageSpectrumSamples(CIE_lambda, CIE_Y, nCIESamples,
+            Y.c[i] = averageSpectrumSamples(CIE_lambda, CIE_Y, nCIESamples,
                                             wl0, wl1);
-            Z.c[i] = AverageSpectrumSamples(CIE_lambda, CIE_Z, nCIESamples,
+            Z.c[i] = averageSpectrumSamples(CIE_lambda, CIE_Z, nCIESamples,
                                             wl0, wl1);
         }
 
         // Compute RGB to spectrum functions for _SampledSpectrum_
         for (int i = 0; i < nSpectralSamples; ++i) {
-            double wl0 = Lerp(double(i) / double(nSpectralSamples),
+            double wl0 = lerp(double(i) / double(nSpectralSamples),
                              sampledLambdaStart, sampledLambdaEnd);
-            double wl1 = Lerp(double(i+1) / double(nSpectralSamples),
+            double wl1 = lerp(double(i+1) / double(nSpectralSamples),
                              sampledLambdaStart, sampledLambdaEnd);
-            rgbRefl2SpectWhite.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectWhite,
+            rgbRefl2SpectWhite.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectWhite,
                 nRGB2SpectSamples, wl0, wl1);
-            rgbRefl2SpectCyan.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectCyan,
+            rgbRefl2SpectCyan.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectCyan,
                 nRGB2SpectSamples, wl0, wl1);
-            rgbRefl2SpectMagenta.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectMagenta,
+            rgbRefl2SpectMagenta.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectMagenta,
                 nRGB2SpectSamples, wl0, wl1);
-            rgbRefl2SpectYellow.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectYellow,
+            rgbRefl2SpectYellow.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectYellow,
                 nRGB2SpectSamples, wl0, wl1);
-            rgbRefl2SpectRed.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectRed,
+            rgbRefl2SpectRed.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectRed,
                 nRGB2SpectSamples, wl0, wl1);
-            rgbRefl2SpectGreen.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectGreen,
+            rgbRefl2SpectGreen.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectGreen,
                 nRGB2SpectSamples, wl0, wl1);
-            rgbRefl2SpectBlue.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectBlue,
+            rgbRefl2SpectBlue.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBRefl2SpectBlue,
                 nRGB2SpectSamples, wl0, wl1);
         
-            rgbIllum2SpectWhite.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectWhite,
+            rgbIllum2SpectWhite.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectWhite,
                 nRGB2SpectSamples, wl0, wl1);
-            rgbIllum2SpectCyan.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectCyan,
+            rgbIllum2SpectCyan.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectCyan,
                 nRGB2SpectSamples, wl0, wl1);
-            rgbIllum2SpectMagenta.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectMagenta,
+            rgbIllum2SpectMagenta.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectMagenta,
                 nRGB2SpectSamples, wl0, wl1);
-            rgbIllum2SpectYellow.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectYellow,
+            rgbIllum2SpectYellow.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectYellow,
                 nRGB2SpectSamples, wl0, wl1);
-            rgbIllum2SpectRed.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectRed,
+            rgbIllum2SpectRed.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectRed,
                 nRGB2SpectSamples, wl0, wl1);
-            rgbIllum2SpectGreen.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectGreen,
+            rgbIllum2SpectGreen.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectGreen,
                 nRGB2SpectSamples, wl0, wl1);
-            rgbIllum2SpectBlue.c[i] = AverageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectBlue,
+            rgbIllum2SpectBlue.c[i] = averageSpectrumSamples(RGB2SpectLambda, RGBIllum2SpectBlue,
                 nRGB2SpectSamples, wl0, wl1);
         }
     }
@@ -407,26 +407,26 @@ public:
         : CoefficientSpectrum<3>(s) {
         *this = s;
     }
-    static RGBSpectrum FromRGB(const double rgb[3]) {
+    static RGBSpectrum fromRGB(const double rgb[3]) {
         RGBSpectrum s;
         s.c[0] = rgb[0];
         s.c[1] = rgb[1];
         s.c[2] = rgb[2];
-        Assert(!s.HasNaNs());
+        photonFlowAssert(!s.hasNaNs());
         return s;
     }
-    void ToRGB(double *rgb) const {
+    void toRGB(double *rgb) const {
         rgb[0] = c[0];
         rgb[1] = c[1];
         rgb[2] = c[2];
     }
-    const RGBSpectrum &ToRGBSpectrum() const {
+    const RGBSpectrum &toRGBSpectrum() const {
         return *this;
     }
-    void ToXYZ(double xyz[3]) const {
+    void roXYZ(double xyz[3]) const {
         RGBToXYZ(c, xyz);
     }
-    static RGBSpectrum FromXYZ(const double xyz[3]) {
+    static RGBSpectrum fromXYZ(const double xyz[3]) {
         RGBSpectrum r;
         XYZToRGB(xyz, r.c);
         return r;
@@ -435,14 +435,14 @@ public:
         const double YWeight[3] = { 0.212671f, 0.715160f, 0.072169f };
         return YWeight[0] * c[0] + YWeight[1] * c[1] + YWeight[2] * c[2];
     }
-    static RGBSpectrum FromSampled(const double *lambda, const double *v,
+    static RGBSpectrum fromSampled(const double *lambda, const double *v,
                                    int n) {
         // Sort samples if unordered, use sorted for returned spectrum
-        if (!SpectrumSamplesSorted(lambda, v, n)) {
+        if (!spectrumSamplesSorted(lambda, v, n)) {
             vector<double> slambda(&lambda[0], &lambda[n]);
             vector<double> sv(&v[0], &v[n]);
-            SortSpectrumSamples(&slambda[0], &sv[0], n);
-            return FromSampled(&slambda[0], &sv[0], n);
+            sortSpectrumSamples(&slambda[0], &sv[0], n);
+            return fromSampled(&slambda[0], &sv[0], n);
         }
         double xyz[3] = { 0, 0, 0 };
         double yint = 0.0;
@@ -457,7 +457,7 @@ public:
         xyz[0] /= yint;
         xyz[1] /= yint;
         xyz[2] /= yint;
-        return FromXYZ(xyz);
+        return fromXYZ(xyz);
     }
 };
 
@@ -465,16 +465,16 @@ public:
 
 // Spectrum Inline Functions
 template <int nSamples> inline CoefficientSpectrum<nSamples>
-Pow(const CoefficientSpectrum<nSamples> &s, double e) {
+pow(const CoefficientSpectrum<nSamples> &s, double e) {
     CoefficientSpectrum<nSamples> ret;
     for (int i = 0; i < nSamples; ++i)
         ret.c[i] = powf(s.c[i], e);
-    Assert(!ret.HasNaNs());
+    photonFlowAssert(!ret.hasNaNs());
     return ret;
 }
 
 
-inline Spectrum Lerp(double t, const Spectrum &s1, const Spectrum &s2) {
+inline Spectrum lerp(double t, const Spectrum &s1, const Spectrum &s2) {
     return (1.f - t) * s1 + t * s2;
 }
 

@@ -54,9 +54,9 @@ public:
     Camera(const Transform &cam2world, double sopen, double sclose,
            std::shared_ptr<Film> film);
     virtual ~Camera();
-    virtual double GenerateRay(const CameraSample &sample,
+    virtual double generateRay(const CameraSample &sample,
                               Ray *ray) const = 0;
-    virtual double GenerateRayDifferential(const CameraSample &sample, RayDifferential *rd) const;
+    virtual double generateRayDifferential(const CameraSample &sample, RayDifferential *rd) const;
 
     // Camera Public Data
     Transform CameraToWorld;

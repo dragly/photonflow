@@ -31,7 +31,7 @@ TEST_CASE( "Heyney Greenstein", "[heyneygreenstein]" ) {
 
         Vector3D left(1.0, 0.0, 0.0);
         Vector3D up(0.0, 0.0, 1.0);
-        Transform rotation = Rotate(90, up);
+        Transform rotation = rotate(90, up);
         cout << rotation(left) << endl;
     }
 }

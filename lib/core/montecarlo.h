@@ -82,17 +82,17 @@ struct Distribution1D {
         delete[] func;
         delete[] cdf;
     }
-    double SampleContinuous(double u, double *pdf, int *off = NULL) const {
+    double sampleContinuous(double u, double *pdf, int *off = NULL) const {
         // Find surrounding CDF segments and _offset_
         double *ptr = std::upper_bound(cdf, cdf+count+1, u);
         int offset = max(0, int(ptr-cdf-1));
         if (off) *off = offset;
-        Assert(offset < count);
-        Assert(u >= cdf[offset] && u < cdf[offset+1]);
+        photonFlowAssert(offset < count);
+        photonFlowAssert(u >= cdf[offset] && u < cdf[offset+1]);
 
         // Compute offset along CDF segment
         double du = (u - cdf[offset]) / (cdf[offset+1] - cdf[offset]);
-        Assert(!isnan(du));
+        photonFlowAssert(!isnan(du));
 
         // Compute PDF for sampled offset
         if (pdf) *pdf = func[offset] / funcInt;
@@ -100,12 +100,12 @@ struct Distribution1D {
         // Return $x\in{}[0,1)$ corresponding to sample
         return (offset + du) / count;
     }
-    int SampleDiscrete(double u, double *pdf) const {
+    int sampleDiscrete(double u, double *pdf) const {
         // Find surrounding CDF segments and _offset_
         double *ptr = std::upper_bound(cdf, cdf+count+1, u);
         int offset = max(0, int(ptr-cdf-1));
-        Assert(offset < count);
-        Assert(u >= cdf[offset] && u < cdf[offset+1]);
+        photonFlowAssert(offset < count);
+        photonFlowAssert(u >= cdf[offset] && u < cdf[offset+1]);
         if (pdf) *pdf = func[offset] / (funcInt * count);
         return offset;
     }
@@ -118,32 +118,32 @@ private:
 };
 
 
-void RejectionSampleDisk(double *x, double *y, RNG &rng);
-Vector3D UniformSampleHemisphere(double u1, double u2);
-double  UniformHemispherePdf();
-Vector3D UniformSampleSphere(double u1, double u2);
-double  UniformSpherePdf();
-Vector3D UniformSampleCone(double u1, double u2, double thetamax);
-Vector3D UniformSampleCone(double u1, double u2, double thetamax,
+void rejectionSampleDisk(double *x, double *y, RNG &rng);
+Vector3D uniformSampleHemisphere(double u1, double u2);
+double  uniformHemispherePdf();
+Vector3D uniformSampleSphere(double u1, double u2);
+double  uniformSpherePdf();
+Vector3D uniformSampleCone(double u1, double u2, double thetamax);
+Vector3D uniformSampleCone(double u1, double u2, double thetamax,
     const Vector3D &x, const Vector3D &y, const Vector3D &z);
-double  UniformConePdf(double thetamax);
-void UniformSampleDisk(double u1, double u2, double *x, double *y);
-void ConcentricSampleDisk(double u1, double u2, double *dx, double *dy);
-inline Vector3D CosineSampleHemisphere(double u1, double u2) {
+double  uniformConePdf(double thetamax);
+void uniformSampleDisk(double u1, double u2, double *x, double *y);
+void concentricSampleDisk(double u1, double u2, double *dx, double *dy);
+inline Vector3D cosineSampleHemisphere(double u1, double u2) {
     Vector3D ret;
-    ConcentricSampleDisk(u1, u2, &ret.x, &ret.y);
+    concentricSampleDisk(u1, u2, &ret.x, &ret.y);
     ret.z = sqrtf(max(0.0, 1.f - ret.x*ret.x - ret.y*ret.y));
     return ret;
 }
 
 
-inline double CosineHemispherePdf(double costheta, double phi) {
+inline double cosineHemispherePdf(double costheta, double phi) {
     UNUSED((phi));
     return costheta * INV_PI;
 }
 
 
-void UniformSampleTriangle(double ud1, double ud2, double *u, double *v);
+void uniformSampleTriangle(double ud1, double ud2, double *u, double *v);
 struct Distribution2D {
     // Distribution2D Public Methods
     Distribution2D(const double *data, int nu, int nv);
@@ -152,14 +152,14 @@ struct Distribution2D {
                           double *pdf) const {
         double pdfs[2];
         int v;
-        uv[1] = pMarginal->SampleContinuous(u1, &pdfs[1], &v);
-        uv[0] = pConditionalV[v]->SampleContinuous(u0, &pdfs[0]);
+        uv[1] = pMarginal->sampleContinuous(u1, &pdfs[1], &v);
+        uv[0] = pConditionalV[v]->sampleContinuous(u0, &pdfs[0]);
         *pdf = pdfs[0] * pdfs[1];
     }
     double Pdf(double u, double v) const {
-        int iu = Clamp(Float2Int(u * pConditionalV[0]->count), 0,
+        int iu = clamp(Float2Int(u * pConditionalV[0]->count), 0,
                        pConditionalV[0]->count-1);
-        int iv = Clamp(Float2Int(v * pMarginal->count), 0,
+        int iv = clamp(Float2Int(v * pMarginal->count), 0,
                        pMarginal->count-1);
         if (pConditionalV[iv]->funcInt * pMarginal->funcInt == 0.0) return 0.0;
         return (pConditionalV[iv]->func[iu] * pMarginal->func[iv]) /
@@ -172,21 +172,21 @@ private:
 };
 
 
-void StratifiedSample1D(double *samples, int nsamples, RNG &rng,
+void stratifiedSample1D(double *samples, int nsamples, RNG &rng,
                         bool jitter = true);
-void StratifiedSample2D(double *samples, int nx, int ny, RNG &rng,
+void stratifiedSample2D(double *samples, int nx, int ny, RNG &rng,
                         bool jitter = true);
 template <typename T>
-void Shuffle(T *samp, uint32_t count, uint32_t dims, RNG &rng) {
+void shuffle(T *samp, uint32_t count, uint32_t dims, RNG &rng) {
     for (uint32_t i = 0; i < count; ++i) {
-        uint32_t other = i + (rng.RandomUInt() % (count - i));
+        uint32_t other = i + (rng.randomUInt() % (count - i));
         for (uint32_t j = 0; j < dims; ++j)
             swap(samp[dims*i + j], samp[dims*other + j]);
     }
 }
 
 
-void LatinHypercube(double *samples, uint32_t nSamples, uint32_t nDim, RNG &rng);
+void latinHypercube(double *samples, uint32_t nSamples, uint32_t nDim, RNG &rng);
 inline double RadicalInverse(int n, int base) {
     double val = 0;
     double invBase = 1. / base, invBi = invBase;
@@ -201,14 +201,14 @@ inline double RadicalInverse(int n, int base) {
 }
 
 
-inline void GeneratePermutation(uint32_t *buf, uint32_t b, RNG &rng) {
+inline void generatePermutation(uint32_t *buf, uint32_t b, RNG &rng) {
     for (uint32_t i = 0; i < b; ++i)
         buf[i] = i;
-    Shuffle(buf, b, 1, rng);
+    shuffle(buf, b, 1, rng);
 }
 
 
-inline double PermutedRadicalInverse(uint32_t n, uint32_t base,
+inline double permutedRadicalInverse(uint32_t n, uint32_t base,
                                      const uint32_t *p) {
     double val = 0;
     double invBase = 1. / base, invBi = invBase;
@@ -234,7 +234,7 @@ public:
     void Sample(uint32_t n, double *out) const {
         uint32_t *p = permute;
         for (uint32_t i = 0; i < dims; ++i) {
-            out[i] = min(double(PermutedRadicalInverse(n, b[i], p)), 
+            out[i] = min(double(permutedRadicalInverse(n, b[i], p)),
                          OneMinusEpsilon);
             p += b[i];
         }
@@ -248,23 +248,23 @@ private:
 };
 
 
-inline double VanDerCorput(uint32_t n, uint32_t scramble = 0);
-inline double Sobol2(uint32_t n, uint32_t scramble = 0);
-inline double LarcherPillichshammer2(uint32_t n, uint32_t scramble = 0);
-inline void Sample02(uint32_t n, const uint32_t scramble[2], double sample[2]);
+inline double vanDerCorput(uint32_t n, uint32_t scramble = 0);
+inline double sobol2(uint32_t n, uint32_t scramble = 0);
+inline double larcherPillichshammer2(uint32_t n, uint32_t scramble = 0);
+inline void sample02(uint32_t n, const uint32_t scramble[2], double sample[2]);
 //int LDPixelSampleFloatsNeeded(const Sample *sample, int nPixelSamples);
 //void LDPixelSample(int xPos, int yPos, double shutterOpen,
 //    double shutterClose, int nPixelSamples, Sample *samples, double *buf, RandomNumberGenerator &rng);
-Vector3D SampleHG(const Vector3D &w, double g, double u1, double u2);
+Vector3D sampleHG(const Vector3D &w, double g, double u1, double u2);
 double HGPdf(const Vector3D &w, const Vector3D &wp, double g);
 
 // Monte Carlo Inline Functions
-inline double BalanceHeuristic(int nf, double fPdf, int ng, double gPdf) {
+inline double balanceHeuristic(int nf, double fPdf, int ng, double gPdf) {
     return (nf * fPdf) / (nf * fPdf + ng * gPdf);
 }
 
 
-inline double PowerHeuristic(int nf, double fPdf, int ng, double gPdf) {
+inline double powerHeuristic(int nf, double fPdf, int ng, double gPdf) {
     double f = nf * fPdf, g = ng * gPdf;
     return (f*f) / (f*f + g*g);
 }
@@ -272,14 +272,14 @@ inline double PowerHeuristic(int nf, double fPdf, int ng, double gPdf) {
 
 
 // Sampling Inline Functions
-inline void Sample02(uint32_t n, const uint32_t scramble[2],
+inline void sample02(uint32_t n, const uint32_t scramble[2],
                      double sample[2]) {
-    sample[0] = VanDerCorput(n, scramble[0]);
-    sample[1] = Sobol2(n, scramble[1]);
+    sample[0] = vanDerCorput(n, scramble[0]);
+    sample[1] = sobol2(n, scramble[1]);
 }
 
 
-inline double VanDerCorput(uint32_t n, uint32_t scramble) {
+inline double vanDerCorput(uint32_t n, uint32_t scramble) {
     // Reverse bits of _n_
     n = (n << 16) | (n >> 16);
     n = ((n & 0x00ff00ff) << 8) | ((n & 0xff00ff00) >> 8);
@@ -291,7 +291,7 @@ inline double VanDerCorput(uint32_t n, uint32_t scramble) {
 }
 
 
-inline double Sobol2(uint32_t n, uint32_t scramble) {
+inline double sobol2(uint32_t n, uint32_t scramble) {
     for (uint32_t v = 1 << 31; n != 0; n >>= 1, v ^= v >> 1)
         if (n & 0x1) scramble ^= v;
     return min(((scramble>>8) & 0xffffff) / double(1 << 24), OneMinusEpsilon);
@@ -299,7 +299,7 @@ inline double Sobol2(uint32_t n, uint32_t scramble) {
 
 
 inline double
-LarcherPillichshammer2(uint32_t n, uint32_t scramble) {
+larcherPillichshammer2(uint32_t n, uint32_t scramble) {
     for (uint32_t v = 1 << 31; n != 0; n >>= 1, v |= v >> 1)
         if (n & 0x1) scramble ^= v;
     return min(((scramble>>8) & 0xffffff) / double(1 << 24), OneMinusEpsilon);
@@ -308,23 +308,23 @@ LarcherPillichshammer2(uint32_t n, uint32_t scramble) {
 
 inline void LDShuffleScrambled1D(int nSamples, int nPixel,
                                  double *samples, RNG &rng) {
-    uint32_t scramble = rng.RandomUInt();
+    uint32_t scramble = rng.randomUInt();
     for (int i = 0; i < nSamples * nPixel; ++i)
-        samples[i] = VanDerCorput(i, scramble);
+        samples[i] = vanDerCorput(i, scramble);
     for (int i = 0; i < nPixel; ++i)
-        Shuffle(samples + i * nSamples, nSamples, 1, rng);
-    Shuffle(samples, nPixel, nSamples, rng);
+        shuffle(samples + i * nSamples, nSamples, 1, rng);
+    shuffle(samples, nPixel, nSamples, rng);
 }
 
 
 inline void LDShuffleScrambled2D(int nSamples, int nPixel,
                                  double *samples, RNG &rng) {
-    uint32_t scramble[2] = { rng.RandomUInt(), rng.RandomUInt() };
+    uint32_t scramble[2] = { rng.randomUInt(), rng.randomUInt() };
     for (int i = 0; i < nSamples * nPixel; ++i)
-        Sample02(i, scramble, &samples[2*i]);
+        sample02(i, scramble, &samples[2*i]);
     for (int i = 0; i < nPixel; ++i)
-        Shuffle(samples + 2 * i * nSamples, nSamples, 2, rng);
-    Shuffle(samples, nPixel, 2 * nSamples, rng);
+        shuffle(samples + 2 * i * nSamples, nSamples, 2, rng);
+    shuffle(samples, nPixel, 2 * nSamples, rng);
 }
 
 

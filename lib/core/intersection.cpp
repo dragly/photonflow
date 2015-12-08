@@ -35,7 +35,7 @@
 #include "intersection.h"
 #include "shape.h"
 
-Spectrum Intersection::Le(const Vector3D &w) const {
+Spectrum Intersection::emission(const Vector3D &w) const {
     UNUSED(w);
     return Spectrum(0.);
 }

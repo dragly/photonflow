@@ -52,8 +52,8 @@ public:
     PerspectiveCamera(const Transform &cam2world,
         const Rectangle &screenWindow, double sopen, double sclose,
         double lensr, double focald, double fov, std::shared_ptr<Film> film);
-    double GenerateRay(const CameraSample &sample, Ray *) const;
-    double GenerateRayDifferential(const CameraSample &sample,
+    double generateRay(const CameraSample &sample, Ray *) const;
+    double generateRayDifferential(const CameraSample &sample,
                                   RayDifferential *ray) const;
 private:
     // PerspectiveCamera Private Data

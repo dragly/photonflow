@@ -36,7 +36,7 @@
 //#include "paramset.h"
 
 // Gaussian Filter Method Definitions
-double GaussianFilter::Evaluate(double x, double y) const {
+double GaussianFilter::evaluate(double x, double y) const {
     return Gaussian(x, expX) * Gaussian(y, expY);
 }
 

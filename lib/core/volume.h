@@ -53,8 +53,8 @@ double PhaseSchlick(const Vector3D &w, const Vector3D &wp, double g);
 class VolumeRegion {
 public:
     // VolumeRegion Interface
-    virtual BBox WorldBound() const = 0;
-    virtual bool IntersectP(const Ray &ray, double *t0, double *t1) const = 0;
+    virtual BBox worldBound() const = 0;
+    virtual bool intersectP(const Ray &ray, double *t0, double *t1) const = 0;
     virtual Spectrum sigma_a(const Point3D &, const Vector3D &,
                              double time) const = 0;
     virtual Spectrum sigma_s(const Point3D &, const Vector3D &,
@@ -113,8 +113,8 @@ public:
     // AggregateVolume Public Methods
     AggregateVolume(const vector<VolumeRegion *> &r);
     ~AggregateVolume();
-    BBox WorldBound() const;
-    bool IntersectP(const Ray &ray, double *t0, double *t1) const;
+    BBox worldBound() const;
+    bool intersectP(const Ray &ray, double *t0, double *t1) const;
     Spectrum sigma_a(const Point3D &, const Vector3D &, double) const;
     Spectrum sigma_s(const Point3D &, const Vector3D &, double) const;
     Spectrum Lve(const Point3D &, const Vector3D &, double) const;
@@ -128,7 +128,7 @@ private:
 };
 
 
-bool GetVolumeScatteringProperties(const std::string &name, Spectrum *sigma_a,
+bool volumeScatteringProperties(const std::string &name, Spectrum *sigma_a,
                                    Spectrum *sigma_prime_s);
 //class VolumeIntegrator : public Integrator {
 //public:
@@ -142,7 +142,7 @@ bool GetVolumeScatteringProperties(const std::string &name, Spectrum *sigma_a,
 //};
 
 
-void SubsurfaceFromDiffuse(const Spectrum &Kd, double meanPathLength, double eta,
+void subsurfaceFromDiffuse(const Spectrum &Kd, double meanPathLength, double eta,
                            Spectrum *sigma_a, Spectrum *sigma_prime_s);
 
 #endif // PBRT_CORE_VOLUME_H

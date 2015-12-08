@@ -43,7 +43,7 @@
 class TriangleFilter : public Filter {
 public:
     TriangleFilter(double xw, double yw) : Filter(xw, yw) { }
-    double Evaluate(double x, double y) const;
+    double evaluate(double x, double y) const;
 };
 
 

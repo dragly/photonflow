@@ -108,7 +108,7 @@ public:
     Transform(const Matrix4x4 &mat, const Matrix4x4 &minv)
        : m(mat), mInv(minv) {
     }
-    void Print(FILE *f) const;
+    void print(FILE *f) const;
     friend Transform Inverse(const Transform &t) {
         return Transform(t.mInv, t.m);
     }
@@ -129,7 +129,7 @@ public:
             }
         return false;
     }
-    bool IsIdentity() const {
+    bool isIdentity() const {
         return (m.m[0][0] == 1.f && m.m[0][1] == 0.0 &&
                 m.m[0][2] == 0.0 && m.m[0][3] == 0.0 &&
                 m.m[1][0] == 0.0 && m.m[1][1] == 1.f &&
@@ -139,12 +139,12 @@ public:
                 m.m[3][0] == 0.0 && m.m[3][1] == 0.0 &&
                 m.m[3][2] == 0.0 && m.m[3][3] == 1.f);
     }
-    const Matrix4x4 &GetMatrix() const { return m; }
-    const Matrix4x4 &GetInverseMatrix() const { return mInv; }
-    bool HasScale() const {
-        double la2 = (*this)(Vector3D(1,0,0)).LengthSquared();
-        double lb2 = (*this)(Vector3D(0,1,0)).LengthSquared();
-        double lc2 = (*this)(Vector3D(0,0,1)).LengthSquared();
+    const Matrix4x4 &matrix() const { return m; }
+    const Matrix4x4 &inverseMatrix() const { return mInv; }
+    bool hasScale() const {
+        double la2 = (*this)(Vector3D(1,0,0)).lengthSquared();
+        double lb2 = (*this)(Vector3D(0,1,0)).lengthSquared();
+        double lc2 = (*this)(Vector3D(0,0,1)).lengthSquared();
 #define NOT_ONE(x) ((x) < .999f || (x) > 1.001f)
         return (NOT_ONE(la2) || NOT_ONE(lb2) || NOT_ONE(lc2));
 #undef NOT_ONE
@@ -161,7 +161,7 @@ public:
     inline void operator()(const RayDifferential &r, RayDifferential *rt) const;
     BBox operator()(const BBox &b) const;
     Transform operator*(const Transform &t2) const;
-    bool SwapsHandedness() const;
+    bool swapsHandedness() const;
 private:
     // Transform Private Data
     Matrix4x4 m, mInv;
@@ -170,18 +170,18 @@ private:
 };
 
 
-Transform Translate(const Vector3D &delta);
-Transform Scale(double x, double y, double z);
-Transform RotateX(double angle);
-Transform RotateY(double angle);
-Transform RotateZ(double angle);
-Transform Rotate(double angle, const Vector3D &axis);
-Transform Rotatec(double cosAngle, double sinAngle, const Vector3D &axis);
-Transform LookAt(const Point3D &pos, const Point3D &look, const Vector3D &up);
-bool SolveLinearSystem2x2(const double A[2][2], const double B[2],
+Transform translate(const Vector3D &delta);
+Transform scale(double x, double y, double z);
+Transform rotateX(double angle);
+Transform rotateY(double angle);
+Transform rotateZ(double angle);
+Transform rotate(double angle, const Vector3D &axis);
+Transform rotatec(double cosAngle, double sinAngle, const Vector3D &axis);
+Transform lookAt(const Point3D &pos, const Point3D &look, const Vector3D &up);
+bool solveLinearSystem2x2(const double A[2][2], const double B[2],
     double *x0, double *x1);
-Transform Orthographic(double znear, double zfar);
-Transform Perspective(double fov, double znear, double zfar);
+Transform orthographic(double znear, double zfar);
+Transform perspective(double fov, double znear, double zfar);
 
 // Transform Inline Functions
 inline Point3D Transform::operator()(const Point3D &pt) const {
@@ -190,7 +190,7 @@ inline Point3D Transform::operator()(const Point3D &pt) const {
     double yp = m.m[1][0]*x + m.m[1][1]*y + m.m[1][2]*z + m.m[1][3];
     double zp = m.m[2][0]*x + m.m[2][1]*y + m.m[2][2]*z + m.m[2][3];
     double wp = m.m[3][0]*x + m.m[3][1]*y + m.m[3][2]*z + m.m[3][3];
-    Assert(wp != 0);
+    photonFlowAssert(wp != 0);
     if (wp == 1.) return Point3D(xp, yp, zp);
     else          return Point3D(xp, yp, zp)/wp;
 }
@@ -299,18 +299,18 @@ public:
         : startTime(time1), endTime(time2),
           startTransform(transform1), endTransform(transform2),
           actuallyAnimated(*startTransform != *endTransform) {
-        Decompose(startTransform->m, &T[0], &R[0], &S[0]);
-        Decompose(endTransform->m, &T[1], &R[1], &S[1]);
+        decompose(startTransform->m, &T[0], &R[0], &S[0]);
+        decompose(endTransform->m, &T[1], &R[1], &S[1]);
     }
-    static void Decompose(const Matrix4x4 &m, Vector3D *T, Quaternion *R, Matrix4x4 *S);
-    void Interpolate(double time, Transform *t) const;
+    static void decompose(const Matrix4x4 &m, Vector3D *T, Quaternion *R, Matrix4x4 *S);
+    void interpolate(double time, Transform *t) const;
     void operator()(const Ray &r, Ray *tr) const;
     void operator()(const RayDifferential &r, RayDifferential *tr) const;
     Point3D operator()(double time, const Point3D &p) const;
     Vector3D operator()(double time, const Vector3D &v) const;
     Ray operator()(const Ray &r) const;
-    BBox MotionBounds(const BBox &b, bool useInverse) const;
-    bool HasScale() const { return startTransform->HasScale() || endTransform->HasScale(); }
+    BBox motionBounds(const BBox &b, bool useInverse) const;
+    bool hasScale() const { return startTransform->hasScale() || endTransform->hasScale(); }
 private:
     // AnimatedTransform Private Data
     const double startTime, endTime;

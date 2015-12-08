@@ -53,7 +53,7 @@ struct DifferentialGeometry {
             const Vector3D &DPDV, const Normal &DNDU,
             const Normal &DNDV, double uu, double vv,
             const Shape *sh);
-    void ComputeDifferentials(const RayDifferential &r) const;
+    void computeDifferentials(const RayDifferential &r) const;
 
     // DifferentialGeometry Public Data
     Point3D p;

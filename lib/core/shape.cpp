@@ -41,7 +41,7 @@ Shape::~Shape() {
 
 Shape::Shape(const Transform *o2w, const Transform *w2o, bool ro)
     : ObjectToWorld(o2w), WorldToObject(w2o), ReverseOrientation(ro),
-      TransformSwapsHandedness(o2w->SwapsHandedness()),
+      TransformSwapsHandedness(o2w->swapsHandedness()),
       shapeId(nextshapeId++) {
     // Update shape creation statistics
 //    PBRT_CREATED_SHAPE(this);
@@ -49,23 +49,23 @@ Shape::Shape(const Transform *o2w, const Transform *w2o, bool ro)
 
 
 uint32_t Shape::nextshapeId = 1;
-BBox Shape::WorldBound() const {
-    return (*ObjectToWorld)(ObjectBound());
+BBox Shape::worldBound() const {
+    return (*ObjectToWorld)(objectBound());
 }
 
 
-bool Shape::CanIntersect() const {
+bool Shape::canIntersect() const {
     return true;
 }
 
 
-void Shape::Refine(vector<Shape> &refined) const {
+void Shape::refine(vector<Shape> &refined) const {
     UNUSED(refined);
     Severe("Unimplemented Shape::Refine() method called");
 }
 
 
-bool Shape::Intersect(const Ray &ray, double *tHit, double *rayEpsilon,
+bool Shape::intersect(const Ray &ray, double *tHit, double *rayEpsilon,
                       DifferentialGeometry *dg) const {
     UNUSED(ray);
     UNUSED(tHit);
@@ -76,30 +76,30 @@ bool Shape::Intersect(const Ray &ray, double *tHit, double *rayEpsilon,
 }
 
 
-bool Shape::IntersectP(const Ray &ray) const {
+bool Shape::intersectP(const Ray &ray) const {
     UNUSED(ray);
     Severe("Unimplemented Shape::IntersectP() method called");
     return false;
 }
 
 
-double Shape::Area() const {
+double Shape::area() const {
     Severe("Unimplemented Shape::Area() method called");
     return 0.;
 }
 
 
-double Shape::Pdf(const Point3D &p, const Vector3D &wi) const {
+double Shape::probabilityDistributionFunction(const Point3D &p, const Vector3D &wi) const {
     // Intersect sample ray with area light geometry
     DifferentialGeometry dgLight;
     Ray ray(p, wi, 1e-3f);
     ray.m_depth = -1; // temporary hack to ignore alpha mask
     double thit, rayEpsilon;
-    if (!Intersect(ray, &thit, &rayEpsilon, &dgLight)) return 0.;
+    if (!intersect(ray, &thit, &rayEpsilon, &dgLight)) return 0.;
 
     // Convert light sample weight to solid angle measure
-    double pdf = DistanceSquared(p, ray(thit)) /
-                (AbsDot(dgLight.nn, -wi) * Area());
+    double pdf = distanceSquared(p, ray(thit)) /
+                (absDot(dgLight.nn, -wi) * area());
     if (isinf(pdf)) pdf = 0.0;
     return pdf;
 }

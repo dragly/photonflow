@@ -46,7 +46,7 @@ public:
     MitchellFilter(double b, double c, double xw, double yw)
         : Filter(xw, yw), B(b), C(c) {
     }
-    double Evaluate(double x, double y) const;
+    double evaluate(double x, double y) const;
     double Mitchell1D(double x) const {
         x = fabsf(2.f * x);
         if (x > 1.f)

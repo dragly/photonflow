@@ -46,7 +46,7 @@ public:
     GaussianFilter(double xw, double yw, double a)
         : Filter(xw, yw), alpha(a), expX(expf(-alpha * xWidth * xWidth)),
           expY(expf(-alpha * yWidth * yWidth)) { }
-    double Evaluate(double x, double y) const;
+    double evaluate(double x, double y) const;
 private:
     // GaussianFilter Private Data
     const double alpha;

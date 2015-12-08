@@ -43,7 +43,7 @@ DifferentialGeometry::DifferentialGeometry(const Point3D &P,
         double uu, double vv, const Shape *sh)
     : p(P), dpdu(DPDU), dpdv(DPDV), dndu(DNDU), dndv(DNDV) {
     // Initialize _DifferentialGeometry_ from parameters
-    nn = Normal(Normalize(Cross(dpdu, dpdv)));
+    nn = Normal(normalize(cross(dpdu, dpdv)));
     u = uu;
     v = vv;
     shape = sh;
@@ -55,19 +55,19 @@ DifferentialGeometry::DifferentialGeometry(const Point3D &P,
 }
 
 
-void DifferentialGeometry::ComputeDifferentials(
+void DifferentialGeometry::computeDifferentials(
         const RayDifferential &ray) const {
     if (ray.hasDifferentials) {
         // Estimate screen space change in $\pt{}$ and $(u,v)$
 
         // Compute auxiliary intersection points with plane
-        double d = -Dot(nn, Vector3D(p.x, p.y, p.z));
+        double d = -dot(nn, Vector3D(p.x, p.y, p.z));
         Vector3D rxv(ray.rxOrigin.x, ray.rxOrigin.y, ray.rxOrigin.z);
-        double tx = -(Dot(nn, rxv) + d) / Dot(nn, ray.rxDirection);
+        double tx = -(dot(nn, rxv) + d) / dot(nn, ray.rxDirection);
         if (isnan(tx)) goto fail;
         Point3D px = ray.rxOrigin + tx * ray.rxDirection;
         Vector3D ryv(ray.ryOrigin.x, ray.ryOrigin.y, ray.ryOrigin.z);
-        double ty = -(Dot(nn, ryv) + d) / Dot(nn, ray.ryDirection);
+        double ty = -(dot(nn, ryv) + d) / dot(nn, ray.ryDirection);
         if (isnan(ty)) goto fail;
         Point3D py = ray.ryOrigin + ty * ray.ryDirection;
         dpdx = px - p;
@@ -97,10 +97,10 @@ void DifferentialGeometry::ComputeDifferentials(
         Bx[1] = px[axes[1]] - p[axes[1]];
         By[0] = py[axes[0]] - p[axes[0]];
         By[1] = py[axes[1]] - p[axes[1]];
-        if (!SolveLinearSystem2x2(A, Bx, &dudx, &dvdx)) {
+        if (!solveLinearSystem2x2(A, Bx, &dudx, &dvdx)) {
             dudx = 0.; dvdx = 0.;
         }
-        if (!SolveLinearSystem2x2(A, By, &dudy, &dvdy)) {
+        if (!solveLinearSystem2x2(A, By, &dudy, &dvdy)) {
             dudy = 0.; dvdy = 0.;
         }
     }

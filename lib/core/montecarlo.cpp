@@ -145,42 +145,42 @@ static const int primes[] = {
 
 
 // Sampling Function Definitions
-void StratifiedSample1D(double *samp, int nSamples, RNG &rng,
+void stratifiedSample1D(double *samp, int nSamples, RNG &rng,
                         bool jitter) {
     double invTot = 1.f / nSamples;
     for (int i = 0;  i < nSamples; ++i) {
-        double delta = jitter ? rng.RandomFloat() : 0.5f;
+        double delta = jitter ? rng.randomFloat() : 0.5f;
         *samp++ = min((i + delta) * invTot, OneMinusEpsilon);
     }
 }
 
 
-void StratifiedSample2D(double *samp, int nx, int ny, RNG &rng,
+void stratifiedSample2D(double *samp, int nx, int ny, RNG &rng,
                         bool jitter) {
     double dx = 1.f / nx, dy = 1.f / ny;
     for (int y = 0; y < ny; ++y)
         for (int x = 0; x < nx; ++x) {
-            double jx = jitter ? rng.RandomFloat() : 0.5f;
-            double jy = jitter ? rng.RandomFloat() : 0.5f;
+            double jx = jitter ? rng.randomFloat() : 0.5f;
+            double jy = jitter ? rng.randomFloat() : 0.5f;
             *samp++ = min((x + jx) * dx, OneMinusEpsilon);
             *samp++ = min((y + jy) * dy, OneMinusEpsilon);
         }
 }
 
 
-void LatinHypercube(double *samples, uint32_t nSamples, uint32_t nDim,
+void latinHypercube(double *samples, uint32_t nSamples, uint32_t nDim,
                     RNG &rng) {
     // Generate LHS samples along diagonal
     double delta = 1.f / nSamples;
     for (uint32_t i = 0; i < nSamples; ++i)
         for (uint32_t j = 0; j < nDim; ++j)
-            samples[nDim * i + j] = min((i + (rng.RandomFloat())) * delta,
+            samples[nDim * i + j] = min((i + (rng.randomFloat())) * delta,
                                         OneMinusEpsilon);
 
     // Permute LHS samples in each dimension
     for (uint32_t i = 0; i < nDim; ++i) {
         for (uint32_t j = 0; j < nSamples; ++j) {
-            uint32_t other = j + (rng.RandomUInt() % (nSamples - j));
+            uint32_t other = j + (rng.randomUInt() % (nSamples - j));
             swap(samples[nDim * j + i], samples[nDim * other + i]);
         }
     }
@@ -254,18 +254,18 @@ void LatinHypercube(double *samples, uint32_t nSamples, uint32_t nDim,
 
 
 // Monte Carlo Function Definitions
-void RejectionSampleDisk(double *x, double *y, RNG &rng) {
+void rejectionSampleDisk(double *x, double *y, RNG &rng) {
     double sx, sy;
     do {
-        sx = 1.f - 2.f * rng.RandomFloat();
-        sy = 1.f - 2.f * rng.RandomFloat();
+        sx = 1.f - 2.f * rng.randomFloat();
+        sy = 1.f - 2.f * rng.randomFloat();
     } while (sx*sx + sy*sy > 1.f);
     *x = sx;
     *y = sy;
 }
 
 
-Vector3D UniformSampleHemisphere(double u1, double u2) {
+Vector3D uniformSampleHemisphere(double u1, double u2) {
     double z = u1;
     double r = sqrtf(max(0.0, 1.f - z*z));
     double phi = 2 * M_PI * u2;
@@ -275,12 +275,12 @@ Vector3D UniformSampleHemisphere(double u1, double u2) {
 }
 
 
-double UniformHemispherePdf() {
+double uniformHemispherePdf() {
     return INV_TWOPI;
 }
 
 
-Vector3D UniformSampleSphere(double u1, double u2) {
+Vector3D uniformSampleSphere(double u1, double u2) {
     double z = 1.f - 2.f * u1;
     double r = sqrtf(max(0.0, 1.f - z*z));
     double phi = 2.f * M_PI * u2;
@@ -290,12 +290,12 @@ Vector3D UniformSampleSphere(double u1, double u2) {
 }
 
 
-double UniformSpherePdf() {
+double uniformSpherePdf() {
     return 1.f / (4.f * M_PI);
 }
 
 
-void UniformSampleDisk(double u1, double u2, double *x, double *y) {
+void uniformSampleDisk(double u1, double u2, double *x, double *y) {
     double r = sqrtf(u1);
     double theta = 2.0f * M_PI * u2;
     *x = r * cosf(theta);
@@ -303,7 +303,7 @@ void UniformSampleDisk(double u1, double u2, double *x, double *y) {
 }
 
 
-void ConcentricSampleDisk(double u1, double u2, double *dx, double *dy) {
+void concentricSampleDisk(double u1, double u2, double *dx, double *dy) {
     double r, theta;
     // Map uniform random numbers to $[-1,1]^2$
     double sx = 2 * u1 - 1;
@@ -348,7 +348,7 @@ void ConcentricSampleDisk(double u1, double u2, double *dx, double *dy) {
 }
 
 
-void UniformSampleTriangle(double u1, double u2, double *u, double *v) {
+void uniformSampleTriangle(double u1, double u2, double *u, double *v) {
     double su1 = sqrtf(u1);
     *u = 1.f - su1;
     *v = u2 * su1;
@@ -391,18 +391,18 @@ PermutedHalton::PermutedHalton(uint32_t d, RNG &rng) {
     permute = new uint32_t[sumBases];
     uint32_t *p = permute;
     for (uint32_t i = 0; i < dims; ++i) {
-        GeneratePermutation(p, b[i], rng);
+        generatePermutation(p, b[i], rng);
         p += b[i];
     }
 }
 
 
-double UniformConePdf(double cosThetaMax) {
+double uniformConePdf(double cosThetaMax) {
     return 1.f / (2.f * M_PI * (1.f - cosThetaMax));
 }
 
 
-Vector3D UniformSampleCone(double u1, double u2, double costhetamax) {
+Vector3D uniformSampleCone(double u1, double u2, double costhetamax) {
     double costheta = (1.f - u1) + u1 * costhetamax;
     double sintheta = sqrtf(1.f - costheta*costheta);
     double phi = u2 * 2.f * M_PI;
@@ -410,9 +410,9 @@ Vector3D UniformSampleCone(double u1, double u2, double costhetamax) {
 }
 
 
-Vector3D UniformSampleCone(double u1, double u2, double costhetamax,
+Vector3D uniformSampleCone(double u1, double u2, double costhetamax,
         const Vector3D &x, const Vector3D &y, const Vector3D &z) {
-    double costheta = Lerp(u1, costhetamax, 1.f);
+    double costheta = lerp(u1, costhetamax, 1.f);
     double sintheta = sqrtf(1.f - costheta*costheta);
     double phi = u2 * 2.f * M_PI;
     return cosf(phi) * sintheta * x + sinf(phi) * sintheta * y +
@@ -420,7 +420,7 @@ Vector3D UniformSampleCone(double u1, double u2, double costhetamax,
 }
 
 
-Vector3D SampleHG(const Vector3D &w, double g, double u1, double u2) {
+Vector3D sampleHG(const Vector3D &w, double g, double u1, double u2) {
     double costheta;
     if (fabsf(g) < 1e-3)
         costheta = 1.f - 2.f * u1;
@@ -433,7 +433,7 @@ Vector3D SampleHG(const Vector3D &w, double g, double u1, double u2) {
     double phi = 2.f * M_PI * u2;
     Vector3D v1, v2;
     CoordinateSystem(w, &v1, &v2);
-    return SphericalDirection(sintheta, costheta, phi, v1, v2, w);
+    return sphericalDirection(sintheta, costheta, phi, v1, v2, w);
 }
 
 

@@ -49,16 +49,16 @@ void RNG::seed(uint32_t seed) const {
 
 
 /* generates a random number on [0,1)-real-interval */
-double RNG::RandomFloat() const
+double RNG::randomFloat() const
 {
-    double v = (RandomUInt() & 0xffffff) / double(1 << 24);
+    double v = (randomUInt() & 0xffffff) / double(1 << 24);
     return v;
 }
 
 
 
 // Random Number Functions
-uint32_t RNG::RandomUInt() const
+uint32_t RNG::randomUInt() const
 {
     unsigned long y;
     static const unsigned long mag01[2]={0x0UL, MATRIX_A};

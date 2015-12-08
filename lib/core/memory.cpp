@@ -36,7 +36,7 @@
 #include <malloc.h>
 
 // Memory Allocation Functions
-void *AllocAligned(size_t size) {
+void *allocateAligned(size_t size) {
 #if defined(PBRT_IS_WINDOWS)
     return _aligned_malloc(size, PBRT_L1_CACHE_LINE_SIZE);
 #elif defined (PBRT_IS_OPENBSD) || defined(PBRT_IS_APPLE)
@@ -58,7 +58,7 @@ void *AllocAligned(size_t size) {
 }
 
 
-void FreeAligned(void *ptr) {
+void freeAligned(void *ptr) {
     if (!ptr) return;
 #if defined(PBRT_IS_WINDOWS)
     _aligned_free(ptr);

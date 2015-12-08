@@ -42,19 +42,19 @@ template <typename T, int logBlockSize = 2> class BlockedArray;
 #endif
 
 // Global Inline Functions
-inline double Lerp(double t, double v1, double v2) {
+inline double lerp(double t, double v1, double v2) {
     return (1.f - t) * v1 + t * v2;
 }
 
 
-inline double Clamp(double val, double low, double high) {
+inline double clamp(double val, double low, double high) {
     if (val < low) return low;
     else if (val > high) return high;
     else return val;
 }
 
 
-inline int Clamp(int val, int low, int high) {
+inline int clamp(int val, int low, int high) {
     if (val < low) return low;
     else if (val > high) return high;
     else return val;
@@ -126,9 +126,9 @@ inline int Ceil2Int(double val) {
 
 
 #ifdef NDEBUG
-#define Assert(expr) ((void)0)
+#define photonFlowAssert(expr) ((void)0)
 #else
-#define Assert(expr) \
+#define photonFlowAssert(expr) \
     ((expr) ? (void)0 : \
         Severe("Assertion \"%s\" failed in %s, line %d", \
                #expr, __FILE__, __LINE__))

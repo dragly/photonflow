@@ -80,7 +80,7 @@ struct Quaternion {
         ret.w /= f;
         return ret;
     }
-    Transform ToTransform() const;
+    Transform toTransform() const;
     Quaternion(const Transform &t);
 
     // Quaternion Public Data
@@ -89,7 +89,7 @@ struct Quaternion {
 };
 
 
-Quaternion Slerp(double t, const Quaternion &q1, const Quaternion &q2);
+Quaternion slerp(double t, const Quaternion &q1, const Quaternion &q2);
 
 // Quaternion Inline Functions
 inline Quaternion operator*(double f, const Quaternion &q) {
@@ -97,12 +97,12 @@ inline Quaternion operator*(double f, const Quaternion &q) {
 }
 
 
-inline double Dot(const Quaternion &q1, const Quaternion &q2) {
-    return Dot(q1.v, q2.v) + q1.w * q2.w;
+inline double dot(const Quaternion &q1, const Quaternion &q2) {
+    return dot(q1.v, q2.v) + q1.w * q2.w;
 }
 
 
-inline Quaternion Normalize(const Quaternion &q) {
-    return q / sqrtf(Dot(q, q));
+inline Quaternion normalize(const Quaternion &q) {
+    return q / sqrtf(dot(q, q));
 }
 #endif // PBRT_CORE_QUATERNION_H

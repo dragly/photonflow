@@ -49,37 +49,37 @@ public:
     // Shape Interface
     Shape(const Transform *o2w, const Transform *w2o, bool ro);
     virtual ~Shape();
-    virtual BBox ObjectBound() const = 0;
-    virtual BBox WorldBound() const;
-    virtual bool CanIntersect() const;
-    virtual void Refine(vector<Shape> &refined) const;
-    virtual bool Intersect(const Ray &ray, double *tHit,
+    virtual BBox objectBound() const = 0;
+    virtual BBox worldBound() const;
+    virtual bool canIntersect() const;
+    virtual void refine(vector<Shape> &refined) const;
+    virtual bool intersect(const Ray &ray, double *tHit,
                            double *rayEpsilon, DifferentialGeometry *dg) const;
-    virtual bool IntersectP(const Ray &ray) const;
-    virtual void GetShadingGeometry(const Transform &obj2world,
+    virtual bool intersectP(const Ray &ray) const;
+    virtual void shadingGeometry(const Transform &obj2world,
             const DifferentialGeometry &dg,
             DifferentialGeometry *dgShading) const {
         UNUSED(obj2world);
         *dgShading = dg;
     }
-    virtual double Area() const;
-    virtual Point3D Sample(double u1, double u2, Normal *Ns) const {
+    virtual double area() const;
+    virtual Point3D sample(double u1, double u2, Normal *Ns) const {
         UNUSED(u1);
         UNUSED(u2);
         UNUSED(Ns);
         Severe("Unimplemented Shape::Sample() method called");
         return Point3D();
     }
-    virtual double Pdf(const Point3D &Pshape) const {
+    virtual double probabilityDistributionFunction(const Point3D &Pshape) const {
         UNUSED(Pshape);
-        return 1.f / Area();
+        return 1.f / area();
     }
-    virtual Point3D Sample(const Point3D &P, double u1, double u2,
+    virtual Point3D sample(const Point3D &P, double u1, double u2,
                          Normal *Ns) const {
         UNUSED(P);
-        return Sample(u1, u2, Ns);
+        return sample(u1, u2, Ns);
     }
-    virtual double Pdf(const Point3D &p, const Vector3D &wi) const;
+    virtual double probabilityDistributionFunction(const Point3D &p, const Vector3D &wi) const;
 
     // Shape Public Data
     const Transform *ObjectToWorld, *WorldToObject;

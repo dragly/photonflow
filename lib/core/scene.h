@@ -44,7 +44,7 @@ public:
     // Scene Public Methods
     Scene(VolumeRegion *vr);
     ~Scene();
-    const BBox &WorldBound() const;
+    const BBox &worldBound() const;
 
     // Scene Public Data
     VolumeRegion *volumeRegion;

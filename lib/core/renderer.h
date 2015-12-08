@@ -54,10 +54,10 @@ public:
     // Renderer Interface
     virtual ~Renderer();
     virtual void Render(const Scene *scene) = 0;
-    virtual Spectrum Li(const Scene *scene, const RayDifferential &ray,
+    virtual Spectrum luminescence(const Scene *scene, const RayDifferential &ray,
         const Sample *sample, RNG &rng,
         Intersection *isect = NULL, Spectrum *T = NULL) const = 0;
-    virtual Spectrum Transmittance(const Scene *scene,
+    virtual Spectrum transmittance(const Scene *scene,
         const RayDifferential &ray, const Sample *sample,
         RNG &rng) const = 0;
 };

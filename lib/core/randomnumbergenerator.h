@@ -37,8 +37,8 @@ public:
     }
 
     void seed(uint32_t seed) const;
-    double RandomFloat() const;
-    uint32_t RandomUInt() const;
+    double randomFloat() const;
+    uint32_t randomUInt() const;
 
 private:
     static const int N = 624;

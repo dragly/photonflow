@@ -47,12 +47,12 @@ Scene::~Scene() {
 Scene::Scene(VolumeRegion *vr) {
     volumeRegion = vr;
     if (volumeRegion) {
-        bound = Union(bound, volumeRegion->WorldBound());
+        bound = makeUnion(bound, volumeRegion->worldBound());
     }
 }
 
 
-const BBox &Scene::WorldBound() const {
+const BBox &Scene::worldBound() const {
     return bound;
 }
 

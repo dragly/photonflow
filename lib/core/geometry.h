@@ -50,83 +50,83 @@ public:
     Vector3D() { x = y = z = 0.0; }
     Vector3D(double xx, double yy, double zz)
         : x(xx), y(yy), z(zz) {
-        Assert(!HasNaNs());
+        photonFlowAssert(!hasNaNs());
     }
-    bool HasNaNs() const { return isnan(x) || isnan(y) || isnan(z); }
+    bool hasNaNs() const { return isnan(x) || isnan(y) || isnan(z); }
     explicit Vector3D(const Point3D &p);
 #ifndef NDEBUG
     // The default versions of these are fine for release builds; for debug
     // we define them so that we can add the Assert checks.
     Vector3D(const Vector3D &v) {
-        Assert(!v.HasNaNs());
+        photonFlowAssert(!v.hasNaNs());
         x = v.x; y = v.y; z = v.z;
     }
 
     Vector3D &operator=(const Vector3D &v) {
-        Assert(!v.HasNaNs());
+        photonFlowAssert(!v.hasNaNs());
         x = v.x; y = v.y; z = v.z;
         return *this;
     }
 #endif // !NDEBUG
     Vector3D operator+(const Vector3D &v) const {
-        Assert(!v.HasNaNs());
+        photonFlowAssert(!v.hasNaNs());
         return Vector3D(x + v.x, y + v.y, z + v.z);
     }
 
     Vector3D& operator+=(const Vector3D &v) {
-        Assert(!v.HasNaNs());
+        photonFlowAssert(!v.hasNaNs());
         x += v.x; y += v.y; z += v.z;
         return *this;
     }
     Vector3D operator-(const Vector3D &v) const {
-        Assert(!v.HasNaNs());
+        photonFlowAssert(!v.hasNaNs());
         return Vector3D(x - v.x, y - v.y, z - v.z);
     }
 
     Vector3D& operator-=(const Vector3D &v) {
-        Assert(!v.HasNaNs());
+        photonFlowAssert(!v.hasNaNs());
         x -= v.x; y -= v.y; z -= v.z;
         return *this;
     }
     Vector3D operator*(double f) const { return Vector3D(f*x, f*y, f*z); }
 
     Vector3D &operator*=(double f) {
-        Assert(!isnan(f));
+        photonFlowAssert(!isnan(f));
         x *= f; y *= f; z *= f;
         return *this;
     }
     Vector3D operator/(double f) const {
-        Assert(f != 0);
+        photonFlowAssert(f != 0);
         double inv = 1.f / f;
         return Vector3D(x * inv, y * inv, z * inv);
     }
 
     Vector3D &operator/=(double f) {
-        Assert(f != 0);
+        photonFlowAssert(f != 0);
         double inv = 1.f / f;
         x *= inv; y *= inv; z *= inv;
         return *this;
     }
     Vector3D operator-() const { return Vector3D(-x, -y, -z); }
     double operator[](int i) const {
-        Assert(i >= 0 && i <= 2);
+        photonFlowAssert(i >= 0 && i <= 2);
         return (&x)[i];
     }
 
     double &operator[](int i)
     {
-        Assert(i >= 0 && i <= 2);
+        photonFlowAssert(i >= 0 && i <= 2);
         return (&x)[i];
     }
 
-    double LengthSquared() const
+    double lengthSquared() const
     {
         return x*x + y*y + z*z;
     }
 
-    double Length() const
+    double length() const
     {
-        return sqrtf(LengthSquared());
+        return sqrtf(lengthSquared());
     }
 
     explicit Vector3D(const Normal &n);
@@ -153,7 +153,7 @@ public:
     }
 
     Vector3D normalized() {
-        return *this / Length();
+        return *this / length();
     }
 
     // Vector Public Data
@@ -166,52 +166,52 @@ public:
     Point3D() { x = y = z = 0.0; }
     Point3D(double xx, double yy, double zz)
         : x(xx), y(yy), z(zz) {
-        Assert(!HasNaNs());
+        photonFlowAssert(!hasNaNs());
     }
 #ifndef NDEBUG
     Point3D(const Point3D &p) {
-        Assert(!p.HasNaNs());
+        photonFlowAssert(!p.hasNaNs());
         x = p.x; y = p.y; z = p.z;
     }
 
     Point3D &operator=(const Point3D &p) {
-        Assert(!p.HasNaNs());
+        photonFlowAssert(!p.hasNaNs());
         x = p.x; y = p.y; z = p.z;
         return *this;
     }
 #endif // !NDEBUG
     Point3D operator+(const Vector3D &v) const {
-        Assert(!v.HasNaNs());
+        photonFlowAssert(!v.hasNaNs());
         return Point3D(x + v.x, y + v.y, z + v.z);
     }
 
     Point3D &operator+=(const Vector3D &v) {
-        Assert(!v.HasNaNs());
+        photonFlowAssert(!v.hasNaNs());
         x += v.x; y += v.y; z += v.z;
         return *this;
     }
     Vector3D operator-(const Point3D &p) const {
-        Assert(!p.HasNaNs());
+        photonFlowAssert(!p.hasNaNs());
         return Vector3D(x - p.x, y - p.y, z - p.z);
     }
 
     Point3D operator-(const Vector3D &v) const {
-        Assert(!v.HasNaNs());
+        photonFlowAssert(!v.hasNaNs());
         return Point3D(x - v.x, y - v.y, z - v.z);
     }
 
     Point3D &operator-=(const Vector3D &v) {
-        Assert(!v.HasNaNs());
+        photonFlowAssert(!v.hasNaNs());
         x -= v.x; y -= v.y; z -= v.z;
         return *this;
     }
     Point3D &operator+=(const Point3D &p) {
-        Assert(!p.HasNaNs());
+        photonFlowAssert(!p.hasNaNs());
         x += p.x; y += p.y; z += p.z;
         return *this;
     }
     Point3D operator+(const Point3D &p) const {
-        Assert(!p.HasNaNs());
+        photonFlowAssert(!p.hasNaNs());
         return Point3D(x + p.x, y + p.y, z + p.z);
     }
     Point3D operator* (double f) const {
@@ -231,15 +231,15 @@ public:
         return *this;
     }
     double operator[](int i) const {
-        Assert(i >= 0 && i <= 2);
+        photonFlowAssert(i >= 0 && i <= 2);
         return (&x)[i];
     }
 
     double &operator[](int i) {
-        Assert(i >= 0 && i <= 2);
+        photonFlowAssert(i >= 0 && i <= 2);
         return (&x)[i];
     }
-    bool HasNaNs() const {
+    bool hasNaNs() const {
         return isnan(x) || isnan(y) || isnan(z);
     }
 
@@ -262,32 +262,32 @@ public:
     Normal() { x = y = z = 0.0; }
     Normal(double xx, double yy, double zz)
         : x(xx), y(yy), z(zz) {
-        Assert(!HasNaNs());
+        photonFlowAssert(!hasNaNs());
     }
     Normal operator-() const {
         return Normal(-x, -y, -z);
     }
     Normal operator+ (const Normal &n) const {
-        Assert(!n.HasNaNs());
+        photonFlowAssert(!n.hasNaNs());
         return Normal(x + n.x, y + n.y, z + n.z);
     }
 
     Normal& operator+=(const Normal &n) {
-        Assert(!n.HasNaNs());
+        photonFlowAssert(!n.hasNaNs());
         x += n.x; y += n.y; z += n.z;
         return *this;
     }
     Normal operator- (const Normal &n) const {
-        Assert(!n.HasNaNs());
+        photonFlowAssert(!n.hasNaNs());
         return Normal(x - n.x, y - n.y, z - n.z);
     }
 
     Normal& operator-=(const Normal &n) {
-        Assert(!n.HasNaNs());
+        photonFlowAssert(!n.hasNaNs());
         x -= n.x; y -= n.y; z -= n.z;
         return *this;
     }
-    bool HasNaNs() const {
+    bool hasNaNs() const {
         return isnan(x) || isnan(y) || isnan(z);
     }
     Normal operator*(double f) const {
@@ -299,13 +299,13 @@ public:
         return *this;
     }
     Normal operator/(double f) const {
-        Assert(f != 0);
+        photonFlowAssert(f != 0);
         double inv = 1.f/f;
         return Normal(x * inv, y * inv, z * inv);
     }
 
     Normal &operator/=(double f) {
-        Assert(f != 0);
+        photonFlowAssert(f != 0);
         double inv = 1.f/f;
         x *= inv; y *= inv; z *= inv;
         return *this;
@@ -315,27 +315,27 @@ public:
 
 #ifndef NDEBUG
     Normal(const Normal &n) {
-        Assert(!n.HasNaNs());
+        photonFlowAssert(!n.hasNaNs());
         x = n.x; y = n.y; z = n.z;
     }
 
     Normal &operator=(const Normal &n) {
-        Assert(!n.HasNaNs());
+        photonFlowAssert(!n.hasNaNs());
         x = n.x; y = n.y; z = n.z;
         return *this;
     }
 #endif // !NDEBUG
     explicit Normal(const Vector3D &v)
       : x(v.x), y(v.y), z(v.z) {
-        Assert(!v.HasNaNs());
+        photonFlowAssert(!v.hasNaNs());
     }
     double operator[](int i) const {
-        Assert(i >= 0 && i <= 2);
+        photonFlowAssert(i >= 0 && i <= 2);
         return (&x)[i];
     }
 
     double &operator[](int i) {
-        Assert(i >= 0 && i <= 2);
+        photonFlowAssert(i >= 0 && i <= 2);
         return (&x)[i];
     }
 
@@ -363,8 +363,8 @@ public:
         : m_origin(origin), m_direction(direction), m_mint(start), m_maxt(end),
           m_time(parent.m_time), m_depth(parent.m_depth+1) { }
     Point3D operator()(double t) const { return m_origin + m_direction * t; }
-    bool HasNaNs() const {
-        return (m_origin.HasNaNs() || m_direction.HasNaNs() ||
+    bool hasNaNs() const {
+        return (m_origin.hasNaNs() || m_direction.hasNaNs() ||
                 isnan(m_mint) || isnan(m_maxt));
     }
 
@@ -401,12 +401,12 @@ public:
     explicit RayDifferential(const Ray &ray) : Ray(ray) {
         hasDifferentials = false;
     }
-    bool HasNaNs() const {
-        return Ray::HasNaNs() ||
-           (hasDifferentials && (rxOrigin.HasNaNs() || ryOrigin.HasNaNs() ||
-                                 rxDirection.HasNaNs() || ryDirection.HasNaNs()));
+    bool hasNaNs() const {
+        return Ray::hasNaNs() ||
+           (hasDifferentials && (rxOrigin.hasNaNs() || ryOrigin.hasNaNs() ||
+                                 rxDirection.hasNaNs() || ryDirection.hasNaNs()));
     }
-    void ScaleDifferentials(double s) {
+    void scaleDifferentials(double s) {
         rxOrigin = m_origin + (rxOrigin - m_origin) * s;
         ryOrigin = m_origin + (ryOrigin - m_origin) * s;
         rxDirection = m_direction + (rxDirection - m_direction) * s;
@@ -432,15 +432,15 @@ public:
         pMin = Point3D(min(p1.x, p2.x), min(p1.y, p2.y), min(p1.z, p2.z));
         pMax = Point3D(max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z));
     }
-    friend BBox Union(const BBox &b, const Point3D &p);
-    friend BBox Union(const BBox &b, const BBox &b2);
-    bool Overlaps(const BBox &b) const {
+    friend BBox makeUnion(const BBox &b, const Point3D &p);
+    friend BBox makeUnion(const BBox &b, const BBox &b2);
+    bool overlaps(const BBox &b) const {
         bool x = (pMax.x >= b.pMin.x) && (pMin.x <= b.pMax.x);
         bool y = (pMax.y >= b.pMin.y) && (pMin.y <= b.pMax.y);
         bool z = (pMax.z >= b.pMin.z) && (pMin.z <= b.pMax.z);
         return (x && y && z);
     }
-    bool Inside(const Point3D &pt) const {
+    bool inside(const Point3D &pt) const {
         return (pt.x >= pMin.x && pt.x <= pMax.x &&
                 pt.y >= pMin.y && pt.y <= pMax.y &&
                 pt.z >= pMin.z && pt.z <= pMax.z);
@@ -451,19 +451,19 @@ public:
                 pt.y >= pMin.y - eps && pt.y <= pMax.y + eps &&
                 pt.z >= pMin.z - eps && pt.z <= pMax.z + eps);
     }
-    void Expand(double delta) {
+    void expand(double delta) {
         pMin -= Vector3D(delta, delta, delta);
         pMax += Vector3D(delta, delta, delta);
     }
-    double SurfaceArea() const {
+    double surfaceArea() const {
         Vector3D d = pMax - pMin;
         return 2.f * (d.x * d.y + d.x * d.z + d.y * d.z);
     }
-    double Volume() const {
+    double volume() const {
         Vector3D d = pMax - pMin;
         return d.x * d.y * d.z;
     }
-    int MaximumExtent() const {
+    int maximumExtent() const {
         Vector3D diag = pMax - pMin;
         if (diag.x > diag.y && diag.x > diag.z)
             return 0;
@@ -474,17 +474,17 @@ public:
     }
     const Point3D &operator[](int i) const;
     Point3D &operator[](int i);
-    Point3D Lerp(double tx, double ty, double tz) const {
-        return Point3D(::Lerp(tx, pMin.x, pMax.x), ::Lerp(ty, pMin.y, pMax.y),
-                     ::Lerp(tz, pMin.z, pMax.z));
+    Point3D lerp(double tx, double ty, double tz) const {
+        return Point3D(::lerp(tx, pMin.x, pMax.x), ::lerp(ty, pMin.y, pMax.y),
+                     ::lerp(tz, pMin.z, pMax.z));
     }
-    Vector3D Offset(const Point3D &p) const {
+    Vector3D offset(const Point3D &p) const {
         return Vector3D((p.x - pMin.x) / (pMax.x - pMin.x),
                       (p.y - pMin.y) / (pMax.y - pMin.y),
                       (p.z - pMin.z) / (pMax.z - pMin.z));
     }
-    void BoundingSphere(Point3D *c, double *rad) const;
-    bool IntersectP(const Ray &ray, double *hitt0 = NULL, double *hitt1 = NULL) const;
+    void boundingSphere(Point3D *c, double *rad) const;
+    bool intersectP(const Ray &ray, double *hitt0 = NULL, double *hitt1 = NULL) const;
 
     bool operator==(const BBox &b) const {
         return b.pMin == pMin && b.pMax == pMax;
@@ -502,25 +502,25 @@ public:
 // Geometry Inline Functions
 inline Vector3D::Vector3D(const Point3D &p)
     : x(p.x), y(p.y), z(p.z) {
-    Assert(!HasNaNs());
+    photonFlowAssert(!hasNaNs());
 }
 
 
 inline Vector3D operator*(double f, const Vector3D &v) { return v*f; }
-inline double Dot(const Vector3D &v1, const Vector3D &v2) {
-    Assert(!v1.HasNaNs() && !v2.HasNaNs());
+inline double dot(const Vector3D &v1, const Vector3D &v2) {
+    photonFlowAssert(!v1.hasNaNs() && !v2.hasNaNs());
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
 
 
-inline double AbsDot(const Vector3D &v1, const Vector3D &v2) {
-    Assert(!v1.HasNaNs() && !v2.HasNaNs());
-    return fabsf(Dot(v1, v2));
+inline double absDot(const Vector3D &v1, const Vector3D &v2) {
+    photonFlowAssert(!v1.hasNaNs() && !v2.hasNaNs());
+    return fabsf(dot(v1, v2));
 }
 
 
-inline Vector3D Cross(const Vector3D &v1, const Vector3D &v2) {
-    Assert(!v1.HasNaNs() && !v2.HasNaNs());
+inline Vector3D cross(const Vector3D &v1, const Vector3D &v2) {
+    photonFlowAssert(!v1.hasNaNs() && !v2.hasNaNs());
     double v1x = v1.x, v1y = v1.y, v1z = v1.z;
     double v2x = v2.x, v2y = v2.y, v2z = v2.z;
     return Vector3D((v1y * v2z) - (v1z * v2y),
@@ -529,8 +529,8 @@ inline Vector3D Cross(const Vector3D &v1, const Vector3D &v2) {
 }
 
 
-inline Vector3D Cross(const Vector3D &v1, const Normal &v2) {
-    Assert(!v1.HasNaNs() && !v2.HasNaNs());
+inline Vector3D cross(const Vector3D &v1, const Normal &v2) {
+    photonFlowAssert(!v1.hasNaNs() && !v2.hasNaNs());
     double v1x = v1.x, v1y = v1.y, v1z = v1.z;
     double v2x = v2.x, v2y = v2.y, v2z = v2.z;
     return Vector3D((v1y * v2z) - (v1z * v2y),
@@ -539,8 +539,8 @@ inline Vector3D Cross(const Vector3D &v1, const Normal &v2) {
 }
 
 
-inline Vector3D Cross(const Normal &v1, const Vector3D &v2) {
-    Assert(!v1.HasNaNs() && !v2.HasNaNs());
+inline Vector3D cross(const Normal &v1, const Vector3D &v2) {
+    photonFlowAssert(!v1.hasNaNs() && !v2.hasNaNs());
     double v1x = v1.x, v1y = v1.y, v1z = v1.z;
     double v2x = v2.x, v2y = v2.y, v2z = v2.z;
     return Vector3D((v1y * v2z) - (v1z * v2y),
@@ -549,7 +549,7 @@ inline Vector3D Cross(const Normal &v1, const Vector3D &v2) {
 }
 
 
-inline Vector3D Normalize(const Vector3D &v) { return v / v.Length(); }
+inline Vector3D normalize(const Vector3D &v) { return v / v.length(); }
 inline void CoordinateSystem(const Vector3D &v1, Vector3D *v2, Vector3D *v3) {
     if (fabsf(v1.x) > fabsf(v1.y)) {
         double invLen = 1.f / sqrtf(v1.x*v1.x + v1.z*v1.z);
@@ -559,22 +559,22 @@ inline void CoordinateSystem(const Vector3D &v1, Vector3D *v2, Vector3D *v3) {
         double invLen = 1.f / sqrtf(v1.y*v1.y + v1.z*v1.z);
         *v2 = Vector3D(0.0, v1.z * invLen, -v1.y * invLen);
     }
-    *v3 = Cross(v1, *v2);
+    *v3 = cross(v1, *v2);
 }
 
 
-inline double Distance(const Point3D &p1, const Point3D &p2) {
-    return (p1 - p2).Length();
+inline double distance(const Point3D &p1, const Point3D &p2) {
+    return (p1 - p2).length();
 }
 
 
-inline double DistanceSquared(const Point3D &p1, const Point3D &p2) {
-    return (p1 - p2).LengthSquared();
+inline double distanceSquared(const Point3D &p1, const Point3D &p2) {
+    return (p1 - p2).lengthSquared();
 }
 
 
 inline Point3D operator*(double f, const Point3D &p) {
-    Assert(!p.HasNaNs());
+    photonFlowAssert(!p.hasNaNs());
     return p*f;
 }
 
@@ -584,89 +584,89 @@ inline Normal operator*(double f, const Normal &n) {
 }
 
 
-inline Normal Normalize(const Normal &n) {
+inline Normal normalize(const Normal &n) {
     return n / n.Length();
 }
 
 
 inline Vector3D::Vector3D(const Normal &n)
   : x(n.x), y(n.y), z(n.z) {
-    Assert(!n.HasNaNs());
+    photonFlowAssert(!n.hasNaNs());
 }
 
 
-inline double Dot(const Normal &n1, const Vector3D &v2) {
-    Assert(!n1.HasNaNs() && !v2.HasNaNs());
+inline double dot(const Normal &n1, const Vector3D &v2) {
+    photonFlowAssert(!n1.hasNaNs() && !v2.hasNaNs());
     return n1.x * v2.x + n1.y * v2.y + n1.z * v2.z;
 }
 
 
-inline double Dot(const Vector3D &v1, const Normal &n2) {
-    Assert(!v1.HasNaNs() && !n2.HasNaNs());
+inline double dot(const Vector3D &v1, const Normal &n2) {
+    photonFlowAssert(!v1.hasNaNs() && !n2.hasNaNs());
     return v1.x * n2.x + v1.y * n2.y + v1.z * n2.z;
 }
 
 
-inline double Dot(const Normal &n1, const Normal &n2) {
-    Assert(!n1.HasNaNs() && !n2.HasNaNs());
+inline double dot(const Normal &n1, const Normal &n2) {
+    photonFlowAssert(!n1.hasNaNs() && !n2.hasNaNs());
     return n1.x * n2.x + n1.y * n2.y + n1.z * n2.z;
 }
 
 
-inline double AbsDot(const Normal &n1, const Vector3D &v2) {
-    Assert(!n1.HasNaNs() && !v2.HasNaNs());
+inline double absDot(const Normal &n1, const Vector3D &v2) {
+    photonFlowAssert(!n1.hasNaNs() && !v2.hasNaNs());
     return fabsf(n1.x * v2.x + n1.y * v2.y + n1.z * v2.z);
 }
 
 
-inline double AbsDot(const Vector3D &v1, const Normal &n2) {
-    Assert(!v1.HasNaNs() && !n2.HasNaNs());
+inline double absDot(const Vector3D &v1, const Normal &n2) {
+    photonFlowAssert(!v1.hasNaNs() && !n2.hasNaNs());
     return fabsf(v1.x * n2.x + v1.y * n2.y + v1.z * n2.z);
 }
 
 
-inline double AbsDot(const Normal &n1, const Normal &n2) {
-    Assert(!n1.HasNaNs() && !n2.HasNaNs());
+inline double absDot(const Normal &n1, const Normal &n2) {
+    photonFlowAssert(!n1.hasNaNs() && !n2.hasNaNs());
     return fabsf(n1.x * n2.x + n1.y * n2.y + n1.z * n2.z);
 }
 
 
-inline Normal Faceforward(const Normal &n, const Vector3D &v) {
-    return (Dot(n, v) < 0.0) ? -n : n;
+inline Normal faceforward(const Normal &n, const Vector3D &v) {
+    return (dot(n, v) < 0.0) ? -n : n;
 }
 
 
-inline Normal Faceforward(const Normal &n, const Normal &n2) {
-    return (Dot(n, n2) < 0.0) ? -n : n;
-}
-
-
-
-inline Vector3D Faceforward(const Vector3D &v, const Vector3D &v2) {
-    return (Dot(v, v2) < 0.0) ? -v : v;
+inline Normal faceforward(const Normal &n, const Normal &n2) {
+    return (dot(n, n2) < 0.0) ? -n : n;
 }
 
 
 
-inline Vector3D Faceforward(const Vector3D &v, const Normal &n2) {
-    return (Dot(v, n2) < 0.0) ? -v : v;
+inline Vector3D faceforward(const Vector3D &v, const Vector3D &v2) {
+    return (dot(v, v2) < 0.0) ? -v : v;
+}
+
+
+
+inline Vector3D faceforward(const Vector3D &v, const Normal &n2) {
+    return (dot(v, n2) < 0.0) ? -v : v;
 }
 
 
 inline const Point3D &BBox::operator[](int i) const {
-    Assert(i == 0 || i == 1);
+    photonFlowAssert(i == 0 || i == 1);
     return (&pMin)[i];
 }
 
 
 
 inline Point3D &BBox::operator[](int i) {
-    Assert(i == 0 || i == 1);
+    photonFlowAssert(i == 0 || i == 1);
     return (&pMin)[i];
 }
 
 
-inline Vector3D SphericalDirection(double sintheta,
+inline Vector3D sphericalDirection(double sintheta,
                                  double costheta, double phi) {
     return Vector3D(sintheta * cosf(phi),
                   sintheta * sinf(phi),
@@ -674,7 +674,7 @@ inline Vector3D SphericalDirection(double sintheta,
 }
 
 
-inline Vector3D SphericalDirection(double sintheta, double costheta,
+inline Vector3D sphericalDirection(double sintheta, double costheta,
                                  double phi, const Vector3D &x,
                                  const Vector3D &y, const Vector3D &z) {
     return sintheta * cosf(phi) * x +
@@ -682,12 +682,12 @@ inline Vector3D SphericalDirection(double sintheta, double costheta,
 }
 
 
-inline double SphericalTheta(const Vector3D &v) {
-    return acosf(Clamp(v.z, -1.f, 1.f));
+inline double sphericalTheta(const Vector3D &v) {
+    return acosf(clamp(v.z, -1.f, 1.f));
 }
 
 
-inline double SphericalPhi(const Vector3D &v) {
+inline double sphericalPhi(const Vector3D &v) {
     double p = atan2f(v.y, v.x);
     return (p < 0.0) ? p + 2.f*M_PI : p;
 }

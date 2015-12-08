@@ -40,7 +40,7 @@ Film::~Film() {
 }
 
 
-void Film::UpdateDisplay(int x0, int y0, int x1, int y1,
+void Film::updateDisplay(int x0, int y0, int x1, int y1,
                          double splatScale) {
     UNUSED(x0);
     UNUSED(y0);

@@ -2,6 +2,7 @@
 #define HEYNEYGREENSTEIN_H
 
 #include "../core/randomnumbergenerator.h"
+#include "../core/common.h"
 
 namespace Distribution {
 inline double heyneyGreenstein(double g, RNG &rng)
@@ -9,7 +10,7 @@ inline double heyneyGreenstein(double g, RNG &rng)
     double eps = 1e-16;
     double epsi = (1 - 2*eps); // used to avoid 0 and 1
     double g2 = g*g;
-    double eta = eps + epsi * rng.RandomFloat();
+    double eta = eps + epsi * rng.randomFloat();
     double cosTheta = 0.0;
     if(g > 1e-2) {
         double k = ((1 - g2) / (1 - g + 2.0 * g * eta));
@@ -18,7 +19,7 @@ inline double heyneyGreenstein(double g, RNG &rng)
     } else {
         cosTheta = 2*eta - 1;
     }
-    Assert(cosTheta >= -1.0 && cosTheta <= 1.0);
+    photonFlowAssert(cosTheta >= -1.0 && cosTheta <= 1.0);
     return cosTheta;
 }
 }

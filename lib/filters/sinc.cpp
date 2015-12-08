@@ -36,7 +36,7 @@
 //#include "paramset.h"
 
 // Sinc Filter Method Definitions
-double LanczosSincFilter::Evaluate(double x, double y) const {
+double LanczosSincFilter::evaluate(double x, double y) const {
     return Sinc1D(x * invXWidth) * Sinc1D(y * invYWidth);
 }
 

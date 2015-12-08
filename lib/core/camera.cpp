@@ -49,7 +49,7 @@ Camera::Camera(const Transform &cam2world,
                double sopen, double sclose, std::shared_ptr<Film> f)
     : CameraToWorld(cam2world), shutterOpen(sopen), shutterClose(sclose) {
     film = f;
-    if (CameraToWorld.HasScale())
+    if (CameraToWorld.hasScale())
         Warning("Scaling detected in world-to-camera transformation!\n"
                 "The system has numerous assumptions, implicit and explicit,\n"
                 "that this transform will have no scale factors in it.\n"
@@ -58,14 +58,14 @@ Camera::Camera(const Transform &cam2world,
 }
 
 
-double Camera::GenerateRayDifferential(const CameraSample &sample,
+double Camera::generateRayDifferential(const CameraSample &sample,
                                       RayDifferential *rd) const {
-    double wt = GenerateRay(sample, rd);
+    double wt = generateRay(sample, rd);
     // Find ray after shifting one pixel in the $x$ direction
     CameraSample sshift = sample;
     ++(sshift.imageX);
     Ray rx;
-    double wtx = GenerateRay(sshift, &rx);
+    double wtx = generateRay(sshift, &rx);
     rd->rxOrigin = rx.m_origin;
     rd->rxDirection = rx.m_direction;
 
@@ -73,7 +73,7 @@ double Camera::GenerateRayDifferential(const CameraSample &sample,
     --(sshift.imageX);
     ++(sshift.imageY);
     Ray ry;
-    double wty = GenerateRay(sshift, &ry);
+    double wty = generateRay(sshift, &ry);
     rd->ryOrigin = ry.m_origin;
     rd->ryDirection = ry.m_direction;
     if (wtx == 0.0 || wty == 0.0) return 0.0;
@@ -94,11 +94,11 @@ ProjectiveCamera::ProjectiveCamera(const Transform &cam2world,
     CameraToScreen = proj;
 
     // Compute projective camera screen transformations
-    ScreenToRaster = Scale(double(film->xResolution),
+    ScreenToRaster = scale(double(film->xResolution),
                            double(film->yResolution), 1.f) *
-        Scale(1.f / (screenWindow.width()),
+        scale(1.f / (screenWindow.width()),
               1.f / (screenWindow.height()), 1.f) *
-        Translate(Vector3D(-screenWindow.x(), -screenWindow.y(), 0.0));
+        translate(Vector3D(-screenWindow.x(), -screenWindow.y(), 0.0));
     RasterToScreen = Inverse(ScreenToRaster);
     RasterToCamera = Inverse(CameraToScreen) * RasterToScreen;
 }

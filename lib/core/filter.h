@@ -47,7 +47,7 @@ public:
     Filter(double xw, double yw)
         : xWidth(xw), yWidth(yw), invXWidth(1.f/xw), invYWidth(1.f/yw) {
     }
-    virtual double Evaluate(double x, double y) const = 0;
+    virtual double evaluate(double x, double y) const = 0;
 
     // Filter Public Data
     const double xWidth, yWidth;

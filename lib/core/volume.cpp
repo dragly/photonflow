@@ -126,7 +126,7 @@ static double RdToAlphap(double reflectance, double A) {
     UNUSED(kd0);
     UNUSED(kd1);
     for (int i = 0; i < 16; ++i) {
-        Assert(kd0 <= reflectance && kd1 >= reflectance);
+        photonFlowAssert(kd0 <= reflectance && kd1 >= reflectance);
         double alphaMid = (alphaLow + alphaHigh) * 0.5f;
         double kd = RdIntegral(alphaMid, A);
         if (kd < reflectance) { alphaLow = alphaMid;  kd0 = kd; }
@@ -144,25 +144,25 @@ double PhaseIsotropic(const Vector3D &, const Vector3D &) {
 
 
 double PhaseRayleigh(const Vector3D &w, const Vector3D &wp) {
-    double costheta = Dot(w, wp);
+    double costheta = dot(w, wp);
     return  3.f/(16.f*M_PI) * (1 + costheta * costheta);
 }
 
 
 double PhaseMieHazy(const Vector3D &w, const Vector3D &wp) {
-    double costheta = Dot(w, wp);
+    double costheta = dot(w, wp);
     return (0.5f + 4.5f * powf(0.5 * (1.f + costheta), 8.f)) / (4.f*M_PI);
 }
 
 
 double PhaseMieMurky(const Vector3D &w, const Vector3D &wp) {
-    double costheta = Dot(w, wp);
+    double costheta = dot(w, wp);
     return (0.5f + 16.5f * powf(0.5 * (1.f + costheta), 32.f)) / (4.f*M_PI);
 }
 
 
 double PhaseHG(const Vector3D &w, const Vector3D &wp, double g) {
-    double costheta = Dot(w, wp);
+    double costheta = dot(w, wp);
     return 1.f / (4.f * M_PI) *
         (1.f - g*g) / powf(1.f + g*g - 2.f * g * costheta, 1.5f);
 }
@@ -173,7 +173,7 @@ double PhaseSchlick(const Vector3D &w, const Vector3D &wp, double g) {
     // see http://pbrt.org/bugtracker/view.php?id=102
     double alpha = 1.5f;
     double k = alpha * g + (1.f - alpha) * g * g * g;
-    double kcostheta = k * Dot(w, wp);
+    double kcostheta = k * dot(w, wp);
     return 1.f / (4.f * M_PI) *
         (1.f - k*k) / ((1.f - kcostheta) * (1.f - kcostheta));
 }
@@ -188,7 +188,7 @@ Spectrum VolumeRegion::sigma_t(const Point3D &p, const Vector3D &w,
 AggregateVolume::AggregateVolume(const vector<VolumeRegion *> &r) {
     regions = r;
     for (uint32_t i = 0; i < regions.size(); ++i)
-        bound = Union(bound, regions[i]->WorldBound());
+        bound = makeUnion(bound, regions[i]->worldBound());
 }
 
 
@@ -245,13 +245,13 @@ Spectrum AggregateVolume::tau(const Ray &ray, double step, double offset) const 
 }
 
 
-bool AggregateVolume::IntersectP(const Ray &ray,
+bool AggregateVolume::intersectP(const Ray &ray,
                                  double *t0, double *t1) const {
     *t0 = INFINITY;
     *t1 = -INFINITY;
     for (uint32_t i = 0; i < regions.size(); ++i) {
         double tr0, tr1;
-        if (regions[i]->IntersectP(ray, &tr0, &tr1)) {
+        if (regions[i]->intersectP(ray, &tr0, &tr1)) {
             *t0 = min(*t0, tr0);
             *t1 = max(*t1, tr1);
         }
@@ -259,17 +259,17 @@ bool AggregateVolume::IntersectP(const Ray &ray,
     return (*t0 < *t1);
 }
 
-BBox AggregateVolume::WorldBound() const {
+BBox AggregateVolume::worldBound() const {
     return bound;
 }
 
 
-bool GetVolumeScatteringProperties(const std::string &name, Spectrum *sigma_a,
+bool volumeScatteringProperties(const std::string &name, Spectrum *sigma_a,
         Spectrum *sigma_prime_s) {
     for (uint32_t i = 0; i < sizeof(mss) / sizeof(mss[0]); ++i) {
         if (name == mss[i].name) {
-            *sigma_a = Spectrum::FromRGB(mss[i].sigma_a);
-            *sigma_prime_s = Spectrum::FromRGB(mss[i].sigma_prime_s);
+            *sigma_a = Spectrum::fromRGB(mss[i].sigma_a);
+            *sigma_prime_s = Spectrum::fromRGB(mss[i].sigma_prime_s);
             return true;
         }
     }
@@ -277,11 +277,11 @@ bool GetVolumeScatteringProperties(const std::string &name, Spectrum *sigma_a,
 }
 
 
-void SubsurfaceFromDiffuse(const Spectrum &Kd, double meanPathLength,
+void subsurfaceFromDiffuse(const Spectrum &Kd, double meanPathLength,
         double eta, Spectrum *sigma_a, Spectrum *sigma_prime_s) {
     double A = (1.f + Fdr(eta)) / (1.f - Fdr(eta));
     double rgb[3];
-    Kd.ToRGB(rgb);
+    Kd.toRGB(rgb);
     double sigma_prime_s_rgb[3], sigma_a_rgb[3];
     for (int i = 0; i < 3; ++i) {
        // Compute $\alpha'$ for RGB component, compute scattering properties
@@ -291,8 +291,8 @@ void SubsurfaceFromDiffuse(const Spectrum &Kd, double meanPathLength,
        sigma_prime_s_rgb[i] = alphap * sigma_prime_t;
        sigma_a_rgb[i] = sigma_prime_t - sigma_prime_s_rgb[i];
     }
-    *sigma_a = Spectrum::FromRGB(sigma_a_rgb);
-    *sigma_prime_s = Spectrum::FromRGB(sigma_prime_s_rgb);
+    *sigma_a = Spectrum::fromRGB(sigma_a_rgb);
+    *sigma_prime_s = Spectrum::fromRGB(sigma_prime_s_rgb);
 }
 
 DensityRegion::DensityRegion()
@@ -302,10 +302,10 @@ DensityRegion::DensityRegion()
 Spectrum DensityRegion::tau(const Ray &r, double stepSize,
                             double u) const {
     double t0, t1;
-    double length = r.m_direction.Length();
+    double length = r.m_direction.length();
     if (length == 0.0) return 0.0;
     Ray rn(r.m_origin, r.m_direction / length, r.m_mint * length, r.m_maxt * length, r.m_time);
-    if (!IntersectP(rn, &t0, &t1)) return 0.;
+    if (!intersectP(rn, &t0, &t1)) return 0.;
     Spectrum tau(0.);
     t0 += u * stepSize;
     while (t0 < t1) {

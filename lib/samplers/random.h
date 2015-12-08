@@ -48,10 +48,10 @@ public:
     ~RandomSampler() {
         delete[] imageSamples;
     }
-    int MaximumSampleCount() { return 1; }
-    int GetMoreSamples(Sample *sample, RNG &rng);
-    int RoundSize(int sz) const { return sz; }
-    Sampler *GetSubSampler(int num, int count);
+    int maximumSampleCount() { return 1; }
+    int moreSamples(Sample *sample, RNG &rng);
+    int roundSize(int sz) const { return sz; }
+    Sampler *subSampler(int num, int count);
 private:
     // RandomSampler Private Data
     int xPos, yPos, nSamples;

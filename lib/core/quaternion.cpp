@@ -33,7 +33,7 @@
 #include "transform.h"
 
 // Quaternion Method Definitions
-Transform Quaternion::ToTransform() const {
+Transform Quaternion::toTransform() const {
     double xx = v.x * v.x, yy = v.y * v.y, zz = v.z * v.z;
     double xy = v.x * v.y, xz = v.x * v.z, yz = v.y * v.z;
     double wx = v.x * w,   wy = v.y * w,   wz = v.z * w;
@@ -89,15 +89,15 @@ Quaternion::Quaternion(const Transform &t) {
 }
 
 
-Quaternion Slerp(double t, const Quaternion &q1,
+Quaternion slerp(double t, const Quaternion &q1,
                  const Quaternion &q2) {
-    double cosTheta = Dot(q1, q2);
+    double cosTheta = dot(q1, q2);
     if (cosTheta > .9995f)
-        return Normalize((1.f - t) * q1 + t * q2);
+        return normalize((1.f - t) * q1 + t * q2);
     else {
-        double theta = acosf(Clamp(cosTheta, -1.f, 1.f));
+        double theta = acosf(clamp(cosTheta, -1.f, 1.f));
         double thetap = theta * t;
-        Quaternion qperp = Normalize(q2 - q1 * cosTheta);
+        Quaternion qperp = normalize(q2 - q1 * cosTheta);
         return q1 * cosf(thetap) + qperp * sinf(thetap);
     }
 }

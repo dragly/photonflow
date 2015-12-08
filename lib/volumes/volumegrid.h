@@ -49,8 +49,8 @@ public:
     VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, double gg,
             const Spectrum &emita, const BBox &e, const Transform &v2w,
             arma::Cube<short> densitya);
-    BBox WorldBound() const { return m_worldBound; }
-    bool IntersectP(const Ray &r, double *t0, double *t1) const;
+    BBox worldBound() const { return m_worldBound; }
+    bool intersectP(const Ray &r, double *t0, double *t1) const;
     double Density(const Point3D &Pobj) const;
     double D(int x, int y, int z) const;
     bool inside(const Point3D &p) const;
@@ -62,15 +62,15 @@ private:
     BBox m_worldBound;
 };
 
-inline bool VolumeGridDensity::IntersectP(const Ray &r, double *t0, double *t1) const {
+inline bool VolumeGridDensity::intersectP(const Ray &r, double *t0, double *t1) const {
     Ray ray = WorldToVolume(r);
-    return extent.IntersectP(ray, t0, t1);
+    return extent.intersectP(ray, t0, t1);
 }
 
 inline double VolumeGridDensity::D(int x, int y, int z) const {
-    x = Clamp(x, 0, density.n_rows-1);
-    y = Clamp(y, 0, density.n_cols-1);
-    z = Clamp(z, 0, density.n_slices-1);
+    x = clamp(x, 0, density.n_rows-1);
+    y = clamp(y, 0, density.n_cols-1);
+    z = clamp(z, 0, density.n_slices-1);
     double value = 0.0;
     try {
         value = density(x, y, z);

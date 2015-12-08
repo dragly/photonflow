@@ -67,12 +67,12 @@ public:
 //        delete filter;
         delete[] filterTable;
     }
-    void AddSample(const CameraSample &sample, const Spectrum &L);
-    void Splat(const CameraSample &sample, const Spectrum &L);
-    void GetSampleExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void GetPixelExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void WriteImage(double splatScale);
-    void UpdateDisplay(int x0, int y0, int x1, int y1, double splatScale);
+    void addSample(const CameraSample &sample, const Spectrum &L);
+    void splat(const CameraSample &sample, const Spectrum &L);
+    void sampleExtent(int *xstart, int *xend, int *ystart, int *yend) const;
+    void pixelExtent(int *xstart, int *xend, int *ystart, int *yend) const;
+    void writeImage(double splatScale);
+    void updateDisplay(int x0, int y0, int x1, int y1, double splatScale);
 //private:
     // ImageFilm Private Data
     Filter *filter;

@@ -63,7 +63,7 @@ ImageFilm::ImageFilm(int xres, int yres, Filter *filt, const double crop[4])
         for (int x = 0; x < FILTER_TABLE_SIZE; ++x) {
             double fx = ((double)x + .5f) *
                        filter->xWidth / FILTER_TABLE_SIZE;
-            *ftp++ = filter->Evaluate(fx, fy);
+            *ftp++ = filter->evaluate(fx, fy);
         }
     }
 
@@ -74,7 +74,7 @@ ImageFilm::ImageFilm(int xres, int yres, Filter *filt, const double crop[4])
 }
 
 
-void ImageFilm::AddSample(const CameraSample &sample,
+void ImageFilm::addSample(const CameraSample &sample,
                           const Spectrum &L) {
     // Compute sample's raster extent
     double dimageX = sample.imageX - 0.5f;
@@ -95,7 +95,7 @@ void ImageFilm::AddSample(const CameraSample &sample,
 
     // Loop over filter support and add sample to pixel arrays
     double xyz[3];
-    L.ToXYZ(xyz);
+    L.roXYZ(xyz);
 
 //    Pixel &pixel = (*pixels)(sample.imageX - xPixelStart, sample.imageY - yPixelStart);
 //    pixel.Lxyz[0] += xyz[0];
@@ -142,13 +142,13 @@ void ImageFilm::AddSample(const CameraSample &sample,
 }
 
 
-void ImageFilm::Splat(const CameraSample &sample, const Spectrum &L) {
-    if (L.HasNaNs()) {
+void ImageFilm::splat(const CameraSample &sample, const Spectrum &L) {
+    if (L.hasNaNs()) {
         Warning("ImageFilm ignoring splatted spectrum with NaN values");
         return;
     }
     double xyz[3];
-    L.ToXYZ(xyz);
+    L.roXYZ(xyz);
     int x = Floor2Int(sample.imageX), y = Floor2Int(sample.imageY);
     if (x < xPixelStart || x - xPixelStart >= xPixelCount ||
         y < yPixelStart || y - yPixelStart >= yPixelCount) return;
@@ -163,7 +163,7 @@ void ImageFilm::Splat(const CameraSample &sample, const Spectrum &L) {
 }
 
 
-void ImageFilm::GetSampleExtent(int *xstart, int *xend,
+void ImageFilm::sampleExtent(int *xstart, int *xend,
                                 int *ystart, int *yend) const {
     *xstart = Floor2Int(xPixelStart + 0.5f - filter->xWidth);
     *xend   = Ceil2Int(xPixelStart - 0.5f + xPixelCount +
@@ -175,7 +175,7 @@ void ImageFilm::GetSampleExtent(int *xstart, int *xend,
 }
 
 
-void ImageFilm::GetPixelExtent(int *xstart, int *xend,
+void ImageFilm::pixelExtent(int *xstart, int *xend,
                                int *ystart, int *yend) const {
     *xstart = xPixelStart;
     *xend   = xPixelStart + xPixelCount;
@@ -184,7 +184,7 @@ void ImageFilm::GetPixelExtent(int *xstart, int *xend,
 }
 
 
-void ImageFilm::WriteImage(double splatScale) {
+void ImageFilm::writeImage(double splatScale) {
     // Convert image to RGB and compute final pixel values
     int nPix = xPixelCount * yPixelCount;
     double *rgb = new double[3*nPix];
@@ -222,7 +222,7 @@ void ImageFilm::WriteImage(double splatScale) {
 }
 
 
-void ImageFilm::UpdateDisplay(int x0, int y0, int x1, int y1, double splatScale) {
+void ImageFilm::updateDisplay(int x0, int y0, int x1, int y1, double splatScale) {
     UNUSED(x0);
     UNUSED(x1);
     UNUSED(y0);

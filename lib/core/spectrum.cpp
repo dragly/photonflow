@@ -35,7 +35,7 @@
 #include "spectrum.h"
 
 // Spectrum Method Definitions
-bool SpectrumSamplesSorted(const double *lambda, const double *vals, int n) {
+bool spectrumSamplesSorted(const double *lambda, const double *vals, int n) {
     UNUSED(vals);
     for (int i = 0; i < n-1; ++i)
         if (lambda[i] > lambda[i+1]) return false;
@@ -43,7 +43,7 @@ bool SpectrumSamplesSorted(const double *lambda, const double *vals, int n) {
 }
 
 
-void SortSpectrumSamples(double *lambda, double *vals, int n) {
+void sortSpectrumSamples(double *lambda, double *vals, int n) {
     std::vector<std::pair<double, double> > sortVec;
     sortVec.reserve(n);
     for (int i = 0; i < n; ++i)
@@ -56,10 +56,10 @@ void SortSpectrumSamples(double *lambda, double *vals, int n) {
 }
 
 
-double AverageSpectrumSamples(const double *lambda, const double *vals,
+double averageSpectrumSamples(const double *lambda, const double *vals,
         int n, double lambdaStart, double lambdaEnd) {
-    for (int i = 0; i < n-1; ++i) Assert(lambda[i+1] > lambda[i]);
-    Assert(lambdaStart < lambdaEnd);
+    for (int i = 0; i < n-1; ++i) photonFlowAssert(lambda[i+1] > lambda[i]);
+    photonFlowAssert(lambdaStart < lambdaEnd);
     // Handle cases with out-of-bounds range or single sample only
     if (lambdaEnd   <= lambda[0])   return vals[0];
     if (lambdaStart >= lambda[n-1]) return vals[n-1];
@@ -74,11 +74,11 @@ double AverageSpectrumSamples(const double *lambda, const double *vals,
     // Advance to first relevant wavelength segment
     int i = 0;
     while (lambdaStart > lambda[i+1]) ++i;
-    Assert(i+1 < n);
+    photonFlowAssert(i+1 < n);
 
     // Loop over wavelength sample segments and add contributions
 #define INTERP(w, i) \
-        Lerp(((w) - lambda[i]) / (lambda[(i)+1] - lambda[i]), \
+        lerp(((w) - lambda[i]) / (lambda[(i)+1] - lambda[i]), \
              vals[i], vals[(i)+1])
 #define SEG_AVG(wl0, wl1, i) (0.5f * (INTERP(wl0, i) + INTERP(wl1, i)))
     for (; i+1 < n && lambdaEnd >= lambda[i]; ++i) {
@@ -95,7 +95,7 @@ double AverageSpectrumSamples(const double *lambda, const double *vals,
 RGBSpectrum SampledSpectrum::ToRGBSpectrum() const {
     double rgb[3];
     ToRGB(rgb);
-    return RGBSpectrum::FromRGB(rgb);
+    return RGBSpectrum::fromRGB(rgb);
 }
 
 
@@ -182,13 +182,13 @@ SampledSpectrum SampledSpectrum::FromRGB(const double rgb[3],
         }
         r *= .86445f;
     }
-    return r.Clamp();
+    return r.clamp();
 }
 
 
 SampledSpectrum::SampledSpectrum(const RGBSpectrum &r, SpectrumType t) {
     double rgb[3];
-    r.ToRGB(rgb);
+    r.toRGB(rgb);
     *this = SampledSpectrum::FromRGB(rgb, t);
 }
 
@@ -207,13 +207,13 @@ void Blackbody(const double *wl, int n, double temp, double *vals) {
 
 double InterpolateSpectrumSamples(const double *lambda, const double *vals,
                                  int n, double l) {
-    for (int i = 0; i < n-1; ++i) Assert(lambda[i+1] > lambda[i]);
+    for (int i = 0; i < n-1; ++i) photonFlowAssert(lambda[i+1] > lambda[i]);
     if (l <= lambda[0])   return vals[0];
     if (l >= lambda[n-1]) return vals[n-1];
     for (int i = 0; i < n-1; ++i) {
         if (l >= lambda[i] && l <= lambda[i+1]) {
             double t = (l - lambda[i]) / (lambda[i+1] - lambda[i]);
-            return Lerp(t, vals[i], vals[i+1]);
+            return lerp(t, vals[i], vals[i+1]);
         }
     }
     Severe("Fatal logic error in InterpolateSpectrumSamples()");
