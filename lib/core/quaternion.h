@@ -39,7 +39,11 @@ class Transform;
 // Quaternion Declarations
 struct Quaternion {
     // Quaternion Public Methods
-    Quaternion() { v = Vector3D(0., 0., 0.); w = 1.f; }
+    Quaternion()
+        : v(0.0, 0.0, 0.0)
+        , w(1.0)
+    {
+    }
     Quaternion &operator+=(const Quaternion &q) {
         v += q.v;
         w += q.w;
@@ -84,7 +88,7 @@ struct Quaternion {
     Quaternion(const Transform &t);
 
     // Quaternion Public Data
-    Vector3D v;
+    GeneralVector3D<double> v;
     double w;
 };
 

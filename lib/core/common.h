@@ -2,6 +2,7 @@
 #define COMMON
 
 #include "../core/error.h"
+#include "../core/units.h"
 
 #include <assert.h>
 #include <algorithm>
@@ -42,12 +43,12 @@ template <typename T, int logBlockSize = 2> class BlockedArray;
 #endif
 
 // Global Inline Functions
-inline double lerp(double t, double v1, double v2) {
+inline auto lerp(double t, auto v1, auto v2) {
     return (1.f - t) * v1 + t * v2;
 }
 
 
-inline double clamp(double val, double low, double high) {
+inline auto clamp(auto val, auto low, auto high) {
     if (val < low) return low;
     else if (val > high) return high;
     else return val;
@@ -124,6 +125,20 @@ inline int Ceil2Int(double val) {
     return (int)ceilf(val);
 }
 
+//template<typename U>
+//bool isNaN(U val) {
+//    return isnan(val.value());
+//}
+
+template<typename T>
+bool isnan(boost::units::quantity<T> val) {
+    return isnan(val.value());
+}
+
+template<typename T>
+auto sqrt(boost::units::quantity<T> val) {
+    return sqrt(val.value());
+}
 
 #ifdef NDEBUG
 #define photonFlowAssert(expr) ((void)0)

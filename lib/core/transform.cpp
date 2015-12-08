@@ -53,10 +53,10 @@ Matrix4x4::Matrix4x4(double mat[4][4]) {
 }
 
 
-Matrix4x4::Matrix4x4(double t00, double t01, double t02, double t03,
-                     double t10, double t11, double t12, double t13,
-                     double t20, double t21, double t22, double t23,
-                     double t30, double t31, double t32, double t33) {
+Matrix4x4::Matrix4x4(boost::units::photonflow::length t00, boost::units::photonflow::length t01, boost::units::photonflow::length t02, boost::units::photonflow::length t03,
+                     boost::units::photonflow::length t10, boost::units::photonflow::length t11, boost::units::photonflow::length t12, boost::units::photonflow::length t13,
+                     boost::units::photonflow::length t20, boost::units::photonflow::length t21, boost::units::photonflow::length t22, boost::units::photonflow::length t23,
+                     boost::units::photonflow::length t30, boost::units::photonflow::length t31, boost::units::photonflow::length t32, boost::units::photonflow::length t33) {
     m[0][0] = t00; m[0][1] = t01; m[0][2] = t02; m[0][3] = t03;
     m[1][0] = t10; m[1][1] = t11; m[1][2] = t12; m[1][3] = t13;
     m[2][0] = t20; m[2][1] = t21; m[2][2] = t22; m[2][3] = t23;

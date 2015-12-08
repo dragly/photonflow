@@ -432,7 +432,7 @@ Vector3D sampleHG(const Vector3D &w, double g, double u1, double u2) {
     double sintheta = sqrtf(max(0.0, 1.f-costheta*costheta));
     double phi = 2.f * M_PI * u2;
     Vector3D v1, v2;
-    CoordinateSystem(w, &v1, &v2);
+    coordinateSystem(w, &v1, &v2);
     return sphericalDirection(sintheta, costheta, phi, v1, v2, w);
 }
 
