@@ -49,21 +49,21 @@ struct DifferentialGeometry {
         shape = NULL; 
     }
     // DifferentialGeometry Public Methods
-    DifferentialGeometry(const Point &P, const Vector &DPDU,
-            const Vector &DPDV, const Normal &DNDU,
-            const Normal &DNDV, float uu, float vv,
+    DifferentialGeometry(const Point3D &P, const Vector3D &DPDU,
+            const Vector3D &DPDV, const Normal &DNDU,
+            const Normal &DNDV, double uu, double vv,
             const Shape *sh);
     void ComputeDifferentials(const RayDifferential &r) const;
 
     // DifferentialGeometry Public Data
-    Point p;
+    Point3D p;
     Normal nn;
-    float u, v;
+    double u, v;
     const Shape *shape;
-    Vector dpdu, dpdv;
+    Vector3D dpdu, dpdv;
     Normal dndu, dndv;
-    mutable Vector dpdx, dpdy;
-    mutable float dudx, dvdx, dudy, dvdy;
+    mutable Vector3D dpdx, dpdy;
+    mutable double dudx, dvdx, dudy, dvdy;
 };
 
 

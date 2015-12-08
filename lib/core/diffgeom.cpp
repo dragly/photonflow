@@ -37,10 +37,10 @@
 #include "shape.h"
 
 // DifferentialGeometry Method Definitions
-DifferentialGeometry::DifferentialGeometry(const Point &P,
-        const Vector &DPDU, const Vector &DPDV,
+DifferentialGeometry::DifferentialGeometry(const Point3D &P,
+        const Vector3D &DPDU, const Vector3D &DPDV,
         const Normal &DNDU, const Normal &DNDV,
-        float uu, float vv, const Shape *sh)
+        double uu, double vv, const Shape *sh)
     : p(P), dpdu(DPDU), dpdv(DPDV), dndu(DNDU), dndv(DNDV) {
     // Initialize _DifferentialGeometry_ from parameters
     nn = Normal(Normalize(Cross(dpdu, dpdv)));
@@ -61,22 +61,22 @@ void DifferentialGeometry::ComputeDifferentials(
         // Estimate screen space change in $\pt{}$ and $(u,v)$
 
         // Compute auxiliary intersection points with plane
-        float d = -Dot(nn, Vector(p.x, p.y, p.z));
-        Vector rxv(ray.rxOrigin.x, ray.rxOrigin.y, ray.rxOrigin.z);
-        float tx = -(Dot(nn, rxv) + d) / Dot(nn, ray.rxDirection);
+        double d = -Dot(nn, Vector3D(p.x, p.y, p.z));
+        Vector3D rxv(ray.rxOrigin.x, ray.rxOrigin.y, ray.rxOrigin.z);
+        double tx = -(Dot(nn, rxv) + d) / Dot(nn, ray.rxDirection);
         if (isnan(tx)) goto fail;
-        Point px = ray.rxOrigin + tx * ray.rxDirection;
-        Vector ryv(ray.ryOrigin.x, ray.ryOrigin.y, ray.ryOrigin.z);
-        float ty = -(Dot(nn, ryv) + d) / Dot(nn, ray.ryDirection);
+        Point3D px = ray.rxOrigin + tx * ray.rxDirection;
+        Vector3D ryv(ray.ryOrigin.x, ray.ryOrigin.y, ray.ryOrigin.z);
+        double ty = -(Dot(nn, ryv) + d) / Dot(nn, ray.ryDirection);
         if (isnan(ty)) goto fail;
-        Point py = ray.ryOrigin + ty * ray.ryDirection;
+        Point3D py = ray.ryOrigin + ty * ray.ryDirection;
         dpdx = px - p;
         dpdy = py - p;
 
         // Compute $(u,v)$ offsets at auxiliary points
 
         // Initialize _A_, _Bx_, and _By_ matrices for offset computation
-        float A[2][2], Bx[2], By[2];
+        double A[2][2], Bx[2], By[2];
         int axes[2];
         if (fabsf(nn.x) > fabsf(nn.y) && fabsf(nn.x) > fabsf(nn.z)) {
             axes[0] = 1; axes[1] = 2;
@@ -108,7 +108,7 @@ void DifferentialGeometry::ComputeDifferentials(
 fail:
         dudx = dvdx = 0.;
         dudy = dvdy = 0.;
-        dpdx = dpdy = Vector(0,0,0);
+        dpdx = dpdy = Vector3D(0,0,0);
     }
 }
 

@@ -37,7 +37,7 @@
 
 using namespace std;
 
-inline float Fdr(float eta) {
+inline double Fdr(double eta) {
     if (eta >= 1)
         return -1.4399f / (eta*eta) + 0.7099f / eta + 0.6681f +
             0.0636f * eta;
@@ -49,7 +49,7 @@ inline float Fdr(float eta) {
 // Volume Scattering Local Definitions
 struct MeasuredSS {
     const char *name;
-    float sigma_prime_s[3], sigma_a[3]; // mm^-1
+    double sigma_prime_s[3], sigma_a[3]; // mm^-1
 };
 
 
@@ -112,23 +112,23 @@ static MeasuredSS mss[] = {
 };
 
 
-static float RdIntegral(float alphap, float A) {
-    float sqrtTerm = sqrtf(3.f * (1.f - alphap));
+static double RdIntegral(double alphap, double A) {
+    double sqrtTerm = sqrtf(3.f * (1.f - alphap));
     return alphap / 2.f * (1.f + expf(-4.f/3.f * A * sqrtTerm)) *
         expf(-sqrtTerm);
 }
 
 
-static float RdToAlphap(float reflectance, float A) {
-    float alphaLow = 0., alphaHigh = 1.f;
-    float kd0 = RdIntegral(alphaLow, A);
-    float kd1 = RdIntegral(alphaHigh, A);
+static double RdToAlphap(double reflectance, double A) {
+    double alphaLow = 0., alphaHigh = 1.f;
+    double kd0 = RdIntegral(alphaLow, A);
+    double kd1 = RdIntegral(alphaHigh, A);
     UNUSED(kd0);
     UNUSED(kd1);
     for (int i = 0; i < 16; ++i) {
         Assert(kd0 <= reflectance && kd1 >= reflectance);
-        float alphaMid = (alphaLow + alphaHigh) * 0.5f;
-        float kd = RdIntegral(alphaMid, A);
+        double alphaMid = (alphaLow + alphaHigh) * 0.5f;
+        double kd = RdIntegral(alphaMid, A);
         if (kd < reflectance) { alphaLow = alphaMid;  kd0 = kd; }
         else                  { alphaHigh = alphaMid; kd1 = kd; }
     }
@@ -138,49 +138,49 @@ static float RdToAlphap(float reflectance, float A) {
 
 
 // Volume Scattering Definitions
-float PhaseIsotropic(const Vector &, const Vector &) {
+double PhaseIsotropic(const Vector3D &, const Vector3D &) {
     return 1.f / (4.f * M_PI);
 }
 
 
-float PhaseRayleigh(const Vector &w, const Vector &wp) {
-    float costheta = Dot(w, wp);
+double PhaseRayleigh(const Vector3D &w, const Vector3D &wp) {
+    double costheta = Dot(w, wp);
     return  3.f/(16.f*M_PI) * (1 + costheta * costheta);
 }
 
 
-float PhaseMieHazy(const Vector &w, const Vector &wp) {
-    float costheta = Dot(w, wp);
+double PhaseMieHazy(const Vector3D &w, const Vector3D &wp) {
+    double costheta = Dot(w, wp);
     return (0.5f + 4.5f * powf(0.5 * (1.f + costheta), 8.f)) / (4.f*M_PI);
 }
 
 
-float PhaseMieMurky(const Vector &w, const Vector &wp) {
-    float costheta = Dot(w, wp);
+double PhaseMieMurky(const Vector3D &w, const Vector3D &wp) {
+    double costheta = Dot(w, wp);
     return (0.5f + 16.5f * powf(0.5 * (1.f + costheta), 32.f)) / (4.f*M_PI);
 }
 
 
-float PhaseHG(const Vector &w, const Vector &wp, float g) {
-    float costheta = Dot(w, wp);
+double PhaseHG(const Vector3D &w, const Vector3D &wp, double g) {
+    double costheta = Dot(w, wp);
     return 1.f / (4.f * M_PI) *
         (1.f - g*g) / powf(1.f + g*g - 2.f * g * costheta, 1.5f);
 }
 
 
-float PhaseSchlick(const Vector &w, const Vector &wp, float g) {
+double PhaseSchlick(const Vector3D &w, const Vector3D &wp, double g) {
     // improved g->k mapping derived by Thies Heidecke
     // see http://pbrt.org/bugtracker/view.php?id=102
-    float alpha = 1.5f;
-    float k = alpha * g + (1.f - alpha) * g * g * g;
-    float kcostheta = k * Dot(w, wp);
+    double alpha = 1.5f;
+    double k = alpha * g + (1.f - alpha) * g * g * g;
+    double kcostheta = k * Dot(w, wp);
     return 1.f / (4.f * M_PI) *
         (1.f - k*k) / ((1.f - kcostheta) * (1.f - kcostheta));
 }
 
 
-Spectrum VolumeRegion::sigma_t(const Point &p, const Vector &w,
-                               float time) const {
+Spectrum VolumeRegion::sigma_t(const Point3D &p, const Vector3D &w,
+                               double time) const {
     return sigma_a(p, w, time) + sigma_s(p, w, time);
 }
 
@@ -192,8 +192,8 @@ AggregateVolume::AggregateVolume(const vector<VolumeRegion *> &r) {
 }
 
 
-Spectrum AggregateVolume::sigma_a(const Point &p, const Vector &w,
-                                  float time) const {
+Spectrum AggregateVolume::sigma_a(const Point3D &p, const Vector3D &w,
+                                  double time) const {
     Spectrum s(0.);
     for (uint32_t i = 0; i < regions.size(); ++i)
         s += regions[i]->sigma_a(p, w, time);
@@ -201,7 +201,7 @@ Spectrum AggregateVolume::sigma_a(const Point &p, const Vector &w,
 }
 
 
-Spectrum AggregateVolume::sigma_s(const Point &p, const Vector &w, float time) const {
+Spectrum AggregateVolume::sigma_s(const Point3D &p, const Vector3D &w, double time) const {
     Spectrum s(0.);
     for (uint32_t i = 0; i < regions.size(); ++i)
         s += regions[i]->sigma_s(p, w, time);
@@ -209,7 +209,7 @@ Spectrum AggregateVolume::sigma_s(const Point &p, const Vector &w, float time) c
 }
 
 
-Spectrum AggregateVolume::Lve(const Point &p, const Vector &w, float time) const {
+Spectrum AggregateVolume::Lve(const Point3D &p, const Vector3D &w, double time) const {
     Spectrum L(0.);
     for (uint32_t i = 0; i < regions.size(); ++i)
         L += regions[i]->Lve(p, w, time);
@@ -217,11 +217,11 @@ Spectrum AggregateVolume::Lve(const Point &p, const Vector &w, float time) const
 }
 
 
-float AggregateVolume::p(const Point &p, const Vector &w, const Vector &wp,
-        float time) const {
-    float ph = 0, sumWt = 0;
+double AggregateVolume::p(const Point3D &p, const Vector3D &w, const Vector3D &wp,
+        double time) const {
+    double ph = 0, sumWt = 0;
     for (uint32_t i = 0; i < regions.size(); ++i) {
-        float wt = regions[i]->sigma_s(p, w, time).y();
+        double wt = regions[i]->sigma_s(p, w, time).y();
         sumWt += wt;
         ph += wt * regions[i]->p(p, w, wp, time);
     }
@@ -229,7 +229,7 @@ float AggregateVolume::p(const Point &p, const Vector &w, const Vector &wp,
 }
 
 
-Spectrum AggregateVolume::sigma_t(const Point &p, const Vector &w, float time) const {
+Spectrum AggregateVolume::sigma_t(const Point3D &p, const Vector3D &w, double time) const {
     Spectrum s(0.);
     for (uint32_t i = 0; i < regions.size(); ++i)
         s += regions[i]->sigma_t(p, w, time);
@@ -237,7 +237,7 @@ Spectrum AggregateVolume::sigma_t(const Point &p, const Vector &w, float time) c
 }
 
 
-Spectrum AggregateVolume::tau(const Ray &ray, float step, float offset) const {
+Spectrum AggregateVolume::tau(const Ray &ray, double step, double offset) const {
     Spectrum t(0.);
     for (uint32_t i = 0; i < regions.size(); ++i)
         t += regions[i]->tau(ray, step, offset);
@@ -246,11 +246,11 @@ Spectrum AggregateVolume::tau(const Ray &ray, float step, float offset) const {
 
 
 bool AggregateVolume::IntersectP(const Ray &ray,
-                                 float *t0, float *t1) const {
+                                 double *t0, double *t1) const {
     *t0 = INFINITY;
     *t1 = -INFINITY;
     for (uint32_t i = 0; i < regions.size(); ++i) {
-        float tr0, tr1;
+        double tr0, tr1;
         if (regions[i]->IntersectP(ray, &tr0, &tr1)) {
             *t0 = min(*t0, tr0);
             *t1 = max(*t1, tr1);
@@ -277,17 +277,17 @@ bool GetVolumeScatteringProperties(const std::string &name, Spectrum *sigma_a,
 }
 
 
-void SubsurfaceFromDiffuse(const Spectrum &Kd, float meanPathLength,
-        float eta, Spectrum *sigma_a, Spectrum *sigma_prime_s) {
-    float A = (1.f + Fdr(eta)) / (1.f - Fdr(eta));
-    float rgb[3];
+void SubsurfaceFromDiffuse(const Spectrum &Kd, double meanPathLength,
+        double eta, Spectrum *sigma_a, Spectrum *sigma_prime_s) {
+    double A = (1.f + Fdr(eta)) / (1.f - Fdr(eta));
+    double rgb[3];
     Kd.ToRGB(rgb);
-    float sigma_prime_s_rgb[3], sigma_a_rgb[3];
+    double sigma_prime_s_rgb[3], sigma_a_rgb[3];
     for (int i = 0; i < 3; ++i) {
        // Compute $\alpha'$ for RGB component, compute scattering properties
-       float alphap = RdToAlphap(rgb[i], A);
-       float sigma_tr = 1.f / meanPathLength;
-       float sigma_prime_t = sigma_tr / sqrtf(3.f * (1.f - alphap));
+       double alphap = RdToAlphap(rgb[i], A);
+       double sigma_tr = 1.f / meanPathLength;
+       double sigma_prime_t = sigma_tr / sqrtf(3.f * (1.f - alphap));
        sigma_prime_s_rgb[i] = alphap * sigma_prime_t;
        sigma_a_rgb[i] = sigma_prime_t - sigma_prime_s_rgb[i];
     }
@@ -299,11 +299,11 @@ DensityRegion::DensityRegion()
 {
 }
 
-Spectrum DensityRegion::tau(const Ray &r, float stepSize,
-                            float u) const {
-    float t0, t1;
-    float length = r.m_direction.Length();
-    if (length == 0.f) return 0.f;
+Spectrum DensityRegion::tau(const Ray &r, double stepSize,
+                            double u) const {
+    double t0, t1;
+    double length = r.m_direction.Length();
+    if (length == 0.0) return 0.0;
     Ray rn(r.m_origin, r.m_direction / length, r.m_mint * length, r.m_maxt * length, r.m_time);
     if (!IntersectP(rn, &t0, &t1)) return 0.;
     Spectrum tau(0.);

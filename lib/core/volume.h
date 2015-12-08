@@ -44,28 +44,28 @@
 #include "../core/integrator.h"
 
 // Volume Scattering Declarations
-float PhaseIsotropic(const Vector &w, const Vector &wp);
-float PhaseRayleigh(const Vector &w, const Vector &wp);
-float PhaseMieHazy(const Vector &w, const Vector &wp);
-float PhaseMieMurky(const Vector &w, const Vector &wp);
-float PhaseHG(const Vector &w, const Vector &wp, float g);
-float PhaseSchlick(const Vector &w, const Vector &wp, float g);
+double PhaseIsotropic(const Vector3D &w, const Vector3D &wp);
+double PhaseRayleigh(const Vector3D &w, const Vector3D &wp);
+double PhaseMieHazy(const Vector3D &w, const Vector3D &wp);
+double PhaseMieMurky(const Vector3D &w, const Vector3D &wp);
+double PhaseHG(const Vector3D &w, const Vector3D &wp, double g);
+double PhaseSchlick(const Vector3D &w, const Vector3D &wp, double g);
 class VolumeRegion {
 public:
     // VolumeRegion Interface
     virtual BBox WorldBound() const = 0;
-    virtual bool IntersectP(const Ray &ray, float *t0, float *t1) const = 0;
-    virtual Spectrum sigma_a(const Point &, const Vector &,
-                             float time) const = 0;
-    virtual Spectrum sigma_s(const Point &, const Vector &,
-                             float time) const = 0;
-    virtual Spectrum Lve(const Point &, const Vector &,
-                         float time) const = 0;
-    virtual float p(const Point &, const Vector &,
-                    const Vector &, float time) const = 0;
-    virtual Spectrum sigma_t(const Point &p, const Vector &wo, float time) const;
-    virtual Spectrum tau(const Ray &ray, float step = 1.f,
-                         float offset = 0.5) const = 0;
+    virtual bool IntersectP(const Ray &ray, double *t0, double *t1) const = 0;
+    virtual Spectrum sigma_a(const Point3D &, const Vector3D &,
+                             double time) const = 0;
+    virtual Spectrum sigma_s(const Point3D &, const Vector3D &,
+                             double time) const = 0;
+    virtual Spectrum Lve(const Point3D &, const Vector3D &,
+                         double time) const = 0;
+    virtual double p(const Point3D &, const Vector3D &,
+                    const Vector3D &, double time) const = 0;
+    virtual Spectrum sigma_t(const Point3D &p, const Vector3D &wo, double time) const;
+    virtual Spectrum tau(const Ray &ray, double step = 1.f,
+                         double offset = 0.5) const = 0;
 };
 
 
@@ -73,36 +73,36 @@ class DensityRegion : public VolumeRegion {
 public:
     // DensityRegion Public Methods
     DensityRegion();
-    DensityRegion(const Spectrum &sa, const Spectrum &ss, float gg,
+    DensityRegion(const Spectrum &sa, const Spectrum &ss, double gg,
                   const Spectrum &emita, const Transform &VolumeToWorldIn)
         : sig_a(sa), sig_s(ss), le(emita), g(gg),
           WorldToVolume(Inverse(VolumeToWorldIn)),
           VolumeToWorld(VolumeToWorldIn) { }
-    virtual float Density(const Point &Pobj) const = 0;
-    Spectrum sigma_a(const Point &p, const Vector &, float) const {
+    virtual double Density(const Point3D &Pobj) const = 0;
+    Spectrum sigma_a(const Point3D &p, const Vector3D &, double) const {
         UNUSED(p);
         return sig_a;
     }
-    Spectrum sigma_s(const Point &p, const Vector &, float) const {
+    Spectrum sigma_s(const Point3D &p, const Vector3D &, double) const {
         return Density(p) * sig_s;
     }
-    Spectrum sigma_t(const Point &p, const Vector &, float) const {
+    Spectrum sigma_t(const Point3D &p, const Vector3D &, double) const {
         return Density(p) * (sig_a + sig_s);
     }
-    Spectrum Lve(const Point &p, const Vector &, float) const {
+    Spectrum Lve(const Point3D &p, const Vector3D &, double) const {
         return Density(p) * le;
     }
-    float p(const Point &p, const Vector &w, const Vector &wp, float) const {
+    double p(const Point3D &p, const Vector3D &w, const Vector3D &wp, double) const {
         UNUSED(p);
         return PhaseHG(w, wp, g);
     }
-    Spectrum tau(const Ray &r, float stepSize, float offset) const;
+    Spectrum tau(const Ray &r, double stepSize, double offset) const;
 protected:
     // DensityRegion Protected Data
     Spectrum sig_a;
     Spectrum sig_s;
     Spectrum le;
-    float g = 0.0;
+    double g = 0.0;
     Transform WorldToVolume;
     Transform VolumeToWorld;
 };
@@ -114,13 +114,13 @@ public:
     AggregateVolume(const vector<VolumeRegion *> &r);
     ~AggregateVolume();
     BBox WorldBound() const;
-    bool IntersectP(const Ray &ray, float *t0, float *t1) const;
-    Spectrum sigma_a(const Point &, const Vector &, float) const;
-    Spectrum sigma_s(const Point &, const Vector &, float) const;
-    Spectrum Lve(const Point &, const Vector &, float) const;
-    float p(const Point &, const Vector &, const Vector &, float) const;
-    Spectrum sigma_t(const Point &, const Vector &, float) const;
-    Spectrum tau(const Ray &ray, float, float) const;
+    bool IntersectP(const Ray &ray, double *t0, double *t1) const;
+    Spectrum sigma_a(const Point3D &, const Vector3D &, double) const;
+    Spectrum sigma_s(const Point3D &, const Vector3D &, double) const;
+    Spectrum Lve(const Point3D &, const Vector3D &, double) const;
+    double p(const Point3D &, const Vector3D &, const Vector3D &, double) const;
+    Spectrum sigma_t(const Point3D &, const Vector3D &, double) const;
+    Spectrum tau(const Ray &ray, double, double) const;
 private:
     // AggregateVolume Private Data
     vector<VolumeRegion *> regions;
@@ -142,7 +142,7 @@ bool GetVolumeScatteringProperties(const std::string &name, Spectrum *sigma_a,
 //};
 
 
-void SubsurfaceFromDiffuse(const Spectrum &Kd, float meanPathLength, float eta,
+void SubsurfaceFromDiffuse(const Spectrum &Kd, double meanPathLength, double eta,
                            Spectrum *sigma_a, Spectrum *sigma_prime_s);
 
 #endif // PBRT_CORE_VOLUME_H

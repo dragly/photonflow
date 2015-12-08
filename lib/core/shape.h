@@ -53,8 +53,8 @@ public:
     virtual BBox WorldBound() const;
     virtual bool CanIntersect() const;
     virtual void Refine(vector<Shape> &refined) const;
-    virtual bool Intersect(const Ray &ray, float *tHit,
-                           float *rayEpsilon, DifferentialGeometry *dg) const;
+    virtual bool Intersect(const Ray &ray, double *tHit,
+                           double *rayEpsilon, DifferentialGeometry *dg) const;
     virtual bool IntersectP(const Ray &ray) const;
     virtual void GetShadingGeometry(const Transform &obj2world,
             const DifferentialGeometry &dg,
@@ -62,24 +62,24 @@ public:
         UNUSED(obj2world);
         *dgShading = dg;
     }
-    virtual float Area() const;
-    virtual Point Sample(float u1, float u2, Normal *Ns) const {
+    virtual double Area() const;
+    virtual Point3D Sample(double u1, double u2, Normal *Ns) const {
         UNUSED(u1);
         UNUSED(u2);
         UNUSED(Ns);
         Severe("Unimplemented Shape::Sample() method called");
-        return Point();
+        return Point3D();
     }
-    virtual float Pdf(const Point &Pshape) const {
+    virtual double Pdf(const Point3D &Pshape) const {
         UNUSED(Pshape);
         return 1.f / Area();
     }
-    virtual Point Sample(const Point &P, float u1, float u2,
+    virtual Point3D Sample(const Point3D &P, double u1, double u2,
                          Normal *Ns) const {
         UNUSED(P);
         return Sample(u1, u2, Ns);
     }
-    virtual float Pdf(const Point &p, const Vector &wi) const;
+    virtual double Pdf(const Point3D &p, const Vector3D &wi) const;
 
     // Shape Public Data
     const Transform *ObjectToWorld, *WorldToObject;

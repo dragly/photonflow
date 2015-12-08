@@ -36,15 +36,15 @@
 //#include "paramset.h"
 
 // Sinc Filter Method Definitions
-float LanczosSincFilter::Evaluate(float x, float y) const {
+double LanczosSincFilter::Evaluate(double x, double y) const {
     return Sinc1D(x * invXWidth) * Sinc1D(y * invYWidth);
 }
 
 
 //LanczosSincFilter *CreateSincFilter(const ParamSet &ps) {
-//    float xw = ps.FindOneFloat("xwidth", 4.);
-//    float yw = ps.FindOneFloat("ywidth", 4.);
-//    float tau = ps.FindOneFloat("tau", 3.f);
+//    double xw = ps.FindOneFloat("xwidth", 4.);
+//    double yw = ps.FindOneFloat("ywidth", 4.);
+//    double tau = ps.FindOneFloat("tau", 3.f);
 //    return new LanczosSincFilter(xw, yw, tau);
 //}
 

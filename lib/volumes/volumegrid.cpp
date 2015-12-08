@@ -42,7 +42,7 @@ VolumeGridDensity::VolumeGridDensity()
 
 }
 
-VolumeGridDensity::VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, float gg, const Spectrum &emita, const BBox &e, const Transform &v2w, arma::Cube<short> densitya)
+VolumeGridDensity::VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, double gg, const Spectrum &emita, const BBox &e, const Transform &v2w, arma::Cube<short> densitya)
     : DensityRegion(sa, ss, gg, emita, v2w)
     , extent(e)
     , m_worldBound(VolumeToWorld(extent))
@@ -51,15 +51,15 @@ VolumeGridDensity::VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, flo
 }
 
 // VolumeGridDensity Method Definitions
-float VolumeGridDensity::Density(const Point &Pobj) const {
-    Point local = WorldToVolume(Pobj);
+double VolumeGridDensity::Density(const Point3D &Pobj) const {
+    Point3D local = WorldToVolume(Pobj);
 
     if (!extent.Inside(local)) {
         return 0;
     }
 
     // Compute voxel coordinates and offsets for _Pobj_
-    Vector vox = extent.Offset(local);
+    Vector3D vox = extent.Offset(local);
     vox.x = vox.x * density.n_rows; // - .5f;
     vox.y = vox.y * density.n_cols; // - .5f;
     vox.z = vox.z * density.n_slices; // - .5f;
@@ -73,24 +73,24 @@ float VolumeGridDensity::Density(const Point &Pobj) const {
     return D(vx, vy, vz);
 
     // Trilinearly interpolate density values to compute local density
-//    float d00 = Lerp(dx, D(vx, vy, vz),     D(vx+1, vy, vz));
-//    float d10 = Lerp(dx, D(vx, vy+1, vz),   D(vx+1, vy+1, vz));
-//    float d01 = Lerp(dx, D(vx, vy, vz+1),   D(vx+1, vy, vz+1));
-//    float d11 = Lerp(dx, D(vx, vy+1, vz+1), D(vx+1, vy+1, vz+1));
-//    float d0 = Lerp(dy, d00, d10);
-//    float d1 = Lerp(dy, d01, d11);
+//    double d00 = Lerp(dx, D(vx, vy, vz),     D(vx+1, vy, vz));
+//    double d10 = Lerp(dx, D(vx, vy+1, vz),   D(vx+1, vy+1, vz));
+//    double d01 = Lerp(dx, D(vx, vy, vz+1),   D(vx+1, vy, vz+1));
+//    double d11 = Lerp(dx, D(vx, vy+1, vz+1), D(vx+1, vy+1, vz+1));
+//    double d0 = Lerp(dy, d00, d10);
+//    double d1 = Lerp(dy, d01, d11);
     //    return Lerp(dz, d0, d1);
 }
 
-bool VolumeGridDensity::inside(const Point &p) const
+bool VolumeGridDensity::inside(const Point3D &p) const
 {
-    Point local = WorldToVolume(p);
+    Point3D local = WorldToVolume(p);
     return extent.Inside(local);
 }
 
-bool VolumeGridDensity::fuzzyInside(const Point &p) const
+bool VolumeGridDensity::fuzzyInside(const Point3D &p) const
 {
-    Point local = WorldToVolume(p);
+    Point3D local = WorldToVolume(p);
     return extent.fuzzyInside(local);
 }
 

@@ -47,15 +47,15 @@ struct Intersection {
     // Intersection Public Methods
     Intersection() {
         shapeId = primitiveId = 0;
-        rayEpsilon = 0.f;
+        rayEpsilon = 0.0;
     }
-    Spectrum Le(const Vector &wo) const;
+    Spectrum Le(const Vector3D &wo) const;
 
     // Intersection Public Data
     DifferentialGeometry dg;
     Transform WorldToObject, ObjectToWorld;
     uint32_t shapeId, primitiveId;
-    float rayEpsilon;
+    double rayEpsilon;
 };
 
 

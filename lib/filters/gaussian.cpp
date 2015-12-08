@@ -36,16 +36,16 @@
 //#include "paramset.h"
 
 // Gaussian Filter Method Definitions
-float GaussianFilter::Evaluate(float x, float y) const {
+double GaussianFilter::Evaluate(double x, double y) const {
     return Gaussian(x, expX) * Gaussian(y, expY);
 }
 
 
 //GaussianFilter *CreateGaussianFilter(const ParamSet &ps) {
 //    // Find common filter parameters
-//    float xw = ps.FindOneFloat("xwidth", 2.f);
-//    float yw = ps.FindOneFloat("ywidth", 2.f);
-//    float alpha = ps.FindOneFloat("alpha", 2.f);
+//    double xw = ps.FindOneFloat("xwidth", 2.f);
+//    double yw = ps.FindOneFloat("ywidth", 2.f);
+//    double alpha = ps.FindOneFloat("alpha", 2.f);
 //    return new GaussianFilter(xw, yw, alpha);
 //}
 

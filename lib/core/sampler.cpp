@@ -45,7 +45,7 @@ Sampler::~Sampler() {
 
 
 Sampler::Sampler(int xstart, int xend, int ystart, int yend, int spp,
-                 float sopen, float sclose)
+                 double sopen, double sclose)
     : xPixelStart(xstart), xPixelEnd(xend), yPixelStart(ystart),
       yPixelEnd(yend), samplesPerPixel(spp), shutterOpen(sopen),
       shutterClose(sclose) { }
@@ -73,8 +73,8 @@ void Sampler::ComputeSubWindow(int num, int count, int *newXStart,
 
     // Compute $x$ and $y$ pixel sample range for sub-window
     int xo = num % nx, yo = num / nx;
-    float tx0 = float(xo) / float(nx), tx1 = float(xo+1) / float(nx);
-    float ty0 = float(yo) / float(ny), ty1 = float(yo+1) / float(ny);
+    double tx0 = double(xo) / double(nx), tx1 = double(xo+1) / double(nx);
+    double ty0 = double(yo) / double(ny), ty1 = double(yo+1) / double(ny);
     *newXStart = Floor2Int(Lerp(tx0, xPixelStart, xPixelEnd));
     *newXEnd   = Floor2Int(Lerp(tx1, xPixelStart, xPixelEnd));
     *newYStart = Floor2Int(Lerp(ty0, yPixelStart, yPixelEnd));

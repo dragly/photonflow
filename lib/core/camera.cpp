@@ -46,7 +46,7 @@ Camera::~Camera() {
 
 
 Camera::Camera(const Transform &cam2world,
-               float sopen, float sclose, std::shared_ptr<Film> f)
+               double sopen, double sclose, std::shared_ptr<Film> f)
     : CameraToWorld(cam2world), shutterOpen(sopen), shutterClose(sclose) {
     film = f;
     if (CameraToWorld.HasScale())
@@ -58,14 +58,14 @@ Camera::Camera(const Transform &cam2world,
 }
 
 
-float Camera::GenerateRayDifferential(const CameraSample &sample,
+double Camera::GenerateRayDifferential(const CameraSample &sample,
                                       RayDifferential *rd) const {
-    float wt = GenerateRay(sample, rd);
+    double wt = GenerateRay(sample, rd);
     // Find ray after shifting one pixel in the $x$ direction
     CameraSample sshift = sample;
     ++(sshift.imageX);
     Ray rx;
-    float wtx = GenerateRay(sshift, &rx);
+    double wtx = GenerateRay(sshift, &rx);
     rd->rxOrigin = rx.m_origin;
     rd->rxDirection = rx.m_direction;
 
@@ -73,18 +73,18 @@ float Camera::GenerateRayDifferential(const CameraSample &sample,
     --(sshift.imageX);
     ++(sshift.imageY);
     Ray ry;
-    float wty = GenerateRay(sshift, &ry);
+    double wty = GenerateRay(sshift, &ry);
     rd->ryOrigin = ry.m_origin;
     rd->ryDirection = ry.m_direction;
-    if (wtx == 0.f || wty == 0.f) return 0.f;
+    if (wtx == 0.0 || wty == 0.0) return 0.0;
     rd->hasDifferentials = true;
     return wt;
 }
 
 
 ProjectiveCamera::ProjectiveCamera(const Transform &cam2world,
-        const Transform &proj, const Rectangle &screenWindow, float sopen,
-        float sclose, float lensr, float focald, shared_ptr<Film> f)
+        const Transform &proj, const Rectangle &screenWindow, double sopen,
+        double sclose, double lensr, double focald, shared_ptr<Film> f)
     : Camera(cam2world, sopen, sclose, f) {
     // Initialize depth of field parameters
     lensRadius = lensr;
@@ -94,11 +94,11 @@ ProjectiveCamera::ProjectiveCamera(const Transform &cam2world,
     CameraToScreen = proj;
 
     // Compute projective camera screen transformations
-    ScreenToRaster = Scale(float(film->xResolution),
-                           float(film->yResolution), 1.f) *
+    ScreenToRaster = Scale(double(film->xResolution),
+                           double(film->yResolution), 1.f) *
         Scale(1.f / (screenWindow.width()),
               1.f / (screenWindow.height()), 1.f) *
-        Translate(Vector(-screenWindow.x(), -screenWindow.y(), 0.f));
+        Translate(Vector3D(-screenWindow.x(), -screenWindow.y(), 0.0));
     RasterToScreen = Inverse(ScreenToRaster);
     RasterToCamera = Inverse(CameraToScreen) * RasterToScreen;
 }

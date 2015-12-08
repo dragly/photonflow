@@ -65,7 +65,7 @@ void Shape::Refine(vector<Shape> &refined) const {
 }
 
 
-bool Shape::Intersect(const Ray &ray, float *tHit, float *rayEpsilon,
+bool Shape::Intersect(const Ray &ray, double *tHit, double *rayEpsilon,
                       DifferentialGeometry *dg) const {
     UNUSED(ray);
     UNUSED(tHit);
@@ -83,24 +83,24 @@ bool Shape::IntersectP(const Ray &ray) const {
 }
 
 
-float Shape::Area() const {
+double Shape::Area() const {
     Severe("Unimplemented Shape::Area() method called");
     return 0.;
 }
 
 
-float Shape::Pdf(const Point &p, const Vector &wi) const {
+double Shape::Pdf(const Point3D &p, const Vector3D &wi) const {
     // Intersect sample ray with area light geometry
     DifferentialGeometry dgLight;
     Ray ray(p, wi, 1e-3f);
     ray.m_depth = -1; // temporary hack to ignore alpha mask
-    float thit, rayEpsilon;
+    double thit, rayEpsilon;
     if (!Intersect(ray, &thit, &rayEpsilon, &dgLight)) return 0.;
 
     // Convert light sample weight to solid angle measure
-    float pdf = DistanceSquared(p, ray(thit)) /
+    double pdf = DistanceSquared(p, ray(thit)) /
                 (AbsDot(dgLight.nn, -wi) * Area());
-    if (isinf(pdf)) pdf = 0.f;
+    if (isinf(pdf)) pdf = 0.0;
     return pdf;
 }
 

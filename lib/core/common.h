@@ -42,7 +42,7 @@ template <typename T, int logBlockSize = 2> class BlockedArray;
 #endif
 
 // Global Inline Functions
-inline float Lerp(float t, float v1, float v2) {
+inline double Lerp(double t, double v1, double v2) {
     return (1.f - t) * v1 + t * v2;
 }
 
@@ -69,24 +69,24 @@ inline int Mod(int a, int b) {
 }
 
 
-inline float Radians(float deg) {
-    return ((float)M_PI/180.f) * deg;
+inline double Radians(double deg) {
+    return ((double)M_PI/180.0) * deg;
 }
 
 
-inline float Degrees(float rad) {
-    return (180.f/(float)M_PI) * rad;
+inline double Degrees(double rad) {
+    return (180.0/(double)M_PI) * rad;
 }
 
 
-inline float Log2(float x) {
-    static float invLog2 = 1.f / logf(2.f);
+inline double Log2(double x) {
+    static double invLog2 = 1.f / logf(2.f);
     return logf(x) * invLog2;
 }
 
 
-inline int Floor2Int(float val);
-inline int Log2Int(float v) {
+inline int Floor2Int(double val);
+inline int Log2Int(double v) {
     return Floor2Int(Log2(v));
 }
 
@@ -105,22 +105,22 @@ inline uint32_t RoundUpPow2(uint32_t v) {
 }
 
 
-inline int Floor2Int(float val) {
+inline int Floor2Int(double val) {
     return (int)floorf(val);
 }
 
 
-inline int Round2Int(float val) {
+inline int Round2Int(double val) {
     return Floor2Int(val + 0.5f);
 }
 
 
-inline int Float2Int(float val) {
+inline int Float2Int(double val) {
     return (int)val;
 }
 
 
-inline int Ceil2Int(float val) {
+inline int Ceil2Int(double val) {
     return (int)ceilf(val);
 }
 
@@ -133,14 +133,14 @@ inline int Ceil2Int(float val) {
         Severe("Assertion \"%s\" failed in %s, line %d", \
                #expr, __FILE__, __LINE__))
 #endif // NDEBUG
-inline bool Quadratic(float A, float B, float C, float *t0, float *t1) {
+inline bool Quadratic(double A, double B, double C, double *t0, double *t1) {
     // Find quadratic discriminant
-    float discrim = B * B - 4.f * A * C;
+    double discrim = B * B - 4.f * A * C;
     if (discrim < 0.) return false;
-    float rootDiscrim = sqrtf(discrim);
+    double rootDiscrim = sqrtf(discrim);
 
     // Compute quadratic _t_ values
-    float q;
+    double q;
     if (B < 0) q = -.5f * (B - rootDiscrim);
     else       q = -.5f * (B + rootDiscrim);
     *t0 = q / A;

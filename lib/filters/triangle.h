@@ -42,8 +42,8 @@
 // Triangle Filter Declarations
 class TriangleFilter : public Filter {
 public:
-    TriangleFilter(float xw, float yw) : Filter(xw, yw) { }
-    float Evaluate(float x, float y) const;
+    TriangleFilter(double xw, double yw) : Filter(xw, yw) { }
+    double Evaluate(double x, double y) const;
 };
 
 

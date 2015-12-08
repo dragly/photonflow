@@ -53,7 +53,7 @@ public:
     // Sampler Interface
     virtual ~Sampler();
     Sampler(int xstart, int xend, int ystart, int yend,
-            int spp, float sopen, float sclose);
+            int spp, double sopen, double sclose);
     virtual int GetMoreSamples(Sample *sample, RNG &rng) = 0;
     virtual int MaximumSampleCount() = 0;
     virtual bool ReportResults(Sample *samples, const RayDifferential *rays,
@@ -64,7 +64,7 @@ public:
     // Sampler Public Data
     const int xPixelStart, xPixelEnd, yPixelStart, yPixelEnd;
     const int samplesPerPixel;
-    const float shutterOpen, shutterClose;
+    const double shutterOpen, shutterClose;
 protected:
     // Sampler Protected Methods
     void ComputeSubWindow(int num, int count, int *xstart, int *xend, int *ystart, int *yend) const;
@@ -72,9 +72,9 @@ protected:
 
 
 struct CameraSample {
-    float imageX, imageY;
-    float lensU, lensV;
-    float time;
+    double imageX, imageY;
+    double lensU, lensV;
+    double time;
 };
 
 struct SampleData {

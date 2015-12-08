@@ -50,14 +50,14 @@ class PerspectiveCamera : public ProjectiveCamera {
 public:
     // PerspectiveCamera Public Methods
     PerspectiveCamera(const Transform &cam2world,
-        const Rectangle &screenWindow, float sopen, float sclose,
-        float lensr, float focald, float fov, std::shared_ptr<Film> film);
-    float GenerateRay(const CameraSample &sample, Ray *) const;
-    float GenerateRayDifferential(const CameraSample &sample,
+        const Rectangle &screenWindow, double sopen, double sclose,
+        double lensr, double focald, double fov, std::shared_ptr<Film> film);
+    double GenerateRay(const CameraSample &sample, Ray *) const;
+    double GenerateRayDifferential(const CameraSample &sample,
                                   RayDifferential *ray) const;
 private:
     // PerspectiveCamera Private Data
-    Vector dxCamera, dyCamera;
+    Vector3D dxCamera, dyCamera;
 };
 
 #endif // PBRT_CAMERAS_PERSPECTIVE_H

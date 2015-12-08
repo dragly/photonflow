@@ -42,13 +42,13 @@ struct Matrix4x4 {
         m[0][0] = m[1][1] = m[2][2] = m[3][3] = 1.f;
         m[0][1] = m[0][2] = m[0][3] = m[1][0] =
              m[1][2] = m[1][3] = m[2][0] = m[2][1] = m[2][3] =
-             m[3][0] = m[3][1] = m[3][2] = 0.f;
+             m[3][0] = m[3][1] = m[3][2] = 0.0;
     }
-    Matrix4x4(float mat[4][4]);
-    Matrix4x4(float t00, float t01, float t02, float t03,
-              float t10, float t11, float t12, float t13,
-              float t20, float t21, float t22, float t23,
-              float t30, float t31, float t32, float t33);
+    Matrix4x4(double mat[4][4]);
+    Matrix4x4(double t00, double t01, double t02, double t03,
+              double t10, double t11, double t12, double t13,
+              double t20, double t21, double t22, double t23,
+              double t30, double t31, double t32, double t33);
     bool operator==(const Matrix4x4 &m2) const {
         for (int i = 0; i < 4; ++i)
             for (int j = 0; j < 4; ++j)
@@ -85,7 +85,7 @@ struct Matrix4x4 {
         return r;
     }
     friend Matrix4x4 Inverse(const Matrix4x4 &);
-    float m[4][4];
+    double m[4][4];
 };
 
 
@@ -95,7 +95,7 @@ class Transform {
 public:
     // Transform Public Methods
     Transform() { }
-    Transform(const float mat[4][4]) {
+    Transform(const double mat[4][4]) {
         m = Matrix4x4(mat[0][0], mat[0][1], mat[0][2], mat[0][3],
                       mat[1][0], mat[1][1], mat[1][2], mat[1][3],
                       mat[2][0], mat[2][1], mat[2][2], mat[2][3],
@@ -130,29 +130,29 @@ public:
         return false;
     }
     bool IsIdentity() const {
-        return (m.m[0][0] == 1.f && m.m[0][1] == 0.f &&
-                m.m[0][2] == 0.f && m.m[0][3] == 0.f &&
-                m.m[1][0] == 0.f && m.m[1][1] == 1.f &&
-                m.m[1][2] == 0.f && m.m[1][3] == 0.f &&
-                m.m[2][0] == 0.f && m.m[2][1] == 0.f &&
-                m.m[2][2] == 1.f && m.m[2][3] == 0.f &&
-                m.m[3][0] == 0.f && m.m[3][1] == 0.f &&
-                m.m[3][2] == 0.f && m.m[3][3] == 1.f);
+        return (m.m[0][0] == 1.f && m.m[0][1] == 0.0 &&
+                m.m[0][2] == 0.0 && m.m[0][3] == 0.0 &&
+                m.m[1][0] == 0.0 && m.m[1][1] == 1.f &&
+                m.m[1][2] == 0.0 && m.m[1][3] == 0.0 &&
+                m.m[2][0] == 0.0 && m.m[2][1] == 0.0 &&
+                m.m[2][2] == 1.f && m.m[2][3] == 0.0 &&
+                m.m[3][0] == 0.0 && m.m[3][1] == 0.0 &&
+                m.m[3][2] == 0.0 && m.m[3][3] == 1.f);
     }
     const Matrix4x4 &GetMatrix() const { return m; }
     const Matrix4x4 &GetInverseMatrix() const { return mInv; }
     bool HasScale() const {
-        float la2 = (*this)(Vector(1,0,0)).LengthSquared();
-        float lb2 = (*this)(Vector(0,1,0)).LengthSquared();
-        float lc2 = (*this)(Vector(0,0,1)).LengthSquared();
+        double la2 = (*this)(Vector3D(1,0,0)).LengthSquared();
+        double lb2 = (*this)(Vector3D(0,1,0)).LengthSquared();
+        double lc2 = (*this)(Vector3D(0,0,1)).LengthSquared();
 #define NOT_ONE(x) ((x) < .999f || (x) > 1.001f)
         return (NOT_ONE(la2) || NOT_ONE(lb2) || NOT_ONE(lc2));
 #undef NOT_ONE
     }
-    inline Point operator()(const Point &pt) const;
-    inline void operator()(const Point &pt, Point *ptrans) const;
-    inline Vector operator()(const Vector &v) const;
-    inline void operator()(const Vector &v, Vector *vt) const;
+    inline Point3D operator()(const Point3D &pt) const;
+    inline void operator()(const Point3D &pt, Point3D *ptrans) const;
+    inline Vector3D operator()(const Vector3D &v) const;
+    inline void operator()(const Vector3D &v, Vector3D *vt) const;
     inline Normal operator()(const Normal &) const;
     inline void operator()(const Normal &, Normal *nt) const;
     inline Ray operator()(const Ray &r) const;
@@ -170,54 +170,54 @@ private:
 };
 
 
-Transform Translate(const Vector &delta);
-Transform Scale(float x, float y, float z);
-Transform RotateX(float angle);
-Transform RotateY(float angle);
-Transform RotateZ(float angle);
-Transform Rotate(float angle, const Vector &axis);
-Transform Rotatec(float cosAngle, float sinAngle, const Vector &axis);
-Transform LookAt(const Point &pos, const Point &look, const Vector &up);
-bool SolveLinearSystem2x2(const float A[2][2], const float B[2],
-    float *x0, float *x1);
-Transform Orthographic(float znear, float zfar);
-Transform Perspective(float fov, float znear, float zfar);
+Transform Translate(const Vector3D &delta);
+Transform Scale(double x, double y, double z);
+Transform RotateX(double angle);
+Transform RotateY(double angle);
+Transform RotateZ(double angle);
+Transform Rotate(double angle, const Vector3D &axis);
+Transform Rotatec(double cosAngle, double sinAngle, const Vector3D &axis);
+Transform LookAt(const Point3D &pos, const Point3D &look, const Vector3D &up);
+bool SolveLinearSystem2x2(const double A[2][2], const double B[2],
+    double *x0, double *x1);
+Transform Orthographic(double znear, double zfar);
+Transform Perspective(double fov, double znear, double zfar);
 
 // Transform Inline Functions
-inline Point Transform::operator()(const Point &pt) const {
-    float x = pt.x, y = pt.y, z = pt.z;
-    float xp = m.m[0][0]*x + m.m[0][1]*y + m.m[0][2]*z + m.m[0][3];
-    float yp = m.m[1][0]*x + m.m[1][1]*y + m.m[1][2]*z + m.m[1][3];
-    float zp = m.m[2][0]*x + m.m[2][1]*y + m.m[2][2]*z + m.m[2][3];
-    float wp = m.m[3][0]*x + m.m[3][1]*y + m.m[3][2]*z + m.m[3][3];
+inline Point3D Transform::operator()(const Point3D &pt) const {
+    double x = pt.x, y = pt.y, z = pt.z;
+    double xp = m.m[0][0]*x + m.m[0][1]*y + m.m[0][2]*z + m.m[0][3];
+    double yp = m.m[1][0]*x + m.m[1][1]*y + m.m[1][2]*z + m.m[1][3];
+    double zp = m.m[2][0]*x + m.m[2][1]*y + m.m[2][2]*z + m.m[2][3];
+    double wp = m.m[3][0]*x + m.m[3][1]*y + m.m[3][2]*z + m.m[3][3];
     Assert(wp != 0);
-    if (wp == 1.) return Point(xp, yp, zp);
-    else          return Point(xp, yp, zp)/wp;
+    if (wp == 1.) return Point3D(xp, yp, zp);
+    else          return Point3D(xp, yp, zp)/wp;
 }
 
 
-inline void Transform::operator()(const Point &pt,
-                                  Point *ptrans) const {
-    float x = pt.x, y = pt.y, z = pt.z;
+inline void Transform::operator()(const Point3D &pt,
+                                  Point3D *ptrans) const {
+    double x = pt.x, y = pt.y, z = pt.z;
     ptrans->x = m.m[0][0]*x + m.m[0][1]*y + m.m[0][2]*z + m.m[0][3];
     ptrans->y = m.m[1][0]*x + m.m[1][1]*y + m.m[1][2]*z + m.m[1][3];
     ptrans->z = m.m[2][0]*x + m.m[2][1]*y + m.m[2][2]*z + m.m[2][3];
-    float w   = m.m[3][0]*x + m.m[3][1]*y + m.m[3][2]*z + m.m[3][3];
+    double w   = m.m[3][0]*x + m.m[3][1]*y + m.m[3][2]*z + m.m[3][3];
     if (w != 1.) *ptrans /= w;
 }
 
 
-inline Vector Transform::operator()(const Vector &v) const {
-  float x = v.x, y = v.y, z = v.z;
-  return Vector(m.m[0][0]*x + m.m[0][1]*y + m.m[0][2]*z,
+inline Vector3D Transform::operator()(const Vector3D &v) const {
+  double x = v.x, y = v.y, z = v.z;
+  return Vector3D(m.m[0][0]*x + m.m[0][1]*y + m.m[0][2]*z,
                 m.m[1][0]*x + m.m[1][1]*y + m.m[1][2]*z,
                 m.m[2][0]*x + m.m[2][1]*y + m.m[2][2]*z);
 }
 
 
-inline void Transform::operator()(const Vector &v,
-        Vector *vt) const {
-  float x = v.x, y = v.y, z = v.z;
+inline void Transform::operator()(const Vector3D &v,
+        Vector3D *vt) const {
+  double x = v.x, y = v.y, z = v.z;
   vt->x = m.m[0][0] * x + m.m[0][1] * y + m.m[0][2] * z;
   vt->y = m.m[1][0] * x + m.m[1][1] * y + m.m[1][2] * z;
   vt->z = m.m[2][0] * x + m.m[2][1] * y + m.m[2][2] * z;
@@ -225,7 +225,7 @@ inline void Transform::operator()(const Vector &v,
 
 
 inline Normal Transform::operator()(const Normal &n) const {
-    float x = n.x, y = n.y, z = n.z;
+    double x = n.x, y = n.y, z = n.z;
     return Normal(mInv.m[0][0]*x + mInv.m[1][0]*y + mInv.m[2][0]*z,
                   mInv.m[0][1]*x + mInv.m[1][1]*y + mInv.m[2][1]*z,
                   mInv.m[0][2]*x + mInv.m[1][2]*y + mInv.m[2][2]*z);
@@ -234,7 +234,7 @@ inline Normal Transform::operator()(const Normal &n) const {
 
 inline void Transform::operator()(const Normal &n,
         Normal *nt) const {
-    float x = n.x, y = n.y, z = n.z;
+    double x = n.x, y = n.y, z = n.z;
     nt->x = mInv.m[0][0] * x + mInv.m[1][0] * y +
         mInv.m[2][0] * z;
     nt->y = mInv.m[0][1] * x + mInv.m[1][1] * y +
@@ -294,29 +294,29 @@ inline RayDifferential Transform::operator()(const RayDifferential &r) const {
 class AnimatedTransform {
 public:
     // AnimatedTransform Public Methods
-    AnimatedTransform(const Transform *transform1, float time1,
-                      const Transform *transform2, float time2)
+    AnimatedTransform(const Transform *transform1, double time1,
+                      const Transform *transform2, double time2)
         : startTime(time1), endTime(time2),
           startTransform(transform1), endTransform(transform2),
           actuallyAnimated(*startTransform != *endTransform) {
         Decompose(startTransform->m, &T[0], &R[0], &S[0]);
         Decompose(endTransform->m, &T[1], &R[1], &S[1]);
     }
-    static void Decompose(const Matrix4x4 &m, Vector *T, Quaternion *R, Matrix4x4 *S);
-    void Interpolate(float time, Transform *t) const;
+    static void Decompose(const Matrix4x4 &m, Vector3D *T, Quaternion *R, Matrix4x4 *S);
+    void Interpolate(double time, Transform *t) const;
     void operator()(const Ray &r, Ray *tr) const;
     void operator()(const RayDifferential &r, RayDifferential *tr) const;
-    Point operator()(float time, const Point &p) const;
-    Vector operator()(float time, const Vector &v) const;
+    Point3D operator()(double time, const Point3D &p) const;
+    Vector3D operator()(double time, const Vector3D &v) const;
     Ray operator()(const Ray &r) const;
     BBox MotionBounds(const BBox &b, bool useInverse) const;
     bool HasScale() const { return startTransform->HasScale() || endTransform->HasScale(); }
 private:
     // AnimatedTransform Private Data
-    const float startTime, endTime;
+    const double startTime, endTime;
     const Transform *startTransform, *endTransform;
     const bool actuallyAnimated;
-    Vector T[2];
+    Vector3D T[2];
     Quaternion R[2];
     Matrix4x4 S[2];
 };

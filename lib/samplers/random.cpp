@@ -38,13 +38,13 @@
 //#include "../core/camera.h"
 
 RandomSampler::RandomSampler(int xstart, int xend,
-        int ystart, int yend, int ns, float sopen, float sclose)
+        int ystart, int yend, int ns, double sopen, double sclose)
     : Sampler(xstart, xend, ystart, yend, ns, sopen, sclose) {
     xPos = xPixelStart;
     yPos = yPixelStart;
     nSamples = ns;
     // Get storage for a pixel's worth of stratified samples
-    imageSamples = new float[5 * nSamples];
+    imageSamples = new double[5 * nSamples];
     lensSamples = imageSamples + 2 * nSamples;
     timeSamples = lensSamples + 2 * nSamples;
 

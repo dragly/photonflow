@@ -28,7 +28,6 @@ private:
     int times = 1;
     std::shared_ptr<ImageFilm> film;
     int totalSampleCount = 0;
-    arma::Cube<short> data;
     VolumeGridDensity vr;
     vector<RNG> rngs;
 };

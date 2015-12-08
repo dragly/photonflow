@@ -64,16 +64,16 @@ void Integrator::next() {
     double sinTheta = sqrt(1 - cosTheta*cosTheta);
     double phi = 2.0 * M_PI * m_rng->RandomFloat();
 
-    Vector perpendicular = m_ray.direction().perpendicular();
+    Vector3D perpendicular = m_ray.direction().perpendicular();
     Transform phiRotation = Rotate(phi, m_ray.direction());
     perpendicular = phiRotation(perpendicular);
 
     Transform directionRotation = Rotatec(cosTheta, sinTheta, perpendicular);
 
-    Vector direction = directionRotation(m_ray.direction());
+    Vector3D direction = directionRotation(m_ray.direction());
     direction = direction.normalized();
 
-    Point origin = m_ray.origin() + direction * ds;
+    Point3D origin = m_ray.origin() + direction * ds;
     m_ray = Ray(origin, direction);
 }
 

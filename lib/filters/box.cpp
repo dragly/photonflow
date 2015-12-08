@@ -36,7 +36,7 @@
 //#include "paramset.h"
 
 // Box Filter Method Definitions
-float BoxFilter::Evaluate(float x, float y) const {
+double BoxFilter::Evaluate(double x, double y) const {
     UNUSED(x);
     UNUSED(y);
     return 1.;
@@ -44,8 +44,8 @@ float BoxFilter::Evaluate(float x, float y) const {
 
 
 //BoxFilter *CreateBoxFilter(const ParamSet &ps) {
-//    float xw = ps.FindOneFloat("xwidth", 0.5f);
-//    float yw = ps.FindOneFloat("ywidth", 0.5f);
+//    double xw = ps.FindOneFloat("xwidth", 0.5f);
+//    double yw = ps.FindOneFloat("ywidth", 0.5f);
 //    return new BoxFilter(xw, yw);
 //}
 

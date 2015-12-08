@@ -43,18 +43,18 @@
 class GaussianFilter : public Filter {
 public:
     // GaussianFilter Public Methods
-    GaussianFilter(float xw, float yw, float a)
+    GaussianFilter(double xw, double yw, double a)
         : Filter(xw, yw), alpha(a), expX(expf(-alpha * xWidth * xWidth)),
           expY(expf(-alpha * yWidth * yWidth)) { }
-    float Evaluate(float x, float y) const;
+    double Evaluate(double x, double y) const;
 private:
     // GaussianFilter Private Data
-    const float alpha;
-    const float expX, expY;
+    const double alpha;
+    const double expX, expY;
 
     // GaussianFilter Utility Functions
-    float Gaussian(float d, float expv) const {
-        return max(0.f, float(expf(-alpha * d * d) - expv));
+    double Gaussian(double d, double expv) const {
+        return max(0.0, double(expf(-alpha * d * d) - expv));
     }
 };
 

@@ -35,7 +35,7 @@
 #include "geometry.h"
 
 // BBox Method Definitions
-BBox Union(const BBox &b, const Point &p) {
+BBox Union(const BBox &b, const Point3D &p) {
     BBox ret = b;
     ret.pMin.x = min(b.pMin.x, p.x);
     ret.pMin.y = min(b.pMin.y, p.y);
@@ -59,20 +59,20 @@ BBox Union(const BBox &b, const BBox &b2) {
 }
 
 
-void BBox::BoundingSphere(Point *c, float *rad) const {
+void BBox::BoundingSphere(Point3D *c, double *rad) const {
     *c = .5f * pMin + .5f * pMax;
-    *rad = Inside(*c) ? Distance(*c, pMax) : 0.f;
+    *rad = Inside(*c) ? Distance(*c, pMax) : 0.0;
 }
 
 
-bool BBox::IntersectP(const Ray &ray, float *hitt0,
-                      float *hitt1) const {
-    float t0 = ray.m_mint, t1 = ray.m_maxt;
+bool BBox::IntersectP(const Ray &ray, double *hitt0,
+                      double *hitt1) const {
+    double t0 = ray.m_mint, t1 = ray.m_maxt;
     for (int i = 0; i < 3; ++i) {
         // Update interval for _i_th bounding box slab
-        float invRayDir = 1.f / ray.m_direction[i];
-        float tNear = (pMin[i] - ray.m_origin[i]) * invRayDir;
-        float tFar  = (pMax[i] - ray.m_origin[i]) * invRayDir;
+        double invRayDir = 1.f / ray.m_direction[i];
+        double tNear = (pMin[i] - ray.m_origin[i]) * invRayDir;
+        double tFar  = (pMax[i] - ray.m_origin[i]) * invRayDir;
 
         // Update parametric interval from slab intersection $t$s
         if (tNear > tFar) swap(tNear, tFar);
@@ -85,13 +85,13 @@ bool BBox::IntersectP(const Ray &ray, float *hitt0,
     return true;
 }
 
-std::ostream& operator<< (std::ostream &out, const Vector &vector)
+std::ostream& operator<< (std::ostream &out, const Vector3D &vector)
 {
     out << vector.x << ", " << vector.y << ", " << vector.z;
     return out;
 }
 
-std::ostream& operator<< (std::ostream &out, const Point &point)
+std::ostream& operator<< (std::ostream &out, const Point3D &point)
 {
     out << point.x << ", " << point.y << ", " << point.z;
     return out;

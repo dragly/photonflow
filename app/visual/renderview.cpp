@@ -26,6 +26,7 @@ RenderView::RenderView(QQuickItem *parent)
     QElapsedTimer timer;
     timer.start();
 //    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
+    arma::Cube<short> data;
     data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/volume.hdf5", hdf5_binary);
     qDebug() << "Data size:" << data.n_rows << data.n_cols << data.n_slices;
     qDebug() << "Data load time:" << timer.elapsed() << "ms";
@@ -34,15 +35,15 @@ RenderView::RenderView(QQuickItem *parent)
     data *= 255;
 
     BBox bbox;
-    bbox.pMin = Point(-1, -1, -1);
-    bbox.pMax = Point(1, 1, 1);
+    bbox.pMin = Point3D(-1, -1, -1);
+    bbox.pMax = Point3D(1, 1, 1);
 
-    float gg = 1.0;
+    double gg = 1.0;
 
-    float angle = 3.14;
+    double angle = 3.14;
 
-    Transform translation = Translate(Vector(0.0, 0.0, 0.0));
-    Transform rotation = Rotate(angle, Vector(0.0, 1.0, 0.0));
+    Transform translation = Translate(Vector3D(0.0, 0.0, 0.0));
+    Transform rotation = Rotate(angle, Vector3D(0.0, 1.0, 0.0));
 
     Transform boxTransform = translation*rotation;
 
@@ -83,9 +84,9 @@ void RenderView::integrate()
     const int width = size.width();
     const int height = size.height();
 
-    const Transform cameraTransform = Translate(Vector(0.0, 0.0, -3.0));
+    const Transform cameraTransform = Translate(Vector3D(0.0, 0.0, -3.0));
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
-    const float crop[4] = {0.0, 1.0, 0.0, 1.0};
+    const double crop[4] = {0.0, 1.0, 0.0, 1.0};
 
     BoxFilter filter(0.5, 0.5);
 
@@ -99,11 +100,11 @@ void RenderView::integrate()
         }
         film = make_shared<ImageFilm>(width, height, &filter, crop);
     }
-    const float sopen = 0.0;
-    const float sclose = 1.0;
-    const float lensr = 0.0;
-    const float focald = 3.5;
-    const float fov = 0.2;
+    const double sopen = 0.0;
+    const double sclose = 1.0;
+    const double lensr = 0.0;
+    const double focald = 3.5;
+    const double fov = 0.2;
     const PerspectiveCamera camera(cameraTransform, screenWindow, sopen, sclose, lensr, focald, fov, film);
 
 #pragma omp parallel num_threads(threadCount) // OpenMP
@@ -129,15 +130,15 @@ void RenderView::integrate()
                 Ray intersectRay;
                 camera.GenerateRay(sample, &intersectRay);
 
-                float t0, t1;
-                if (!vr.IntersectP(intersectRay, &t0, &t1) || (t1-t0) == 0.f) {
+                double t0, t1;
+                if (!vr.IntersectP(intersectRay, &t0, &t1) || (t1-t0) == 0.0) {
                     continue;
                 }
 
                 Spectrum Tr(1.0);
                 Spectrum Lv(0.1);
 
-                Point p = intersectRay(t0);
+                Point3D p = intersectRay(t0);
                 Ray startRay(p, intersectRay.m_direction);
 
 //                startRay = Ray(startRay.origin() + intersectRay.m_direction * 0.01, startRay.direction());
@@ -148,9 +149,9 @@ void RenderView::integrate()
                     if(!vr.fuzzyInside(ray.origin())) {
                         break;
                     }
-                    Tr *= vr.sigma_a(ray.origin(), Vector(), 0.0);
+                    Tr *= vr.sigma_a(ray.origin(), Vector3D(), 0.0);
                     if(vr.Density(ray.origin()) > 60) {
-                        Lv += Tr * vr.Lve(ray.origin(), Vector(), 0.0);
+                        Lv += Tr * vr.Lve(ray.origin(), Vector3D(), 0.0);
                         Assert(!Lv.HasNaNs());
                     }
                     if(Tr < Spectrum(0.01)) {
@@ -182,7 +183,7 @@ void RenderView::integrate()
 
             result /= totalSampleCount;
 
-            float rgb[3];
+            double rgb[3];
             result.ToRGB(rgb);
 
 //            qDebug() << rgb[0] << rgb[1] << rgb[2];

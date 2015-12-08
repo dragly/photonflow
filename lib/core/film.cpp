@@ -41,7 +41,7 @@ Film::~Film() {
 
 
 void Film::UpdateDisplay(int x0, int y0, int x1, int y1,
-                         float splatScale) {
+                         double splatScale) {
     UNUSED(x0);
     UNUSED(y0);
     UNUSED(x1);

@@ -42,8 +42,8 @@
 // Box Filter Declarations
 class BoxFilter : public Filter {
 public:
-    BoxFilter(float xw, float yw) : Filter(xw, yw) { }
-    float Evaluate(float x, float y) const;
+    BoxFilter(double xw, double yw) : Filter(xw, yw) { }
+    double Evaluate(double x, double y) const;
 };
 
 

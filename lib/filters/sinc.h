@@ -43,20 +43,20 @@
 class LanczosSincFilter : public Filter {
 public:
     // LanczosSincFilter Public Methods
-    LanczosSincFilter(float xw, float yw, float t)
+    LanczosSincFilter(double xw, double yw, double t)
         : Filter(xw, yw), tau(t) { }
-    float Evaluate(float x, float y) const;
-    float Sinc1D(float x) const {
+    double Evaluate(double x, double y) const;
+    double Sinc1D(double x) const {
         x = fabsf(x);
         if (x < 1e-5) return 1.f;
-        if (x > 1.)   return 0.f;
+        if (x > 1.)   return 0.0;
         x *= M_PI;
-        float sinc = sinf(x) / x;
-        float lanczos = sinf(x * tau) / (x * tau);
+        double sinc = sinf(x) / x;
+        double lanczos = sinf(x * tau) / (x * tau);
         return sinc * lanczos;
     }
 private:
-    const float tau;
+    const double tau;
 };
 
 

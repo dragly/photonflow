@@ -51,16 +51,16 @@ class CameraSample;
 class Camera {
 public:
     // Camera Interface
-    Camera(const Transform &cam2world, float sopen, float sclose,
+    Camera(const Transform &cam2world, double sopen, double sclose,
            std::shared_ptr<Film> film);
     virtual ~Camera();
-    virtual float GenerateRay(const CameraSample &sample,
+    virtual double GenerateRay(const CameraSample &sample,
                               Ray *ray) const = 0;
-    virtual float GenerateRayDifferential(const CameraSample &sample, RayDifferential *rd) const;
+    virtual double GenerateRayDifferential(const CameraSample &sample, RayDifferential *rd) const;
 
     // Camera Public Data
     Transform CameraToWorld;
-    const float shutterOpen, shutterClose;
+    const double shutterOpen, shutterClose;
     std::shared_ptr<Film> film;
 };
 
@@ -70,12 +70,12 @@ public:
     // ProjectiveCamera Public Methods
     ProjectiveCamera(const Transform &cam2world,
         const Transform &proj, const Rectangle &screenWindow,
-        float sopen, float sclose, float lensr, float focald, std::shared_ptr<Film> film);
+        double sopen, double sclose, double lensr, double focald, std::shared_ptr<Film> film);
 protected:
     // ProjectiveCamera Protected Data
     Transform CameraToScreen, RasterToCamera;
     Transform ScreenToRaster, RasterToScreen;
-    float lensRadius, focalDistance;
+    double lensRadius, focalDistance;
 };
 
 

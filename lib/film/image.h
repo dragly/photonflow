@@ -48,20 +48,20 @@
 class Pixel {
 public:
     Pixel() {
-        for (int i = 0; i < 3; ++i) Lxyz[i] = splatXYZ[i] = 0.f;
-        weightSum = 0.f;
+        for (int i = 0; i < 3; ++i) Lxyz[i] = splatXYZ[i] = 0.0;
+        weightSum = 0.0;
     }
-    float Lxyz[3];
-    float weightSum;
-    float splatXYZ[3];
-    float pad;
+    double Lxyz[3];
+    double weightSum;
+    double splatXYZ[3];
+    double pad;
 };
 
 // ImageFilm Declarations
 class ImageFilm : public Film {
 public:
     // ImageFilm Public Methods
-    ImageFilm(int xres, int yres, Filter *filt, const float crop[4]);
+    ImageFilm(int xres, int yres, Filter *filt, const double crop[4]);
     ~ImageFilm() {
         delete pixels;
 //        delete filter;
@@ -71,15 +71,15 @@ public:
     void Splat(const CameraSample &sample, const Spectrum &L);
     void GetSampleExtent(int *xstart, int *xend, int *ystart, int *yend) const;
     void GetPixelExtent(int *xstart, int *xend, int *ystart, int *yend) const;
-    void WriteImage(float splatScale);
-    void UpdateDisplay(int x0, int y0, int x1, int y1, float splatScale);
+    void WriteImage(double splatScale);
+    void UpdateDisplay(int x0, int y0, int x1, int y1, double splatScale);
 //private:
     // ImageFilm Private Data
     Filter *filter;
-    float cropWindow[4];
+    double cropWindow[4];
     int xPixelStart, yPixelStart, xPixelCount, yPixelCount;
     BlockedArray<Pixel> *pixels;
-    float *filterTable;
+    double *filterTable;
 };
 
 

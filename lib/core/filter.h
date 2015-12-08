@@ -44,14 +44,14 @@ class Filter {
 public:
     // Filter Interface
     virtual ~Filter();
-    Filter(float xw, float yw)
+    Filter(double xw, double yw)
         : xWidth(xw), yWidth(yw), invXWidth(1.f/xw), invYWidth(1.f/yw) {
     }
-    virtual float Evaluate(float x, float y) const = 0;
+    virtual double Evaluate(double x, double y) const = 0;
 
     // Filter Public Data
-    const float xWidth, yWidth;
-    const float invXWidth, invYWidth;
+    const double xWidth, yWidth;
+    const double invXWidth, invYWidth;
 };
 
 

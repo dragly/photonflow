@@ -36,16 +36,16 @@
 //#include "paramset.h"
 
 // Triangle Filter Method Definitions
-float TriangleFilter::Evaluate(float x, float y) const {
-    return max(0.f, xWidth - fabsf(x)) *
-           max(0.f, yWidth - fabsf(y));
+double TriangleFilter::Evaluate(double x, double y) const {
+    return max(0.0, xWidth - fabsf(x)) *
+           max(0.0, yWidth - fabsf(y));
 }
 
 
 //TriangleFilter *CreateTriangleFilter(const ParamSet &ps) {
 //    // Find common filter parameters
-//    float xw = ps.FindOneFloat("xwidth", 2.f);
-//    float yw = ps.FindOneFloat("ywidth", 2.f);
+//    double xw = ps.FindOneFloat("xwidth", 2.f);
+//    double yw = ps.FindOneFloat("ywidth", 2.f);
 //    return new TriangleFilter(xw, yw);
 //}
 

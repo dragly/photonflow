@@ -145,33 +145,33 @@ static const int primes[] = {
 
 
 // Sampling Function Definitions
-void StratifiedSample1D(float *samp, int nSamples, RNG &rng,
+void StratifiedSample1D(double *samp, int nSamples, RNG &rng,
                         bool jitter) {
-    float invTot = 1.f / nSamples;
+    double invTot = 1.f / nSamples;
     for (int i = 0;  i < nSamples; ++i) {
-        float delta = jitter ? rng.RandomFloat() : 0.5f;
+        double delta = jitter ? rng.RandomFloat() : 0.5f;
         *samp++ = min((i + delta) * invTot, OneMinusEpsilon);
     }
 }
 
 
-void StratifiedSample2D(float *samp, int nx, int ny, RNG &rng,
+void StratifiedSample2D(double *samp, int nx, int ny, RNG &rng,
                         bool jitter) {
-    float dx = 1.f / nx, dy = 1.f / ny;
+    double dx = 1.f / nx, dy = 1.f / ny;
     for (int y = 0; y < ny; ++y)
         for (int x = 0; x < nx; ++x) {
-            float jx = jitter ? rng.RandomFloat() : 0.5f;
-            float jy = jitter ? rng.RandomFloat() : 0.5f;
+            double jx = jitter ? rng.RandomFloat() : 0.5f;
+            double jy = jitter ? rng.RandomFloat() : 0.5f;
             *samp++ = min((x + jx) * dx, OneMinusEpsilon);
             *samp++ = min((y + jy) * dy, OneMinusEpsilon);
         }
 }
 
 
-void LatinHypercube(float *samples, uint32_t nSamples, uint32_t nDim,
+void LatinHypercube(double *samples, uint32_t nSamples, uint32_t nDim,
                     RNG &rng) {
     // Generate LHS samples along diagonal
-    float delta = 1.f / nSamples;
+    double delta = 1.f / nSamples;
     for (uint32_t i = 0; i < nSamples; ++i)
         for (uint32_t j = 0; j < nDim; ++j)
             samples[nDim * i + j] = min((i + (rng.RandomFloat())) * delta,
@@ -197,21 +197,21 @@ void LatinHypercube(float *samples, uint32_t nSamples, uint32_t nDim,
 //}
 
 
-//void LDPixelSample(int xPos, int yPos, float shutterOpen,
-//        float shutterClose, int nPixelSamples, Sample *samples,
-//        float *buf, RandomNumberGenerator &rng) {
+//void LDPixelSample(int xPos, int yPos, double shutterOpen,
+//        double shutterClose, int nPixelSamples, Sample *samples,
+//        double *buf, RandomNumberGenerator &rng) {
 //    // Prepare temporary array pointers for low-discrepancy camera samples
-//    float *imageSamples = buf; buf += 2 * nPixelSamples;
-//    float *lensSamples = buf;  buf += 2 * nPixelSamples;
-//    float *timeSamples = buf;  buf += nPixelSamples;
+//    double *imageSamples = buf; buf += 2 * nPixelSamples;
+//    double *lensSamples = buf;  buf += 2 * nPixelSamples;
+//    double *timeSamples = buf;  buf += nPixelSamples;
 
 //    // Prepare temporary array pointers for low-discrepancy integrator samples
 //    uint32_t count1D = samples[0].n1D.size();
 //    uint32_t count2D = samples[0].n2D.size();
 //    const uint32_t *n1D = count1D > 0 ? &samples[0].n1D[0] : NULL;
 //    const uint32_t *n2D = count2D > 0 ? &samples[0].n2D[0] : NULL;
-//    float **oneDSamples = ALLOCA(float *, count1D);
-//    float **twoDSamples = ALLOCA(float *, count2D);
+//    double **oneDSamples = ALLOCA(double *, count1D);
+//    double **twoDSamples = ALLOCA(double *, count2D);
 //    for (uint32_t i = 0; i < count1D; ++i) {
 //        oneDSamples[i] = buf;
 //        buf += n1D[i] * nPixelSamples;
@@ -254,8 +254,8 @@ void LatinHypercube(float *samples, uint32_t nSamples, uint32_t nDim,
 
 
 // Monte Carlo Function Definitions
-void RejectionSampleDisk(float *x, float *y, RNG &rng) {
-    float sx, sy;
+void RejectionSampleDisk(double *x, double *y, RNG &rng) {
+    double sx, sy;
     do {
         sx = 1.f - 2.f * rng.RandomFloat();
         sy = 1.f - 2.f * rng.RandomFloat();
@@ -265,49 +265,49 @@ void RejectionSampleDisk(float *x, float *y, RNG &rng) {
 }
 
 
-Vector UniformSampleHemisphere(float u1, float u2) {
-    float z = u1;
-    float r = sqrtf(max(0.f, 1.f - z*z));
-    float phi = 2 * M_PI * u2;
-    float x = r * cosf(phi);
-    float y = r * sinf(phi);
-    return Vector(x, y, z);
+Vector3D UniformSampleHemisphere(double u1, double u2) {
+    double z = u1;
+    double r = sqrtf(max(0.0, 1.f - z*z));
+    double phi = 2 * M_PI * u2;
+    double x = r * cosf(phi);
+    double y = r * sinf(phi);
+    return Vector3D(x, y, z);
 }
 
 
-float UniformHemispherePdf() {
+double UniformHemispherePdf() {
     return INV_TWOPI;
 }
 
 
-Vector UniformSampleSphere(float u1, float u2) {
-    float z = 1.f - 2.f * u1;
-    float r = sqrtf(max(0.f, 1.f - z*z));
-    float phi = 2.f * M_PI * u2;
-    float x = r * cosf(phi);
-    float y = r * sinf(phi);
-    return Vector(x, y, z);
+Vector3D UniformSampleSphere(double u1, double u2) {
+    double z = 1.f - 2.f * u1;
+    double r = sqrtf(max(0.0, 1.f - z*z));
+    double phi = 2.f * M_PI * u2;
+    double x = r * cosf(phi);
+    double y = r * sinf(phi);
+    return Vector3D(x, y, z);
 }
 
 
-float UniformSpherePdf() {
+double UniformSpherePdf() {
     return 1.f / (4.f * M_PI);
 }
 
 
-void UniformSampleDisk(float u1, float u2, float *x, float *y) {
-    float r = sqrtf(u1);
-    float theta = 2.0f * M_PI * u2;
+void UniformSampleDisk(double u1, double u2, double *x, double *y) {
+    double r = sqrtf(u1);
+    double theta = 2.0f * M_PI * u2;
     *x = r * cosf(theta);
     *y = r * sinf(theta);
 }
 
 
-void ConcentricSampleDisk(float u1, float u2, float *dx, float *dy) {
-    float r, theta;
+void ConcentricSampleDisk(double u1, double u2, double *dx, double *dy) {
+    double r, theta;
     // Map uniform random numbers to $[-1,1]^2$
-    float sx = 2 * u1 - 1;
-    float sy = 2 * u2 - 1;
+    double sx = 2 * u1 - 1;
+    double sy = 2 * u2 - 1;
 
     // Map square to $(r,\theta)$
 
@@ -348,21 +348,21 @@ void ConcentricSampleDisk(float u1, float u2, float *dx, float *dy) {
 }
 
 
-void UniformSampleTriangle(float u1, float u2, float *u, float *v) {
-    float su1 = sqrtf(u1);
+void UniformSampleTriangle(double u1, double u2, double *u, double *v) {
+    double su1 = sqrtf(u1);
     *u = 1.f - su1;
     *v = u2 * su1;
 }
 
 
-Distribution2D::Distribution2D(const float *func, int nu, int nv) {
+Distribution2D::Distribution2D(const double *func, int nu, int nv) {
     pConditionalV.reserve(nv);
     for (int v = 0; v < nv; ++v) {
         // Compute conditional sampling distribution for $\tilde{v}$
         pConditionalV.push_back(new Distribution1D(&func[v*nu], nu));
     }
     // Compute marginal sampling distribution $p[\tilde{v}]$
-    vector<float> marginalFunc;
+    vector<double> marginalFunc;
     marginalFunc.reserve(nv);
     for (int v = 0; v < nv; ++v)
         marginalFunc.push_back(pConditionalV[v]->funcInt);
@@ -397,47 +397,47 @@ PermutedHalton::PermutedHalton(uint32_t d, RNG &rng) {
 }
 
 
-float UniformConePdf(float cosThetaMax) {
+double UniformConePdf(double cosThetaMax) {
     return 1.f / (2.f * M_PI * (1.f - cosThetaMax));
 }
 
 
-Vector UniformSampleCone(float u1, float u2, float costhetamax) {
-    float costheta = (1.f - u1) + u1 * costhetamax;
-    float sintheta = sqrtf(1.f - costheta*costheta);
-    float phi = u2 * 2.f * M_PI;
-    return Vector(cosf(phi) * sintheta, sinf(phi) * sintheta, costheta);
+Vector3D UniformSampleCone(double u1, double u2, double costhetamax) {
+    double costheta = (1.f - u1) + u1 * costhetamax;
+    double sintheta = sqrtf(1.f - costheta*costheta);
+    double phi = u2 * 2.f * M_PI;
+    return Vector3D(cosf(phi) * sintheta, sinf(phi) * sintheta, costheta);
 }
 
 
-Vector UniformSampleCone(float u1, float u2, float costhetamax,
-        const Vector &x, const Vector &y, const Vector &z) {
-    float costheta = Lerp(u1, costhetamax, 1.f);
-    float sintheta = sqrtf(1.f - costheta*costheta);
-    float phi = u2 * 2.f * M_PI;
+Vector3D UniformSampleCone(double u1, double u2, double costhetamax,
+        const Vector3D &x, const Vector3D &y, const Vector3D &z) {
+    double costheta = Lerp(u1, costhetamax, 1.f);
+    double sintheta = sqrtf(1.f - costheta*costheta);
+    double phi = u2 * 2.f * M_PI;
     return cosf(phi) * sintheta * x + sinf(phi) * sintheta * y +
         costheta * z;
 }
 
 
-Vector SampleHG(const Vector &w, float g, float u1, float u2) {
-    float costheta;
+Vector3D SampleHG(const Vector3D &w, double g, double u1, double u2) {
+    double costheta;
     if (fabsf(g) < 1e-3)
         costheta = 1.f - 2.f * u1;
     else {
-        float sqrTerm = (1.f - g * g) /
+        double sqrTerm = (1.f - g * g) /
                         (1.f - g + 2.f * g * u1);
         costheta = (1.f + g * g - sqrTerm * sqrTerm) / (2.f * g);
     }
-    float sintheta = sqrtf(max(0.f, 1.f-costheta*costheta));
-    float phi = 2.f * M_PI * u2;
-    Vector v1, v2;
+    double sintheta = sqrtf(max(0.0, 1.f-costheta*costheta));
+    double phi = 2.f * M_PI * u2;
+    Vector3D v1, v2;
     CoordinateSystem(w, &v1, &v2);
     return SphericalDirection(sintheta, costheta, phi, v1, v2, w);
 }
 
 
-//float HGPdf(const Vector &w, const Vector &wp, float g) {
+//double HGPdf(const Vector &w, const Vector &wp, double g) {
 //    return PhaseHG(w, wp, g);
 //}
 

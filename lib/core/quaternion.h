@@ -39,7 +39,7 @@ class Transform;
 // Quaternion Declarations
 struct Quaternion {
     // Quaternion Public Methods
-    Quaternion() { v = Vector(0., 0., 0.); w = 1.f; }
+    Quaternion() { v = Vector3D(0., 0., 0.); w = 1.f; }
     Quaternion &operator+=(const Quaternion &q) {
         v += q.v;
         w += q.w;
@@ -58,23 +58,23 @@ struct Quaternion {
         Quaternion ret = q1;
         return ret -= q2;
     }
-    Quaternion &operator*=(float f) {
+    Quaternion &operator*=(double f) {
         v *= f;
         w *= f;
         return *this;
     }
-    Quaternion operator*(float f) const {
+    Quaternion operator*(double f) const {
         Quaternion ret = *this;
         ret.v *= f;
         ret.w *= f;
         return ret;
     }
-    Quaternion &operator/=(float f) {
+    Quaternion &operator/=(double f) {
         v /= f;
         w /= f;
         return *this;
     }
-    Quaternion operator/(float f) const {
+    Quaternion operator/(double f) const {
         Quaternion ret = *this;
         ret.v /= f;
         ret.w /= f;
@@ -84,20 +84,20 @@ struct Quaternion {
     Quaternion(const Transform &t);
 
     // Quaternion Public Data
-    Vector v;
-    float w;
+    Vector3D v;
+    double w;
 };
 
 
-Quaternion Slerp(float t, const Quaternion &q1, const Quaternion &q2);
+Quaternion Slerp(double t, const Quaternion &q1, const Quaternion &q2);
 
 // Quaternion Inline Functions
-inline Quaternion operator*(float f, const Quaternion &q) {
+inline Quaternion operator*(double f, const Quaternion &q) {
     return q * f;
 }
 
 
-inline float Dot(const Quaternion &q1, const Quaternion &q2) {
+inline double Dot(const Quaternion &q1, const Quaternion &q2) {
     return Dot(q1.v, q2.v) + q1.w * q2.w;
 }
 

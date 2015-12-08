@@ -44,7 +44,7 @@
 class RandomSampler : public Sampler {
 public:
     RandomSampler(int xstart, int xend, int ystart,
-        int yend, int ns, float sopen, float sclose);
+        int yend, int ns, double sopen, double sclose);
     ~RandomSampler() {
         delete[] imageSamples;
     }
@@ -55,7 +55,7 @@ public:
 private:
     // RandomSampler Private Data
     int xPos, yPos, nSamples;
-    float *imageSamples, *lensSamples, *timeSamples;
+    double *imageSamples, *lensSamples, *timeSamples;
     int samplePos;
 };
 

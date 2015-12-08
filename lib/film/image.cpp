@@ -40,10 +40,10 @@
 //#include "imageio.h"
 
 // ImageFilm Method Definitions
-ImageFilm::ImageFilm(int xres, int yres, Filter *filt, const float crop[4])
+ImageFilm::ImageFilm(int xres, int yres, Filter *filt, const double crop[4])
     : Film(xres, yres) {
     filter = filt;
-    memcpy(cropWindow, crop, 4 * sizeof(float));
+    memcpy(cropWindow, crop, 4 * sizeof(double));
     // Compute film image extent
     xPixelStart = Ceil2Int(xResolution * cropWindow[0]);
     xPixelCount = max(1, Ceil2Int(xResolution * cropWindow[1]) - xPixelStart);
@@ -55,13 +55,13 @@ ImageFilm::ImageFilm(int xres, int yres, Filter *filt, const float crop[4])
 
     // Precompute filter weight table
 #define FILTER_TABLE_SIZE 16
-    filterTable = new float[FILTER_TABLE_SIZE * FILTER_TABLE_SIZE];
-    float *ftp = filterTable;
+    filterTable = new double[FILTER_TABLE_SIZE * FILTER_TABLE_SIZE];
+    double *ftp = filterTable;
     for (int y = 0; y < FILTER_TABLE_SIZE; ++y) {
-        float fy = ((float)y + .5f) *
+        double fy = ((double)y + .5f) *
                    filter->yWidth / FILTER_TABLE_SIZE;
         for (int x = 0; x < FILTER_TABLE_SIZE; ++x) {
-            float fx = ((float)x + .5f) *
+            double fx = ((double)x + .5f) *
                        filter->xWidth / FILTER_TABLE_SIZE;
             *ftp++ = filter->Evaluate(fx, fy);
         }
@@ -77,8 +77,8 @@ ImageFilm::ImageFilm(int xres, int yres, Filter *filt, const float crop[4])
 void ImageFilm::AddSample(const CameraSample &sample,
                           const Spectrum &L) {
     // Compute sample's raster extent
-    float dimageX = sample.imageX - 0.5f;
-    float dimageY = sample.imageY - 0.5f;
+    double dimageX = sample.imageX - 0.5f;
+    double dimageY = sample.imageY - 0.5f;
     int x0 = Ceil2Int (dimageX - filter->xWidth);
     int x1 = Floor2Int(dimageX + filter->xWidth);
     int y0 = Ceil2Int (dimageY - filter->yWidth);
@@ -94,7 +94,7 @@ void ImageFilm::AddSample(const CameraSample &sample,
     }
 
     // Loop over filter support and add sample to pixel arrays
-    float xyz[3];
+    double xyz[3];
     L.ToXYZ(xyz);
 
 //    Pixel &pixel = (*pixels)(sample.imageX - xPixelStart, sample.imageY - yPixelStart);
@@ -105,13 +105,13 @@ void ImageFilm::AddSample(const CameraSample &sample,
     // Precompute $x$ and $y$ filter table offsets
     int *ifx = ALLOCA(int, x1 - x0 + 1);
     for (int x = x0; x <= x1; ++x) {
-        float fx = fabsf((x - dimageX) *
+        double fx = fabsf((x - dimageX) *
                          filter->invXWidth * FILTER_TABLE_SIZE);
         ifx[x-x0] = min(Floor2Int(fx), FILTER_TABLE_SIZE-1);
     }
     int *ify = ALLOCA(int, y1 - y0 + 1);
     for (int y = y0; y <= y1; ++y) {
-        float fy = fabsf((y - dimageY) *
+        double fy = fabsf((y - dimageY) *
                          filter->invYWidth * FILTER_TABLE_SIZE);
         ify[y-y0] = min(Floor2Int(fy), FILTER_TABLE_SIZE-1);
     }
@@ -120,7 +120,7 @@ void ImageFilm::AddSample(const CameraSample &sample,
         for (int x = x0; x <= x1; ++x) {
             // Evaluate filter value at $(x,y)$ pixel
             int offset = ify[y-y0]*FILTER_TABLE_SIZE + ifx[x-x0];
-            float filterWt = filterTable[offset];
+            double filterWt = filterTable[offset];
 
             // Update pixel values with filtered sample contribution
             Pixel &pixel = (*pixels)(x - xPixelStart, y - yPixelStart);
@@ -147,7 +147,7 @@ void ImageFilm::Splat(const CameraSample &sample, const Spectrum &L) {
         Warning("ImageFilm ignoring splatted spectrum with NaN values");
         return;
     }
-    float xyz[3];
+    double xyz[3];
     L.ToXYZ(xyz);
     int x = Floor2Int(sample.imageX), y = Floor2Int(sample.imageY);
     if (x < xPixelStart || x - xPixelStart >= xPixelCount ||
@@ -184,10 +184,10 @@ void ImageFilm::GetPixelExtent(int *xstart, int *xend,
 }
 
 
-void ImageFilm::WriteImage(float splatScale) {
+void ImageFilm::WriteImage(double splatScale) {
     // Convert image to RGB and compute final pixel values
     int nPix = xPixelCount * yPixelCount;
-    float *rgb = new float[3*nPix];
+    double *rgb = new double[3*nPix];
     int offset = 0;
     for (int y = 0; y < yPixelCount; ++y) {
         for (int x = 0; x < xPixelCount; ++x) {
@@ -195,16 +195,16 @@ void ImageFilm::WriteImage(float splatScale) {
             XYZToRGB((*pixels)(x, y).Lxyz, &rgb[3*offset]);
 
             // Normalize pixel with weight sum
-            float weightSum = (*pixels)(x, y).weightSum;
-            if (weightSum != 0.f) {
-                float invWt = 1.f / weightSum;
-                rgb[3*offset  ] = max(0.f, rgb[3*offset  ] * invWt);
-                rgb[3*offset+1] = max(0.f, rgb[3*offset+1] * invWt);
-                rgb[3*offset+2] = max(0.f, rgb[3*offset+2] * invWt);
+            double weightSum = (*pixels)(x, y).weightSum;
+            if (weightSum != 0.0) {
+                double invWt = 1.f / weightSum;
+                rgb[3*offset  ] = max(0.0, rgb[3*offset  ] * invWt);
+                rgb[3*offset+1] = max(0.0, rgb[3*offset+1] * invWt);
+                rgb[3*offset+2] = max(0.0, rgb[3*offset+2] * invWt);
             }
 
             // Add splat value at pixel
-            float splatRGB[3];
+            double splatRGB[3];
             XYZToRGB((*pixels)(x, y).splatXYZ, splatRGB);
             rgb[3*offset  ] += splatScale * splatRGB[0];
             rgb[3*offset+1] += splatScale * splatRGB[1];
@@ -222,7 +222,7 @@ void ImageFilm::WriteImage(float splatScale) {
 }
 
 
-void ImageFilm::UpdateDisplay(int x0, int y0, int x1, int y1, float splatScale) {
+void ImageFilm::UpdateDisplay(int x0, int y0, int x1, int y1, double splatScale) {
     UNUSED(x0);
     UNUSED(x1);
     UNUSED(y0);
@@ -257,9 +257,9 @@ void ImageFilm::UpdateDisplay(int x0, int y0, int x1, int y1, float splatScale) 
 //    if (PbrtOptions.quickRender) xres = max(1, xres / 4);
 //    if (PbrtOptions.quickRender) yres = max(1, yres / 4);
 //    bool openwin = params.FindOneBool("display", false);
-//    float crop[4] = { 0, 1, 0, 1 };
+//    double crop[4] = { 0, 1, 0, 1 };
 //    int cwi;
-//    const float *cr = params.FindFloat("cropwindow", &cwi);
+//    const double *cr = params.FindFloat("cropwindow", &cwi);
 //    if (cr && cwi == 4) {
 //        crop[0] = Clamp(min(cr[0], cr[1]), 0., 1.);
 //        crop[1] = Clamp(max(cr[0], cr[1]), 0., 1.);

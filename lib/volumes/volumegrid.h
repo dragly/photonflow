@@ -46,15 +46,15 @@ class VolumeGridDensity : public DensityRegion {
 public:
     // VolumeGridDensity Public Methods
     VolumeGridDensity();
-    VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, float gg,
+    VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, double gg,
             const Spectrum &emita, const BBox &e, const Transform &v2w,
             arma::Cube<short> densitya);
     BBox WorldBound() const { return m_worldBound; }
-    bool IntersectP(const Ray &r, float *t0, float *t1) const;
-    float Density(const Point &Pobj) const;
-    float D(int x, int y, int z) const;
-    bool inside(const Point &p) const;
-    bool fuzzyInside(const Point &p) const;
+    bool IntersectP(const Ray &r, double *t0, double *t1) const;
+    double Density(const Point3D &Pobj) const;
+    double D(int x, int y, int z) const;
+    bool inside(const Point3D &p) const;
+    bool fuzzyInside(const Point3D &p) const;
 private:
     // VolumeGridDensity Private Data
     BBox extent;
@@ -62,12 +62,12 @@ private:
     BBox m_worldBound;
 };
 
-inline bool VolumeGridDensity::IntersectP(const Ray &r, float *t0, float *t1) const {
+inline bool VolumeGridDensity::IntersectP(const Ray &r, double *t0, double *t1) const {
     Ray ray = WorldToVolume(r);
     return extent.IntersectP(ray, t0, t1);
 }
 
-inline float VolumeGridDensity::D(int x, int y, int z) const {
+inline double VolumeGridDensity::D(int x, int y, int z) const {
     x = Clamp(x, 0, density.n_rows-1);
     y = Clamp(y, 0, density.n_cols-1);
     z = Clamp(z, 0, density.n_slices-1);

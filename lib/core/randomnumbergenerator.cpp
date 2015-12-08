@@ -49,9 +49,9 @@ void RNG::seed(uint32_t seed) const {
 
 
 /* generates a random number on [0,1)-real-interval */
-float RNG::RandomFloat() const
+double RNG::RandomFloat() const
 {
-    float v = (RandomUInt() & 0xffffff) / float(1 << 24);
+    double v = (RandomUInt() & 0xffffff) / double(1 << 24);
     return v;
 }
 
