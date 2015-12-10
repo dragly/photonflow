@@ -23,7 +23,7 @@ script:
   - source /opt/qt55/bin/qt55-env.sh
      && mkdir build
      && cd build
-     && /opt/qt55/bin/qbs setup-toolchains --type gcc /usr/bin/g++-5 g++
+     && /opt/qt55/bin/qbs setup-toolchains --type gcc /usr/bin/g++-5 mycompiler
      && /opt/qt55/bin/qbs setup-qt /opt/qt55/bin/qmake qt5
      && /opt/qt55/bin/qbs build -f ../photonflow.qbs photonflow-app.hdf5LibraryName:hdf5 profile:qt5 release
      && cd qt5-release
