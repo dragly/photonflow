@@ -18,12 +18,16 @@ install:
   - sudo apt-get -qq install libboost-dev
   - sudo apt-get -qq install gcc-5
   - sudo apt-get -qq install g++-5
+  - sudo rm /usr/bin/gcc
+  - sudo rm /usr/bin/g++
+  - sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
+  - sudo ln -s /usr/bin/g++-5 /usr/bin/g++
 script:
   - dpkg -L g++-5
   - source /opt/qt55/bin/qt55-env.sh
      && mkdir build
      && cd build
-     && /opt/qt55/bin/qbs setup-toolchains --type gcc /usr/bin/g++-5 mycompiler
+     && /opt/qt55/bin/qbs setup-toolchains --detect
      && /opt/qt55/bin/qbs setup-qt /opt/qt55/bin/qmake qt5
      && /opt/qt55/bin/qbs build -f ../photonflow.qbs photonflow-app.hdf5LibraryName:hdf5 profile:qt5 release
      && cd qt5-release
