@@ -37,76 +37,76 @@
 class Transform;
 
 // Quaternion Declarations
-struct Quaternion {
-    // Quaternion Public Methods
-    Quaternion()
-        : v(0.0, 0.0, 0.0)
-        , w(1.0)
-    {
-    }
-    Quaternion &operator+=(const Quaternion &q) {
-        v += q.v;
-        w += q.w;
-        return *this;
-    }
-    friend Quaternion operator+(const Quaternion &q1, const Quaternion &q2) {
-        Quaternion ret = q1;
-        return ret += q2;
-    }
-    Quaternion &operator-=(const Quaternion &q) {
-        v -= q.v;
-        w -= q.w;
-        return *this;
-    }
-    friend Quaternion operator-(const Quaternion &q1, const Quaternion &q2) {
-        Quaternion ret = q1;
-        return ret -= q2;
-    }
-    Quaternion &operator*=(double f) {
-        v *= f;
-        w *= f;
-        return *this;
-    }
-    Quaternion operator*(double f) const {
-        Quaternion ret = *this;
-        ret.v *= f;
-        ret.w *= f;
-        return ret;
-    }
-    Quaternion &operator/=(double f) {
-        v /= f;
-        w /= f;
-        return *this;
-    }
-    Quaternion operator/(double f) const {
-        Quaternion ret = *this;
-        ret.v /= f;
-        ret.w /= f;
-        return ret;
-    }
-    Transform toTransform() const;
-    Quaternion(const Transform &t);
+//struct Quaternion {
+//    // Quaternion Public Methods
+//    Quaternion()
+//        : v(0.0, 0.0, 0.0)
+//        , w(1.0)
+//    {
+//    }
+//    Quaternion &operator+=(const Quaternion &q) {
+//        v += q.v;
+//        w += q.w;
+//        return *this;
+//    }
+//    friend Quaternion operator+(const Quaternion &q1, const Quaternion &q2) {
+//        Quaternion ret = q1;
+//        return ret += q2;
+//    }
+//    Quaternion &operator-=(const Quaternion &q) {
+//        v -= q.v;
+//        w -= q.w;
+//        return *this;
+//    }
+//    friend Quaternion operator-(const Quaternion &q1, const Quaternion &q2) {
+//        Quaternion ret = q1;
+//        return ret -= q2;
+//    }
+//    Quaternion &operator*=(double f) {
+//        v *= f;
+//        w *= f;
+//        return *this;
+//    }
+//    Quaternion operator*(double f) const {
+//        Quaternion ret = *this;
+//        ret.v *= f;
+//        ret.w *= f;
+//        return ret;
+//    }
+//    Quaternion &operator/=(double f) {
+//        v /= f;
+//        w /= f;
+//        return *this;
+//    }
+//    Quaternion operator/(double f) const {
+//        Quaternion ret = *this;
+//        ret.v /= f;
+//        ret.w /= f;
+//        return ret;
+//    }
+//    Transform toTransform() const;
+//    Quaternion(const Transform &t);
 
-    // Quaternion Public Data
-    GeneralVector3D<double> v;
-    double w;
-};
-
-
-Quaternion slerp(double t, const Quaternion &q1, const Quaternion &q2);
-
-// Quaternion Inline Functions
-inline Quaternion operator*(double f, const Quaternion &q) {
-    return q * f;
-}
+//    // Quaternion Public Data
+//    GeneralVector3D<double> v;
+//    double w;
+//};
 
 
-inline double dot(const Quaternion &q1, const Quaternion &q2) {
-    return dot(q1.v, q2.v) + q1.w * q2.w;
-}
+//Quaternion slerp(double t, const Quaternion &q1, const Quaternion &q2);
+
+//// Quaternion Inline Functions
+//inline Quaternion operator*(double f, const Quaternion &q) {
+//    return q * f;
+//}
 
 
-inline Quaternion normalize(const Quaternion &q) {
-    return q / sqrtf(dot(q, q));
-}
+//inline double dot(const Quaternion &q1, const Quaternion &q2) {
+//    return dot(q1.v, q2.v) + q1.w * q2.w;
+//}
+
+
+//inline Quaternion normalize(const Quaternion &q) {
+//    return q / sqrtf(dot(q, q));
+//}
 #endif // PBRT_CORE_QUATERNION_H

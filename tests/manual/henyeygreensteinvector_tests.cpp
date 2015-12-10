@@ -29,9 +29,9 @@ TEST_CASE( "Heyney Greenstein", "[heyneygreenstein]" ) {
     SECTION("Vectors") {
 //        vectors();
 
-        Vector3D left(1.0, 0.0, 0.0);
-        Vector3D up(0.0, 0.0, 1.0);
-        Transform rotation = rotate(90, up);
-        cout << rotation(left) << endl;
+//        Vector3D left(1.0, 0.0, 0.0);
+//        Vector3D up(0.0, 0.0, 1.0);
+//        Transform rotation = rotate(90, up);
+//        cout << rotation(left) << endl;
     }
 }

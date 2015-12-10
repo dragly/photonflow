@@ -53,7 +53,7 @@ public:
     // Sampler Interface
     virtual ~Sampler();
     Sampler(int xstart, int xend, int ystart, int yend,
-            int spp, double sopen, double sclose);
+            int spp, boost::units::photonflow::time sopen, boost::units::photonflow::time sclose);
     virtual int moreSamples(Sample *sample, RNG &rng) = 0;
     virtual int maximumSampleCount() = 0;
     virtual bool reportResults(Sample *samples, const RayDifferential *rays,
@@ -64,7 +64,7 @@ public:
     // Sampler Public Data
     const int xPixelStart, xPixelEnd, yPixelStart, yPixelEnd;
     const int samplesPerPixel;
-    const double shutterOpen, shutterClose;
+    const boost::units::photonflow::time shutterOpen, shutterClose;
 protected:
     // Sampler Protected Methods
     void computeSubWindow(int num, int count, int *xstart, int *xend, int *ystart, int *yend) const;
@@ -74,7 +74,7 @@ protected:
 struct CameraSample {
     double imageX, imageY;
     double lensU, lensV;
-    double time;
+    boost::units::photonflow::time time;
 };
 
 struct SampleData {

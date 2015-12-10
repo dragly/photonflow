@@ -53,10 +53,10 @@ Matrix4x4::Matrix4x4(double mat[4][4]) {
 }
 
 
-Matrix4x4::Matrix4x4(boost::units::photonflow::length t00, boost::units::photonflow::length t01, boost::units::photonflow::length t02, boost::units::photonflow::length t03,
-                     boost::units::photonflow::length t10, boost::units::photonflow::length t11, boost::units::photonflow::length t12, boost::units::photonflow::length t13,
-                     boost::units::photonflow::length t20, boost::units::photonflow::length t21, boost::units::photonflow::length t22, boost::units::photonflow::length t23,
-                     boost::units::photonflow::length t30, boost::units::photonflow::length t31, boost::units::photonflow::length t32, boost::units::photonflow::length t33) {
+Matrix4x4::Matrix4x4(double t00, double t01, double t02, double t03,
+                     double t10, double t11, double t12, double t13,
+                     double t20, double t21, double t22, double t23,
+                     double t30, double t31, double t32, double t33) {
     m[0][0] = t00; m[0][1] = t01; m[0][2] = t02; m[0][3] = t03;
     m[1][0] = t10; m[1][1] = t11; m[1][2] = t12; m[1][3] = t13;
     m[2][0] = t20; m[2][1] = t21; m[2][2] = t22; m[2][3] = t23;
@@ -136,19 +136,19 @@ Matrix4x4 Inverse(const Matrix4x4 &m) {
 
 
 // Transform Method Definitions
-void Transform::print(FILE *f) const {
-    m.Print(f);
-}
+//void Transform::print(FILE *f) const {
+//    m.Print(f);
+//}
 
 
 Transform translate(const Vector3D &delta) {
-    Matrix4x4 m(1, 0, 0, delta.x,
-                0, 1, 0, delta.y,
-                0, 0, 1, delta.z,
+    Matrix4x4 m(1, 0, 0, delta.x.value(),
+                0, 1, 0, delta.y.value(),
+                0, 0, 1, delta.z.value(),
                 0, 0, 0,       1);
-    Matrix4x4 minv(1, 0, 0, -delta.x,
-                   0, 1, 0, -delta.y,
-                   0, 0, 1, -delta.z,
+    Matrix4x4 minv(1, 0, 0, -delta.x.value(),
+                   0, 1, 0, -delta.y.value(),
+                   0, 0, 1, -delta.z.value(),
                    0, 0, 0,        1);
     return Transform(m, minv);
 }
@@ -207,19 +207,21 @@ Transform rotate(double angle, const Vector3D &axis) {
     double c = cosf((angle));
     double m[4][4];
 
-    m[0][0] = a.x * a.x + (1.f - a.x * a.x) * c;
-    m[0][1] = a.x * a.y * (1.f - c) - a.z * s;
-    m[0][2] = a.x * a.z * (1.f - c) + a.y * s;
+    // TODO: Verify use of units here
+
+    m[0][0] = a.x.value() * a.x.value() + (1.f - a.x.value() * a.x.value()) * c;
+    m[0][1] = a.x.value() * a.y.value() * (1.f - c) - a.z.value() * s;
+    m[0][2] = a.x.value() * a.z.value() * (1.f - c) + a.y.value() * s;
     m[0][3] = 0;
 
-    m[1][0] = a.x * a.y * (1.f - c) + a.z * s;
-    m[1][1] = a.y * a.y + (1.f - a.y * a.y) * c;
-    m[1][2] = a.y * a.z * (1.f - c) - a.x * s;
+    m[1][0] = a.x.value() * a.y.value() * (1.f - c) + a.z.value() * s;
+    m[1][1] = a.y.value() * a.y.value() + (1.f - a.y.value() * a.y.value()) * c;
+    m[1][2] = a.y.value() * a.z.value() * (1.f - c) - a.x.value() * s;
     m[1][3] = 0;
 
-    m[2][0] = a.x * a.z * (1.f - c) - a.y * s;
-    m[2][1] = a.y * a.z * (1.f - c) + a.x * s;
-    m[2][2] = a.z * a.z + (1.f - a.z * a.z) * c;
+    m[2][0] = a.x.value() * a.z.value() * (1.f - c) - a.y.value() * s;
+    m[2][1] = a.y.value() * a.z.value() * (1.f - c) + a.x.value() * s;
+    m[2][2] = a.z.value() * a.z.value() + (1.f - a.z.value() * a.z.value()) * c;
     m[2][3] = 0;
 
     m[3][0] = 0;
@@ -237,19 +239,19 @@ Transform rotatec(double cosAngle, double sinAngle, const Vector3D &axis) {
     double c = cosAngle;
     double m[4][4];
 
-    m[0][0] = a.x * a.x + (1.f - a.x * a.x) * c;
-    m[0][1] = a.x * a.y * (1.f - c) - a.z * s;
-    m[0][2] = a.x * a.z * (1.f - c) + a.y * s;
+    m[0][0] = a.x.value() * a.x.value() + (1.f - a.x.value() * a.x.value()) * c;
+    m[0][1] = a.x.value() * a.y.value() * (1.f - c) - a.z.value() * s;
+    m[0][2] = a.x.value() * a.z.value() * (1.f - c) + a.y.value() * s;
     m[0][3] = 0;
 
-    m[1][0] = a.x * a.y * (1.f - c) + a.z * s;
-    m[1][1] = a.y * a.y + (1.f - a.y * a.y) * c;
-    m[1][2] = a.y * a.z * (1.f - c) - a.x * s;
+    m[1][0] = a.x.value() * a.y.value() * (1.f - c) + a.z.value() * s;
+    m[1][1] = a.y.value() * a.y.value() + (1.f - a.y.value() * a.y.value()) * c;
+    m[1][2] = a.y.value() * a.z.value() * (1.f - c) - a.x.value() * s;
     m[1][3] = 0;
 
-    m[2][0] = a.x * a.z * (1.f - c) - a.y * s;
-    m[2][1] = a.y * a.z * (1.f - c) + a.x * s;
-    m[2][2] = a.z * a.z + (1.f - a.z * a.z) * c;
+    m[2][0] = a.x.value() * a.z.value() * (1.f - c) - a.y.value() * s;
+    m[2][1] = a.y.value() * a.z.value() * (1.f - c) + a.x.value() * s;
+    m[2][2] = a.z.value() * a.z.value() + (1.f - a.z.value() * a.z.value()) * c;
     m[2][3] = 0;
 
     m[3][0] = 0;
@@ -262,40 +264,40 @@ Transform rotatec(double cosAngle, double sinAngle, const Vector3D &axis) {
 }
 
 
-Transform lookAt(const Point3D &pos, const Point3D &look, const Vector3D &up) {
-    double m[4][4];
-    // Initialize fourth column of viewing matrix
-    m[0][3] = pos.x;
-    m[1][3] = pos.y;
-    m[2][3] = pos.z;
-    m[3][3] = 1;
+//Transform lookAt(const Point3D &pos, const Point3D &look, const Vector3D &up) {
+//    double m[4][4];
+//    // Initialize fourth column of viewing matrix
+//    m[0][3] = pos.x;
+//    m[1][3] = pos.y;
+//    m[2][3] = pos.z;
+//    m[3][3] = 1;
 
-    // Initialize first three columns of viewing matrix
-    Vector3D dir = normalize(look - pos);
-    if (cross(normalize(up), dir).length() == 0) {
-        Error("\"up\" vector (%f, %f, %f) and viewing direction (%f, %f, %f) "
-              "passed to LookAt are pointing in the same direction.  Using "
-              "the identity transformation.", up.x, up.y, up.z, dir.x, dir.y,
-              dir.z);
-        return Transform();
-    }
-    Vector3D left = normalize(cross(normalize(up), dir));
-    Vector3D newUp = cross(dir, left);
-    m[0][0] = left.x;
-    m[1][0] = left.y;
-    m[2][0] = left.z;
-    m[3][0] = 0.;
-    m[0][1] = newUp.x;
-    m[1][1] = newUp.y;
-    m[2][1] = newUp.z;
-    m[3][1] = 0.;
-    m[0][2] = dir.x;
-    m[1][2] = dir.y;
-    m[2][2] = dir.z;
-    m[3][2] = 0.;
-    Matrix4x4 camToWorld(m);
-    return Transform(Inverse(camToWorld), camToWorld);
-}
+//    // Initialize first three columns of viewing matrix
+//    Vector3D dir = normalize(look - pos);
+//    if (cross(normalize(up), dir).length() == 0) {
+//        Error("\"up\" vector (%f, %f, %f) and viewing direction (%f, %f, %f) "
+//              "passed to LookAt are pointing in the same direction.  Using "
+//              "the identity transformation.", up.x, up.y, up.z, dir.x, dir.y,
+//              dir.z);
+//        return Transform();
+//    }
+//    Vector3D left = normalize(cross(normalize(up), dir));
+//    Vector3D newUp = cross(dir, left);
+//    m[0][0] = left.x;
+//    m[1][0] = left.y;
+//    m[2][0] = left.z;
+//    m[3][0] = 0.;
+//    m[0][1] = newUp.x;
+//    m[1][1] = newUp.y;
+//    m[2][1] = newUp.z;
+//    m[3][1] = 0.;
+//    m[0][2] = dir.x;
+//    m[1][2] = dir.y;
+//    m[2][2] = dir.z;
+//    m[3][2] = 0.;
+//    Matrix4x4 camToWorld(m);
+//    return Transform(Inverse(camToWorld), camToWorld);
+//}
 
 
 BBox Transform::operator()(const BBox &b) const {
@@ -335,7 +337,7 @@ bool Transform::swapsHandedness() const {
 
 Transform orthographic(double znear, double zfar) {
     return scale(1.f, 1.f, 1.f / (zfar-znear)) *
-           translate(Vector3D(0.0, 0.0, -znear));
+           translate(Vector3D(0.0_um, 0.0_um, -znear * 1.0_um));
 }
 
 
@@ -354,149 +356,149 @@ Transform perspective(double fov, double n, double f) {
 
 
 // AnimatedTransform Method Definitions
-void AnimatedTransform::decompose(const Matrix4x4 &m, Vector3D *T,
-                                  Quaternion *Rquat, Matrix4x4 *S) {
-    // Extract translation _T_ from transformation matrix
-    T->x = m.m[0][3];
-    T->y = m.m[1][3];
-    T->z = m.m[2][3];
+//void AnimatedTransform::decompose(const Matrix4x4 &m, Vector3D *T,
+//                                  Quaternion *Rquat, Matrix4x4 *S) {
+//    // Extract translation _T_ from transformation matrix
+//    T->x = m.m[0][3];
+//    T->y = m.m[1][3];
+//    T->z = m.m[2][3];
 
-    // Compute new transformation matrix _M_ without translation
-    Matrix4x4 M = m;
-    for (int i = 0; i < 3; ++i)
-        M.m[i][3] = M.m[3][i] = 0.0;
-    M.m[3][3] = 1.f;
+//    // Compute new transformation matrix _M_ without translation
+//    Matrix4x4 M = m;
+//    for (int i = 0; i < 3; ++i)
+//        M.m[i][3] = M.m[3][i] = 0.0;
+//    M.m[3][3] = 1.f;
 
-    // Extract rotation _R_ from transformation matrix
-    double norm;
-    int count = 0;
-    Matrix4x4 R = M;
-    do {
-        // Compute next matrix _Rnext_ in series
-        Matrix4x4 Rnext;
-        Matrix4x4 Rit = Inverse(Transpose(R));
-        for (int i = 0; i < 4; ++i)
-            for (int j = 0; j < 4; ++j)
-                Rnext.m[i][j] = 0.5f * (R.m[i][j] + Rit.m[i][j]);
+//    // Extract rotation _R_ from transformation matrix
+//    double norm;
+//    int count = 0;
+//    Matrix4x4 R = M;
+//    do {
+//        // Compute next matrix _Rnext_ in series
+//        Matrix4x4 Rnext;
+//        Matrix4x4 Rit = Inverse(Transpose(R));
+//        for (int i = 0; i < 4; ++i)
+//            for (int j = 0; j < 4; ++j)
+//                Rnext.m[i][j] = 0.5f * (R.m[i][j] + Rit.m[i][j]);
 
-        // Compute norm of difference between _R_ and _Rnext_
-        norm = 0.0;
-        for (int i = 0; i < 3; ++i) {
-            double n = fabsf(R.m[i][0] - Rnext.m[i][0]) +
-                      fabsf(R.m[i][1] - Rnext.m[i][1]) +
-                      fabsf(R.m[i][2] - Rnext.m[i][2]);
-            norm = max(norm, n);
-        }
-        R = Rnext;
-    } while (++count < 100 && norm > .0001f);
-    // XXX TODO FIXME deal with flip...
-    *Rquat = Quaternion(R);
+//        // Compute norm of difference between _R_ and _Rnext_
+//        norm = 0.0;
+//        for (int i = 0; i < 3; ++i) {
+//            double n = fabsf(R.m[i][0] - Rnext.m[i][0]) +
+//                      fabsf(R.m[i][1] - Rnext.m[i][1]) +
+//                      fabsf(R.m[i][2] - Rnext.m[i][2]);
+//            norm = max(norm, n);
+//        }
+//        R = Rnext;
+//    } while (++count < 100 && norm > .0001f);
+//    // XXX TODO FIXME deal with flip...
+//    *Rquat = Quaternion(R);
 
-    // Compute scale _S_ using rotation and original matrix
-    *S = Matrix4x4::Mul(Inverse(R), M);
-}
-
-
-void AnimatedTransform::interpolate(double time, Transform *t) const {
-    // Handle boundary conditions for matrix interpolation
-    if (!actuallyAnimated || time <= startTime) {
-        *t = *startTransform;
-        return;
-    }
-    if (time >= endTime) {
-        *t = *endTransform;
-        return;
-    }
-    double dt = (time - startTime) / (endTime - startTime);
-    // Interpolate translation at _dt_
-    Vector3D trans = (1.f - dt) * T[0] + dt * T[1];
-
-    // Interpolate rotation at _dt_
-    Quaternion rotate = slerp(dt, R[0], R[1]);
-
-    // Interpolate scale at _dt_
-    Matrix4x4 scale;
-    for (int i = 0; i < 3; ++i)
-        for (int j = 0; j < 3; ++j)
-            scale.m[i][j] = lerp(dt, S[0].m[i][j], S[1].m[i][j]);
-
-    // Compute interpolated matrix as product of interpolated components
-    *t = translate(trans) * rotate.toTransform() * Transform(scale);
-}
+//    // Compute scale _S_ using rotation and original matrix
+//    *S = Matrix4x4::Mul(Inverse(R), M);
+//}
 
 
-BBox AnimatedTransform::motionBounds(const BBox &b,
-                                     bool useInverse) const {
-    if (!actuallyAnimated)
-      return useInverse ? Inverse(*startTransform)(b) : (*startTransform)(b);
-    BBox ret;
-    const int nSteps = 128;
-    for (int i = 0; i < nSteps; ++i) {
-        Transform t;
-        double time = lerp(double(i)/double(nSteps-1), startTime, endTime);
-        interpolate(time, &t);
-        if (useInverse) t = Inverse(t);
-        ret = makeUnion(ret, t(b));
-    }
-    return ret;
-}
+//void AnimatedTransform::interpolate(double time, Transform *t) const {
+//    // Handle boundary conditions for matrix interpolation
+//    if (!actuallyAnimated || time <= startTime) {
+//        *t = *startTransform;
+//        return;
+//    }
+//    if (time >= endTime) {
+//        *t = *endTransform;
+//        return;
+//    }
+//    double dt = (time - startTime) / (endTime - startTime);
+//    // Interpolate translation at _dt_
+//    Vector3D trans = (1.f - dt) * T[0] + dt * T[1];
+
+//    // Interpolate rotation at _dt_
+////    Quaternion rotate = slerp(dt, R[0], R[1]);
+
+//    // Interpolate scale at _dt_
+//    Matrix4x4 scale;
+//    for (int i = 0; i < 3; ++i)
+//        for (int j = 0; j < 3; ++j)
+//            scale.m[i][j] = lerp(dt, S[0].m[i][j], S[1].m[i][j]);
+
+//    // Compute interpolated matrix as product of interpolated components
+//    *t = translate(trans) * rotate.toTransform() * Transform(scale);
+//}
 
 
-void AnimatedTransform::operator()(const Ray &r, Ray *tr) const {
-    if (!actuallyAnimated || r.m_time <= startTime)
-        (*startTransform)(r, tr);
-    else if (r.m_time >= endTime)
-        (*endTransform)(r, tr);
-    else {
-        Transform t;
-        interpolate(r.m_time, &t);
-        t(r, tr);
-    }
-    tr->m_time = r.m_time;
-}
+//BBox AnimatedTransform::motionBounds(const BBox &b,
+//                                     bool useInverse) const {
+//    if (!actuallyAnimated)
+//      return useInverse ? Inverse(*startTransform)(b) : (*startTransform)(b);
+//    BBox ret;
+//    const int nSteps = 128;
+//    for (int i = 0; i < nSteps; ++i) {
+//        Transform t;
+//        double time = lerp(double(i)/double(nSteps-1), startTime, endTime);
+//        interpolate(time, &t);
+//        if (useInverse) t = Inverse(t);
+//        ret = makeUnion(ret, t(b));
+//    }
+//    return ret;
+//}
 
 
-void AnimatedTransform::operator()(const RayDifferential &r,
-    RayDifferential *tr) const {
-    if (!actuallyAnimated || r.m_time <= startTime)
-        (*startTransform)(r, tr);
-    else if (r.m_time >= endTime)
-        (*endTransform)(r, tr);
-    else {
-        Transform t;
-        interpolate(r.m_time, &t);
-        t(r, tr);
-    }
-    tr->m_time = r.m_time;
-}
+//void AnimatedTransform::operator()(const Ray &r, Ray *tr) const {
+//    if (!actuallyAnimated || r.m_time <= startTime)
+//        (*startTransform)(r, tr);
+//    else if (r.m_time >= endTime)
+//        (*endTransform)(r, tr);
+//    else {
+//        Transform t;
+//        interpolate(r.m_time, &t);
+//        t(r, tr);
+//    }
+//    tr->m_time = r.m_time;
+//}
 
 
-Point3D AnimatedTransform::operator()(double time, const Point3D &p) const {
-    if (!actuallyAnimated || time <= startTime)
-        return (*startTransform)(p);
-    else if (time >= endTime)
-        return (*endTransform)(p);
-    Transform t;
-    interpolate(time, &t);
-    return t(p);
-}
+//void AnimatedTransform::operator()(const RayDifferential &r,
+//    RayDifferential *tr) const {
+//    if (!actuallyAnimated || r.m_time <= startTime)
+//        (*startTransform)(r, tr);
+//    else if (r.m_time >= endTime)
+//        (*endTransform)(r, tr);
+//    else {
+//        Transform t;
+//        interpolate(r.m_time, &t);
+//        t(r, tr);
+//    }
+//    tr->m_time = r.m_time;
+//}
 
 
-Vector3D AnimatedTransform::operator()(double time, const Vector3D &v) const {
-    if (!actuallyAnimated || time <= startTime)
-        return (*startTransform)(v);
-    else if (time >= endTime)
-        return (*endTransform)(v);
-    Transform t;
-    interpolate(time, &t);
-    return t(v);
-}
+//Point3D AnimatedTransform::operator()(double time, const Point3D &p) const {
+//    if (!actuallyAnimated || time <= startTime)
+//        return (*startTransform)(p);
+//    else if (time >= endTime)
+//        return (*endTransform)(p);
+//    Transform t;
+//    interpolate(time, &t);
+//    return t(p);
+//}
 
 
-Ray AnimatedTransform::operator()(const Ray &r) const {
-    Ray ret;
-    (*this)(r, &ret);
-    return ret;
-}
+//Vector3D AnimatedTransform::operator()(double time, const Vector3D &v) const {
+//    if (!actuallyAnimated || time <= startTime)
+//        return (*startTransform)(v);
+//    else if (time >= endTime)
+//        return (*endTransform)(v);
+//    Transform t;
+//    interpolate(time, &t);
+//    return t(v);
+//}
+
+
+//Ray AnimatedTransform::operator()(const Ray &r) const {
+//    Ray ret;
+//    (*this)(r, &ret);
+//    return ret;
+//}
 
 

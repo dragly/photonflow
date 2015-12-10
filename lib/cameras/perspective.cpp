@@ -39,37 +39,40 @@
 
 // PerspectiveCamera Method Definitions
 PerspectiveCamera:: PerspectiveCamera(const Transform &cam2world,
-        const Rectangle &screenWindow, double sopen, double sclose,
-        double lensr, double focald, double fov, std::shared_ptr<Film> f)
+        const Rectangle &screenWindow, boost::units::photonflow::time sopen, boost::units::photonflow::time sclose,
+        boost::units::photonflow::length lensr, boost::units::photonflow::length focald, double fov, std::shared_ptr<Film> f)
     : ProjectiveCamera(cam2world, perspective(fov, 1e-2f, 1000.0),
                        screenWindow, sopen, sclose, lensr, focald, f) {
     // Compute differential changes in origin for perspective camera rays
-    dxCamera = RasterToCamera(Point3D(1,0,0)) - RasterToCamera(Point3D(0,0,0));
-    dyCamera = RasterToCamera(Point3D(0,1,0)) - RasterToCamera(Point3D(0,0,0));
+    dxCamera = RasterToCamera(Point3D(1.0_um,0.0_um,0.0_um)) - RasterToCamera(Point3D(0.0_um,0.0_um,0.0_um));
+    dyCamera = RasterToCamera(Point3D(0.0_um,1.0_um,0.0_um)) - RasterToCamera(Point3D(0.0_um,0.0_um,0.0_um));
 }
 
 
 double PerspectiveCamera::generateRay(const CameraSample &sample,
                                      Ray *ray) const {
+    auto cameraLength = 1.0_um;
+
     // Generate raster and camera samples
-    Point3D Pras(sample.imageX, sample.imageY, 0);
+    Point3D Pras(sample.imageX*cameraLength, sample.imageY*cameraLength, 0);
     Point3D Pcamera;
     RasterToCamera(Pras, &Pcamera);
-    *ray = Ray(Point3D(0,0,0), normalize(Vector3D(Pcamera)), 0.0, INFINITY);
+    *ray = Ray(Point3D(), normalize(Vector3D(Pcamera)));
     // Modify ray for depth of field
-    if (lensRadius > 0.) {
+    if (lensRadius > 0.0_um) {
         // Sample point on lens
         double lensU, lensV;
         concentricSampleDisk(sample.lensU, sample.lensV, &lensU, &lensV);
-        lensU *= lensRadius;
-        lensV *= lensRadius;
+
+        boost::units::photonflow::length x = lensU * lensRadius;
+        boost::units::photonflow::length y = lensU * lensRadius;
 
         // Compute point on plane of focus
         double ft = focalDistance / ray->m_direction.z;
         Point3D Pfocus = (*ray)(ft);
 
         // Update ray for effect of lens
-        ray->m_origin = Point3D(lensU, lensV, 0.0);
+        ray->m_origin = Point3D(x, y, 0.0_um);
         ray->m_direction = normalize(Pfocus - ray->m_origin);
     }
     ray->m_time = sample.time;
@@ -78,61 +81,61 @@ double PerspectiveCamera::generateRay(const CameraSample &sample,
 }
 
 
-double PerspectiveCamera::generateRayDifferential(const CameraSample &sample,
-                                                 RayDifferential *ray) const {
-    // Generate raster and camera samples
-    Point3D Pras(sample.imageX, sample.imageY, 0);
-    Point3D Pcamera;
-    RasterToCamera(Pras, &Pcamera);
-    Vector3D dir = normalize(Vector3D(Pcamera.x, Pcamera.y, Pcamera.z));
-    *ray = RayDifferential(Point3D(0,0,0), dir, 0.0, INFINITY);
-    // Modify ray for depth of field
-    if (lensRadius > 0.) {
-        // Sample point on lens
-        double lensU, lensV;
-        concentricSampleDisk(sample.lensU, sample.lensV, &lensU, &lensV);
-        lensU *= lensRadius;
-        lensV *= lensRadius;
+//double PerspectiveCamera::generateRayDifferential(const CameraSample &sample,
+//                                                 RayDifferential *ray) const {
+//    // Generate raster and camera samples
+//    Point3D Pras(sample.imageX*1.0_um, sample.imageY*1.0_um, 0.0_um); // TODO: Consider coordinate system
+//    Point3D Pcamera;
+//    RasterToCamera(Pras, &Pcamera);
+//    Vector3D dir = normalize(Vector3D(Pcamera.x, Pcamera.y, Pcamera.z));
+//    *ray = RayDifferential(Point3D(0,0,0), dir, 0.0, INFINITY);
+//    // Modify ray for depth of field
+//    if (lensRadius > 0.) {
+//        // Sample point on lens
+//        double lensU, lensV;
+//        concentricSampleDisk(sample.lensU, sample.lensV, &lensU, &lensV);
+//        lensU *= lensRadius;
+//        lensV *= lensRadius;
 
-        // Compute point on plane of focus
-        double ft = focalDistance / ray->m_direction.z;
-        Point3D Pfocus = (*ray)(ft);
+//        // Compute point on plane of focus
+//        double ft = focalDistance / ray->m_direction.z;
+//        Point3D Pfocus = (*ray)(ft);
 
-        // Update ray for effect of lens
-        ray->m_origin = Point3D(lensU, lensV, 0.0);
-        ray->m_direction = normalize(Pfocus - ray->m_origin);
-    }
+//        // Update ray for effect of lens
+//        ray->m_origin = Point3D(lensU, lensV, 0.0);
+//        ray->m_direction = normalize(Pfocus - ray->m_origin);
+//    }
 
-    // Compute offset rays for _PerspectiveCamera_ ray differentials
-    if (lensRadius > 0.) {
-        // Compute _PerspectiveCamera_ ray differentials with defocus blur
+//    // Compute offset rays for _PerspectiveCamera_ ray differentials
+//    if (lensRadius > 0.) {
+//        // Compute _PerspectiveCamera_ ray differentials with defocus blur
 
-        // Sample point on lens
-        double lensU, lensV;
-        concentricSampleDisk(sample.lensU, sample.lensV, &lensU, &lensV);
-        lensU *= lensRadius;
-        lensV *= lensRadius;
+//        // Sample point on lens
+//        double lensU, lensV;
+//        concentricSampleDisk(sample.lensU, sample.lensV, &lensU, &lensV);
+//        lensU *= lensRadius;
+//        lensV *= lensRadius;
 
-        Vector3D dx = normalize(Vector3D(Pcamera + dxCamera));
-        double ft = focalDistance / dx.z;
-        Point3D pFocus = Point3D(0,0,0) + (ft * dx);
-        ray->rxOrigin = Point3D(lensU, lensV, 0.0);
-        ray->rxDirection = normalize(pFocus - ray->rxOrigin);
+//        Vector3D dx = normalize(Vector3D(Pcamera + dxCamera));
+//        double ft = focalDistance / dx.z;
+//        Point3D pFocus = Point3D(0,0,0) + (ft * dx);
+//        ray->rxOrigin = Point3D(lensU, lensV, 0.0);
+//        ray->rxDirection = normalize(pFocus - ray->rxOrigin);
 
-        Vector3D dy = normalize(Vector3D(Pcamera + dyCamera));
-        ft = focalDistance / dy.z;
-        pFocus = Point3D(0,0,0) + (ft * dy);
-        ray->ryOrigin = Point3D(lensU, lensV, 0.0);
-        ray->ryDirection = normalize(pFocus - ray->ryOrigin);
-    }
-    else {
-        ray->rxOrigin = ray->ryOrigin = ray->m_origin;
-        ray->rxDirection = normalize(Vector3D(Pcamera) + dxCamera);
-        ray->ryDirection = normalize(Vector3D(Pcamera) + dyCamera);
-    }
+//        Vector3D dy = normalize(Vector3D(Pcamera + dyCamera));
+//        ft = focalDistance / dy.z;
+//        pFocus = Point3D(0,0,0) + (ft * dy);
+//        ray->ryOrigin = Point3D(lensU, lensV, 0.0);
+//        ray->ryDirection = normalize(pFocus - ray->ryOrigin);
+//    }
+//    else {
+//        ray->rxOrigin = ray->ryOrigin = ray->m_origin;
+//        ray->rxDirection = normalize(Vector3D(Pcamera) + dxCamera);
+//        ray->ryDirection = normalize(Vector3D(Pcamera) + dyCamera);
+//    }
 
-    ray->m_time = sample.time;
-    CameraToWorld(*ray, ray);
-    ray->hasDifferentials = true;
-    return 1.f;
-}
+//    ray->m_time = sample.time;
+//    CameraToWorld(*ray, ray);
+//    ray->hasDifferentials = true;
+//    return 1.f;
+//}

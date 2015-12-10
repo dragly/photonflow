@@ -46,45 +46,47 @@ Camera::~Camera() {
 
 
 Camera::Camera(const Transform &cam2world,
-               double sopen, double sclose, std::shared_ptr<Film> f)
+               boost::units::photonflow::time sopen,
+               boost::units::photonflow::time sclose,
+               std::shared_ptr<Film> f)
     : CameraToWorld(cam2world), shutterOpen(sopen), shutterClose(sclose) {
     film = f;
-    if (CameraToWorld.hasScale())
-        Warning("Scaling detected in world-to-camera transformation!\n"
-                "The system has numerous assumptions, implicit and explicit,\n"
-                "that this transform will have no scale factors in it.\n"
-                "Proceed at your own risk; your image may have errors or\n"
-                "the system may crash as a result of this.");
+//    if (CameraToWorld.hasScale())
+//        Warning("Scaling detected in world-to-camera transformation!\n"
+//                "The system has numerous assumptions, implicit and explicit,\n"
+//                "that this transform will have no scale factors in it.\n"
+//                "Proceed at your own risk; your image may have errors or\n"
+//                "the system may crash as a result of this.");
 }
 
 
-double Camera::generateRayDifferential(const CameraSample &sample,
-                                      RayDifferential *rd) const {
-    double wt = generateRay(sample, rd);
-    // Find ray after shifting one pixel in the $x$ direction
-    CameraSample sshift = sample;
-    ++(sshift.imageX);
-    Ray rx;
-    double wtx = generateRay(sshift, &rx);
-    rd->rxOrigin = rx.m_origin;
-    rd->rxDirection = rx.m_direction;
+//double Camera::generateRayDifferential(const CameraSample &sample,
+//                                      RayDifferential *rd) const {
+//    double wt = generateRay(sample, rd);
+//    // Find ray after shifting one pixel in the $x$ direction
+//    CameraSample sshift = sample;
+//    ++(sshift.imageX);
+//    Ray rx;
+//    double wtx = generateRay(sshift, &rx);
+//    rd->rxOrigin = rx.m_origin;
+//    rd->rxDirection = rx.m_direction;
 
-    // Find ray after shifting one pixel in the $y$ direction
-    --(sshift.imageX);
-    ++(sshift.imageY);
-    Ray ry;
-    double wty = generateRay(sshift, &ry);
-    rd->ryOrigin = ry.m_origin;
-    rd->ryDirection = ry.m_direction;
-    if (wtx == 0.0 || wty == 0.0) return 0.0;
-    rd->hasDifferentials = true;
-    return wt;
-}
+//    // Find ray after shifting one pixel in the $y$ direction
+//    --(sshift.imageX);
+//    ++(sshift.imageY);
+//    Ray ry;
+//    double wty = generateRay(sshift, &ry);
+//    rd->ryOrigin = ry.m_origin;
+//    rd->ryDirection = ry.m_direction;
+//    if (wtx == 0.0 || wty == 0.0) return 0.0;
+//    rd->hasDifferentials = true;
+//    return wt;
+//}
 
 
 ProjectiveCamera::ProjectiveCamera(const Transform &cam2world,
-        const Transform &proj, const Rectangle &screenWindow, double sopen,
-        double sclose, double lensr, double focald, shared_ptr<Film> f)
+        const Transform &proj, const Rectangle &screenWindow, boost::units::photonflow::time sopen,
+        boost::units::photonflow::time sclose, boost::units::photonflow::length lensr, boost::units::photonflow::length focald, shared_ptr<Film> f)
     : Camera(cam2world, sopen, sclose, f) {
     // Initialize depth of field parameters
     lensRadius = lensr;
@@ -96,9 +98,9 @@ ProjectiveCamera::ProjectiveCamera(const Transform &cam2world,
     // Compute projective camera screen transformations
     ScreenToRaster = scale(double(film->xResolution),
                            double(film->yResolution), 1.f) *
-        scale(1.f / (screenWindow.width()),
-              1.f / (screenWindow.height()), 1.f) *
-        translate(Vector3D(-screenWindow.x(), -screenWindow.y(), 0.0));
+        scale(1.0 / (screenWindow.width()),
+              1.0 / (screenWindow.height()), 1.0) *
+        translate(Vector3D(-screenWindow.x() * 1.0_um, -screenWindow.y() * 1.0_um, 0.0 * 1.0_um)); // TODO: Should be dimensionless?
     RasterToScreen = Inverse(ScreenToRaster);
     RasterToCamera = Inverse(CameraToScreen) * RasterToScreen;
 }

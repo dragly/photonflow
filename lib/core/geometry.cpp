@@ -59,21 +59,24 @@ BBox makeUnion(const BBox &b, const BBox &b2) {
 }
 
 
-void BBox::boundingSphere(Point3D *c, double *rad) const {
+void BBox::boundingSphere(Point3D *c, boost::units::photonflow::length *rad) const
+{
     *c = .5f * pMin + .5f * pMax;
-    *rad = inside(*c) ? distance(*c, pMax) : 0.0;
+    *rad = inside(*c) ? distance(*c, pMax) : 0.0_um;
 }
 
 
-bool BBox::intersectP(const Ray &ray, double *hitt0,
-                      double *hitt1) const {
-    boost::units::photonflow::time t0 = ray.m_mint;
-    boost::units::photonflow::time t1 = ray.m_maxt;
+bool BBox::intersectP(const Ray &ray,
+                      double *hitt0,
+                      double *hitt1) const
+{
+    double t0 = ray.m_mint;
+    double t1 = ray.m_maxt;
     for (int i = 0; i < 3; ++i) {
         // Update interval for _i_th bounding box slab
-        auto invRayDir = 1.0 / ray.m_direction[i];
-        auto tNear = (pMin[i] - ray.m_origin[i]) * invRayDir;
-        auto tFar  = (pMax[i] - ray.m_origin[i]) * invRayDir;
+        auto invRayDir =  1.0 / ray.m_direction[i];
+        double tNear = (pMin[i] - ray.m_origin[i]) * invRayDir;
+        double tFar  = (pMax[i] - ray.m_origin[i]) * invRayDir;
 
         // Update parametric interval from slab intersection $t$s
         if (tNear > tFar) swap(tNear, tFar);
@@ -88,12 +91,15 @@ bool BBox::intersectP(const Ray &ray, double *hitt0,
 
 std::ostream& operator<< (std::ostream &out, const Vector3D &vector)
 {
-    out << vector.x << ", " << vector.y << ", " << vector.z;
+    (void)vector;
+    // TODO Reintroduce output
+//    out << vector.x << ", " << vector.y << ", " << vector.z;
     return out;
 }
 
 std::ostream& operator<< (std::ostream &out, const Point3D &point)
 {
-    out << point.x << ", " << point.y << ", " << point.z;
+    (void)point;
+//    out << point.x << ", " << point.y << ", " << point.z;
     return out;
 }

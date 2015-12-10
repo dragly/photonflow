@@ -44,64 +44,31 @@ Integrator::Integrator(VolumeGridDensity *volumeGridDensity, Ray startRay, int b
 {
 }
 
-Integrator::iterator Integrator::begin() {
-    return iterator(this);
-}
-
-Integrator::iterator Integrator::end() {
-    return iterator(this, m_bounces);
-}
-
-void Integrator::next() {
-//    VolumeGridDensity *vr = m_volumeGridDensity;
-//    double ds = 0.12  / (vr->Density(m_ray.origin()) / 40.0);
-    double ds = 0.4 * -log(m_rng->randomFloat());
-//        double ds = 0.01;
-    double g = 0.98;
-//        double g = 1.0;
-
-    double cosTheta = Distribution::heyneyGreenstein(g, *m_rng);
-    double sinTheta = sqrt(1 - cosTheta*cosTheta);
-    double phi = 2.0 * M_PI * m_rng->randomFloat();
-
-    Vector3D perpendicular = m_ray.direction().perpendicular();
-    Transform phiRotation = rotate(phi, m_ray.direction());
-    perpendicular = phiRotation(perpendicular);
-
-    Transform directionRotation = rotatec(cosTheta, sinTheta, perpendicular);
-
-    Vector3D direction = directionRotation(m_ray.direction());
-    direction = direction.normalized();
-
-    Point3D origin = m_ray.origin() + direction * ds;
-    m_ray = Ray(origin, direction);
-}
-
-Integrator::iterator::iterator(Integrator *parent, int bounce)
-    : m_parent(parent)
-    , m_bounce(bounce)
+void Integrator::integrate(std::function<Control(const Ray& ray, boost::units::photonflow::length stepLength)> callback)
 {
-}
+    for(int i = 0; i < m_bounces; i++) {
+        boost::units::photonflow::length ds = 0.4_um * -log(m_rng->randomFloat());
+        double g = 0.98;
 
-Integrator::iterator::iterator(Integrator *parent)
-    : m_parent(parent)
-{
-}
+        double cosTheta = Distribution::heyneyGreenstein(g, *m_rng);
+        double sinTheta = sqrt(1 - cosTheta*cosTheta);
+        double phi = 2.0 * M_PI * m_rng->randomFloat();
 
-bool Integrator::iterator::operator==(const Integrator::iterator &other) const {
-    return other.m_bounce == m_bounce;
-}
+        Vector3D perpendicular = m_ray.direction().perpendicular();
+        Transform phiRotation = rotate(phi, m_ray.direction());
+        perpendicular = phiRotation(perpendicular);
 
-bool Integrator::iterator::operator!=(const Integrator::iterator &other) const {
-    return !(other == *this);
-}
+        Transform directionRotation = rotatec(cosTheta, sinTheta, perpendicular);
 
-Integrator::iterator &Integrator::iterator::operator++() {
-    m_bounce++;
-    m_parent->next();
-    return *this;
-}
+        Vector3D direction = directionRotation(m_ray.direction());
+        direction = direction.normalized();
+        direction = Vector3D(direction.x.value() * ds, direction.y.value() * ds, direction.z.value() * ds);
 
-Ray &Integrator::iterator::operator*() {
-    return m_parent->m_ray;
+        Point3D origin = m_ray.origin() + direction;
+        m_ray = Ray(origin, direction);
+        Control result = callback(m_ray, ds);
+        if(result == Control::Break) {
+            break;
+        }
+    }
 }

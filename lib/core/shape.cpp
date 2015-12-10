@@ -89,19 +89,19 @@ double Shape::area() const {
 }
 
 
-double Shape::probabilityDistributionFunction(const Point3D &p, const Vector3D &wi) const {
-    // Intersect sample ray with area light geometry
-    DifferentialGeometry dgLight;
-    Ray ray(p, wi, 1e-3f);
-    ray.m_depth = -1; // temporary hack to ignore alpha mask
-    double thit, rayEpsilon;
-    if (!intersect(ray, &thit, &rayEpsilon, &dgLight)) return 0.;
+//double Shape::probabilityDistributionFunction(const Point3D &p, const Vector3D &wi) const {
+//    // Intersect sample ray with area light geometry
+//    DifferentialGeometry dgLight;
+//    Ray ray(p, wi, 1e-3f);
+//    ray.m_depth = -1; // temporary hack to ignore alpha mask
+//    double thit, rayEpsilon;
+//    if (!intersect(ray, &thit, &rayEpsilon, &dgLight)) return 0.;
 
-    // Convert light sample weight to solid angle measure
-    double pdf = distanceSquared(p, ray(thit)) /
-                (absDot(dgLight.nn, -wi) * area());
-    if (isinf(pdf)) pdf = 0.0;
-    return pdf;
-}
+//    // Convert light sample weight to solid angle measure
+//    double pdf = distanceSquared(p, ray(thit)) /
+//                (absDot(dgLight.nn, -wi) * area());
+//    if (isinf(pdf)) pdf = 0.0;
+//    return pdf;
+//}
 
 

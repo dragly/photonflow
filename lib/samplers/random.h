@@ -44,7 +44,7 @@
 class RandomSampler : public Sampler {
 public:
     RandomSampler(int xstart, int xend, int ystart,
-        int yend, int ns, double sopen, double sclose);
+        int yend, int ns, boost::units::photonflow::time sopen, boost::units::photonflow::time sclose);
     ~RandomSampler() {
         delete[] imageSamples;
     }

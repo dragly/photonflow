@@ -42,31 +42,13 @@ class VolumeGridDensity;
 class Integrator
 {
 public:
-    Integrator(VolumeGridDensity *volumeGridDensity, Ray startRay, int bounces, RNG &rng);
-    void next();
-
-    class iterator {
-    public:
-        typedef Ray value_type;
-        typedef Ray& reference_type;
-        typedef std::input_iterator_tag iterator_category;
-
-        iterator(Integrator* parent, int bounce);
-        iterator(Integrator* parent);
-
-        bool operator==(const iterator& other) const;
-        bool operator!=(const iterator& other) const;
-
-        iterator& operator++();
-        Ray& operator*();
-
-    private:
-        Integrator* m_parent;
-        int m_bounce = 0;
+    enum class Control {
+        Continue,
+        Break
     };
 
-    iterator begin();
-    iterator end();
+    Integrator(VolumeGridDensity *volumeGridDensity, Ray startRay, int bounces, RNG &rng);
+    void integrate(std::function<Control(const Ray & ray, boost::units::photonflow::length stepLength)> callback);
 
 private:
     VolumeGridDensity *m_volumeGridDensity;

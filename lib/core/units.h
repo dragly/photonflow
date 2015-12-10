@@ -1,8 +1,29 @@
-#ifndef UNITS
-#define UNITS
+#ifndef UNITS_HEADER
+#define UNITS_HEADER
 
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/si.hpp>
+
+namespace boost
+{
+  namespace mpl
+  {
+    template<>
+    struct divides_impl<boost::units::scale_dim_tag,boost::units::detail::static_rational_tag>
+    {
+      template<class T0, class T1>
+      struct apply
+      {
+        typedef boost::units::scale_list_dim<
+          boost::units::scale<
+            (T0::base),
+            typename mpl::divides<typename T0::exponent, T1>::type
+          >
+        > type;
+      };
+    };
+  }
+}
 
 namespace boost {
 
@@ -34,11 +55,11 @@ using time = quantity<time_unit>;
 namespace literals {
 
 #define BOOST_UNITS_LITERAL(suffix, unit, val, prefix, multiplier) \
-quantity<unit, double> operator "" _##prefix##suffix(long double x) \
+inline quantity<unit, double> operator "" _##prefix##suffix(long double x) \
 { \
     return quantity<unit, double>(x * multiplier * val); \
 } \
-quantity<unit, unsigned long long> operator "" _##prefix##suffix(unsigned long long x) \
+inline quantity<unit, unsigned long long> operator "" _##prefix##suffix(unsigned long long x) \
 { \
     return quantity<unit, unsigned long long>(x * multiplier * val); \
 }

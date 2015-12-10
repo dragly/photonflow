@@ -35,15 +35,15 @@ RenderView::RenderView(QQuickItem *parent)
     data *= 255;
 
     BBox bbox;
-    bbox.pMin = Point3D(-1, -1, -1);
-    bbox.pMax = Point3D(1, 1, 1);
+    bbox.pMin = Point3D(-1.0_um, -1.0_um, -1.0_um);
+    bbox.pMax = Point3D(1.0_um, 1.0_um, 1.0_um);
 
     double gg = 1.0;
 
     double angle = 3.14;
 
-    Transform translation = translate(Vector3D(0.0, 0.0, 0.0));
-    Transform rotation = rotate(angle, Vector3D(0.0, 1.0, 0.0));
+    Transform translation = translate(Vector3D(0.0_um, 0.0_um, 0.0_um));
+    Transform rotation = rotate(angle, Vector3D(0.0_um, 1.0_um, 0.0_um));
 
     Transform boxTransform = translation*rotation;
 
@@ -84,7 +84,7 @@ void RenderView::integrate()
     const int width = size.width();
     const int height = size.height();
 
-    const Transform cameraTransform = translate(Vector3D(0.0, 0.0, -3.0));
+    const Transform cameraTransform = translate(Vector3D(0.0_um, 0.0_um, -3.0_um));
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const double crop[4] = {0.0, 1.0, 0.0, 1.0};
 
@@ -100,10 +100,10 @@ void RenderView::integrate()
         }
         film = make_shared<ImageFilm>(width, height, &filter, crop);
     }
-    const double sopen = 0.0;
-    const double sclose = 1.0;
-    const double lensr = 0.0;
-    const double focald = 3.5;
+    const auto sopen = 0.0_us;
+    const auto sclose = 1.0_us;
+    const auto lensr = 0.0_um;
+    const auto focald = 3.5_um;
     const double fov = 0.2;
     const PerspectiveCamera camera(cameraTransform, screenWindow, sopen, sclose, lensr, focald, fov, film);
 
@@ -112,7 +112,7 @@ void RenderView::integrate()
         cout << "Thread num: " << omp_get_thread_num() << " rngs size: " << rngs.size() << endl;
         RNG& rng = rngs.at(omp_get_thread_num());
         int actualCount = 0;
-        RandomSampler sampler(0, width, 0, height, requestedSampleCount, 0.0, 1.0);
+        RandomSampler sampler(0, width, 0, height, requestedSampleCount, 0.0_us, 1.0_us);
         int maxSampleCount = sampler.maximumSampleCount();
         qDebug() << "Max count: " << maxSampleCount;
 
@@ -130,8 +130,12 @@ void RenderView::integrate()
                 Ray intersectRay;
                 camera.generateRay(sample, &intersectRay);
 
-                double t0, t1;
-                if (!vr.intersectP(intersectRay, &t0, &t1) || (t1-t0) == 0.0) {
+                double t0;
+                double t1;
+                if (!vr.intersectP(intersectRay, &t0, &t1)) {
+                    continue;
+                }
+                if((t1-t0) == 0.0) {
                     continue;
                 }
 
@@ -145,19 +149,21 @@ void RenderView::integrate()
 
                 Integrator integrator(&vr, startRay, bounces, rng);
 
-                for(Ray& ray : integrator) {
+                integrator.integrate([&](const Ray& ray, boost::units::photonflow::length ds) {
                     if(!vr.fuzzyInside(ray.origin())) {
-                        break;
+                        return Integrator::Control::Break;
                     }
+                    double factor = (1.0_um - ds).value();
                     Tr *= vr.sigma_a(ray.origin(), Vector3D(), 0.0);
                     if(vr.Density(ray.origin()) > 60) {
                         Lv += Tr * vr.Lve(ray.origin(), Vector3D(), 0.0);
                         photonFlowAssert(!Lv.hasNaNs());
                     }
                     if(Tr < Spectrum(0.01)) {
-                        break;
+                        return Integrator::Control::Break;
                     }
-                }
+                    return Integrator::Control::Continue;
+                });
 
                 Spectrum final = Lv / omp_get_num_threads();
 

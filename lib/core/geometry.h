@@ -37,6 +37,7 @@
 #define PBRT_CORE_GEOMETRY_H
 
 #include <cmath>
+#include <boost/units/cmath.hpp>
 #include <ostream>
 
 #include "../core/common.h"
@@ -60,7 +61,7 @@ public:
         : x(xx), y(yy), z(zz) {
         photonFlowAssert(!hasNaNs());
     }
-//    bool hasNaNs() const { return isnan(x) || isnan(y) || isnan(z); }
+    //    bool hasNaNs() const { return isnan(x) || isnan(y) || isnan(z); }
     bool hasNaNs() const { return false; }
     explicit GeneralVector3D(const Point3D &p);
 #ifndef NDEBUG
@@ -148,21 +149,22 @@ public:
         return x != v.x || y != v.y || z != v.z;
     }
 
-    friend std::ostream& operator<< (std::ostream &out, const GeneralVector3D &vector);
+    template<typename U>
+    friend std::ostream& operator<< (std::ostream &out, const GeneralVector3D<U> &vector);
 
     GeneralVector3D perpendicular() const
     {
-        if(x == 0.0 && y == 0.0) {
-            if(z == 0.0) {
-                return GeneralVector3D(0.0, 0.0, 0.0);
+        if(x == 0.0 * T() && y == 0.0 * T()) {
+            if(z == 0.0 * T()) {
+                return GeneralVector3D(0.0 * T(), 0.0 * T(), 0.0 * T());
             }
-            return GeneralVector3D(0.0, 1.0, 0.0);
+            return GeneralVector3D(0.0 * T(), 1.0 * T(), 0.0 * T());
         }
-        return GeneralVector3D(-y, x, 0.0);
+        return GeneralVector3D(-y, x, 0.0 * T());
     }
 
     GeneralVector3D normalized() {
-        return *this / length();
+        return *this / length().value();
     }
 
     // Vector Public Data
@@ -319,8 +321,12 @@ public:
         x *= inv; y *= inv; z *= inv;
         return *this;
     }
-    auto lengthSquared() const { return x*x + y*y + z*z; }
-    auto length() const        { return sqrt(lengthSquared()); }
+    auto lengthSquared() const {
+        return x*x + y*y + z*z;
+    }
+    auto length() const {
+        return sqrt(lengthSquared());
+    }
 
 #ifndef NDEBUG
     Normal(const Normal &n) {
@@ -335,7 +341,7 @@ public:
     }
 #endif // !NDEBUG
     explicit Normal(const GeneralVector3D<boost::units::photonflow::length> &v)
-      : x(v.x), y(v.y), z(v.z) {
+        : x(v.x), y(v.y), z(v.z) {
         photonFlowAssert(!v.hasNaNs());
     }
     boost::units::photonflow::length operator[](int i) const {
@@ -363,15 +369,15 @@ class Ray {
 public:
     // Ray Public Methods
     Ray()
-        : m_mint(0.0_us)
-        , m_maxt(double(INFINITY) * 1.0_us)
+        : m_mint(0.0)
+        , m_maxt(INFINITY)
         , m_time(0.0_us)
         , m_depth(0)
     { }
 
     Ray(const Point3D &origin, const GeneralVector3D<boost::units::photonflow::length> &direction,
-        boost::units::photonflow::time start = 0.0_us,
-        boost::units::photonflow::time end = double(INFINITY) * 1.0_us,
+        double start = 0.0,
+        double end = INFINITY,
         boost::units::photonflow::time t = 0.0_us,
         int d = 0)
         : m_origin(origin)
@@ -383,8 +389,8 @@ public:
     { }
 
     Ray(const Point3D &origin, const GeneralVector3D<boost::units::photonflow::length> &direction, const Ray &parent,
-        boost::units::photonflow::time start = 0.0_us,
-        boost::units::photonflow::time end = double(INFINITY) * 1.0_us)
+        double start = 0.0,
+        double end = INFINITY)
         : m_origin(origin)
         , m_direction(direction)
         , m_mint(start)
@@ -393,7 +399,9 @@ public:
         , m_depth(parent.m_depth+1)
     { }
 
-    Point3D operator()(double t) const { return m_origin + m_direction * t; }
+    Point3D operator()(double t) const {
+        return m_origin + m_direction * t;
+    }
     bool hasNaNs() const {
         return (m_origin.hasNaNs() || m_direction.hasNaNs() ||
                 isnan(m_mint) || isnan(m_maxt));
@@ -409,8 +417,8 @@ public:
     // Ray Public Data
     Point3D m_origin;
     GeneralVector3D<boost::units::photonflow::length> m_direction;
-    mutable boost::units::photonflow::time m_mint;
-    mutable boost::units::photonflow::time m_maxt;
+    mutable double m_mint;
+    mutable double m_maxt;
     boost::units::photonflow::time m_time;
     int m_depth;
 };
@@ -421,25 +429,25 @@ public:
     // RayDifferential Public Methods
     RayDifferential() { hasDifferentials = false; }
     RayDifferential(const Point3D &org, const Vector3D &dir,
-                    boost::units::photonflow::time start = 0.0_us,
-                    boost::units::photonflow::time end = double(INFINITY) * 1.0_us,
+                    double start = 0.0,
+                    double end = INFINITY,
                     boost::units::photonflow::time t = 0.0_us,
                     int d = 0)
-            : Ray(org, dir, start, end, t, d) {
+        : Ray(org, dir, start, end, t, d) {
         hasDifferentials = false;
     }
-//    RayDifferential(const Point3D &org, const GeneralVector3D<boost::units::photonflow::length> &dir, const Ray &parent,
-//        double start, double end = INFINITY)
-//            : Ray(org, dir, start, end, parent.m_time, parent.m_depth+1) {
-//        hasDifferentials = false;
-//    }
+    //    RayDifferential(const Point3D &org, const GeneralVector3D<boost::units::photonflow::length> &dir, const Ray &parent,
+    //        double start, double end = INFINITY)
+    //            : Ray(org, dir, start, end, parent.m_time, parent.m_depth+1) {
+    //        hasDifferentials = false;
+    //    }
     explicit RayDifferential(const Ray &ray) : Ray(ray) {
         hasDifferentials = false;
     }
     bool hasNaNs() const {
         return Ray::hasNaNs() ||
-           (hasDifferentials && (rxOrigin.hasNaNs() || ryOrigin.hasNaNs() ||
-                                 rxDirection.hasNaNs() || ryDirection.hasNaNs()));
+                (hasDifferentials && (rxOrigin.hasNaNs() || ryOrigin.hasNaNs() ||
+                                      rxDirection.hasNaNs() || ryDirection.hasNaNs()));
     }
     void scaleDifferentials(double s) {
         rxOrigin = m_origin + (rxOrigin - m_origin) * s;
@@ -511,14 +519,14 @@ public:
     Point3D &operator[](int i);
     Point3D lerp(double tx, double ty, double tz) const {
         return Point3D(::lerp(tx, pMin.x, pMax.x), ::lerp(ty, pMin.y, pMax.y),
-                     ::lerp(tz, pMin.z, pMax.z));
+                       ::lerp(tz, pMin.z, pMax.z));
     }
-//    GeneralVector3D<boost::units::photonflow::length> offset(const Point3D &p) const {
-//        return GeneralVector3D<boost::units::photonflow::length>((p.x - pMin.x) / (pMax.x - pMin.x),
-//                      (p.y - pMin.y) / (pMax.y - pMin.y),
-//                      (p.z - pMin.z) / (pMax.z - pMin.z));
-//    }
-    void boundingSphere(Point3D *c, double *rad) const;
+    Vector3D offset(const Point3D &p) const {
+        return Vector3D((p.x - pMin.x) / (pMax.x - pMin.x) * 1.0_um,
+                        (p.y - pMin.y) / (pMax.y - pMin.y) * 1.0_um,
+                        (p.z - pMin.z) / (pMax.z - pMin.z) * 1.0_um);
+    }
+    void boundingSphere(Point3D *c, boost::units::photonflow::length *rad) const;
     bool intersectP(const Ray &ray, double *hitt0 = NULL, double *hitt1 = NULL) const;
 
     bool operator==(const BBox &b) const {
@@ -547,7 +555,7 @@ inline GeneralVector3D<T> operator*(double f, const GeneralVector3D<T> &v) {
 }
 
 template<typename T>
-inline T dot(const GeneralVector3D<T> &v1, const GeneralVector3D<T> &v2) {
+inline auto dot(const GeneralVector3D<T> &v1, const GeneralVector3D<T> &v2) {
     photonFlowAssert(!v1.hasNaNs() && !v2.hasNaNs());
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
@@ -560,17 +568,18 @@ inline auto absDot(const auto &v1, const auto &v2) {
 
 
 template<typename T>
-inline GeneralVector3D<T> cross(const auto &v1, const auto &v2) {
+inline auto cross(const GeneralVector3D<T> &v1, const GeneralVector3D<T> &v2) {
     photonFlowAssert(!v1.hasNaNs() && !v2.hasNaNs());
     auto v1x = v1.x, v1y = v1.y, v1z = v1.z;
     auto v2x = v2.x, v2y = v2.y, v2z = v2.z;
-    return GeneralVector3D<T>((v1y * v2z) - (v1z * v2y),
-                  (v1z * v2x) - (v1x * v2z),
-                  (v1x * v2y) - (v1y * v2x));
+    return GeneralVector3D<T>(
+                ((v1y * v2z) - (v1z * v2y)),
+                ((v1z * v2x) - (v1x * v2z)),
+                ((v1x * v2y) - (v1y * v2x)));
 }
 
 inline auto normalize(const auto &v) {
-    return v / v.length();
+    return v / v.length().value();
 }
 
 //inline void coordinateSystem(const GeneralVector3D &v1, GeneralVector3D *v2, GeneralVector3D *v3) {
@@ -607,12 +616,12 @@ inline Normal operator*(double f, const Normal &n) {
 
 
 inline Normal normalize(const Normal &n) {
-    return n / n.length();
+    return n / n.length().value();
 }
 
 template<typename T>
 inline GeneralVector3D<T>::GeneralVector3D(const Normal &n)
-  : x(n.x), y(n.y), z(n.z) {
+    : x(n.x), y(n.y), z(n.z) {
     photonFlowAssert(!n.hasNaNs());
 }
 

@@ -265,14 +265,14 @@ void rejectionSampleDisk(double *x, double *y, RNG &rng) {
 }
 
 
-Vector3D uniformSampleHemisphere(double u1, double u2) {
-    double z = u1;
-    double r = sqrtf(max(0.0, 1.f - z*z));
-    double phi = 2 * M_PI * u2;
-    double x = r * cosf(phi);
-    double y = r * sinf(phi);
-    return Vector3D(x, y, z);
-}
+//Vector3D uniformSampleHemisphere(double u1, double u2) {
+//    double z = u1;
+//    double r = sqrtf(max(0.0, 1.f - z*z));
+//    double phi = 2 * M_PI * u2;
+//    double x = r * cosf(phi);
+//    double y = r * sinf(phi);
+//    return Vector3D(x, y, z);
+//}
 
 
 double uniformHemispherePdf() {
@@ -280,14 +280,14 @@ double uniformHemispherePdf() {
 }
 
 
-Vector3D uniformSampleSphere(double u1, double u2) {
-    double z = 1.f - 2.f * u1;
-    double r = sqrtf(max(0.0, 1.f - z*z));
-    double phi = 2.f * M_PI * u2;
-    double x = r * cosf(phi);
-    double y = r * sinf(phi);
-    return Vector3D(x, y, z);
-}
+//Vector3D uniformSampleSphere(double u1, double u2) {
+//    double z = 1.f - 2.f * u1;
+//    double r = sqrtf(max(0.0, 1.f - z*z));
+//    double phi = 2.f * M_PI * u2;
+//    double x = r * cosf(phi);
+//    double y = r * sinf(phi);
+//    return Vector3D(x, y, z);
+//}
 
 
 double uniformSpherePdf() {
@@ -402,39 +402,39 @@ double uniformConePdf(double cosThetaMax) {
 }
 
 
-Vector3D uniformSampleCone(double u1, double u2, double costhetamax) {
-    double costheta = (1.f - u1) + u1 * costhetamax;
-    double sintheta = sqrtf(1.f - costheta*costheta);
-    double phi = u2 * 2.f * M_PI;
-    return Vector3D(cosf(phi) * sintheta, sinf(phi) * sintheta, costheta);
-}
+//Vector3D uniformSampleCone(double u1, double u2, double costhetamax) {
+//    double costheta = (1.f - u1) + u1 * costhetamax;
+//    double sintheta = sqrtf(1.f - costheta*costheta);
+//    double phi = u2 * 2.f * M_PI;
+//    return Vector3D(cosf(phi) * sintheta, sinf(phi) * sintheta, costheta);
+//}
 
 
-Vector3D uniformSampleCone(double u1, double u2, double costhetamax,
-        const Vector3D &x, const Vector3D &y, const Vector3D &z) {
-    double costheta = lerp(u1, costhetamax, 1.f);
-    double sintheta = sqrtf(1.f - costheta*costheta);
-    double phi = u2 * 2.f * M_PI;
-    return cosf(phi) * sintheta * x + sinf(phi) * sintheta * y +
-        costheta * z;
-}
+//Vector3D uniformSampleCone(double u1, double u2, double costhetamax,
+//        const Vector3D &x, const Vector3D &y, const Vector3D &z) {
+//    double costheta = lerp(u1, costhetamax, 1.f);
+//    double sintheta = sqrtf(1.f - costheta*costheta);
+//    double phi = u2 * 2.f * M_PI;
+//    return cosf(phi) * sintheta * x + sinf(phi) * sintheta * y +
+//        costheta * z;
+//}
 
 
-Vector3D sampleHG(const Vector3D &w, double g, double u1, double u2) {
-    double costheta;
-    if (fabsf(g) < 1e-3)
-        costheta = 1.f - 2.f * u1;
-    else {
-        double sqrTerm = (1.f - g * g) /
-                        (1.f - g + 2.f * g * u1);
-        costheta = (1.f + g * g - sqrTerm * sqrTerm) / (2.f * g);
-    }
-    double sintheta = sqrtf(max(0.0, 1.f-costheta*costheta));
-    double phi = 2.f * M_PI * u2;
-    Vector3D v1, v2;
-    coordinateSystem(w, &v1, &v2);
-    return sphericalDirection(sintheta, costheta, phi, v1, v2, w);
-}
+//Vector3D sampleHG(const Vector3D &w, double g, double u1, double u2) {
+//    double costheta;
+//    if (fabsf(g) < 1e-3)
+//        costheta = 1.f - 2.f * u1;
+//    else {
+//        double sqrTerm = (1.f - g * g) /
+//                        (1.f - g + 2.f * g * u1);
+//        costheta = (1.f + g * g - sqrTerm * sqrTerm) / (2.f * g);
+//    }
+//    double sintheta = sqrtf(max(0.0, 1.f-costheta*costheta));
+//    double phi = 2.f * M_PI * u2;
+//    Vector3D v1, v2;
+//    coordinateSystem(w, &v1, &v2);
+//    return sphericalDirection(sintheta, costheta, phi, v1, v2, w);
+//}
 
 
 //double HGPdf(const Vector &w, const Vector &wp, double g) {

@@ -64,8 +64,8 @@ public:
     virtual double p(const Point3D &, const Vector3D &,
                     const Vector3D &, double time) const = 0;
     virtual Spectrum sigma_t(const Point3D &p, const Vector3D &wo, double time) const;
-    virtual Spectrum tau(const Ray &ray, double step = 1.f,
-                         double offset = 0.5) const = 0;
+//    virtual Spectrum tau(const Ray &ray, double step = 1.f,
+//                         double offset = 0.5) const = 0;
 };
 
 
@@ -96,7 +96,7 @@ public:
         UNUSED(p);
         return PhaseHG(w, wp, g);
     }
-    Spectrum tau(const Ray &r, double stepSize, double offset) const;
+//    Spectrum tau(const Ray &r, double stepSize, double offset) const;
 protected:
     // DensityRegion Protected Data
     Spectrum sig_a;
@@ -108,24 +108,24 @@ protected:
 };
 
 
-class AggregateVolume : public VolumeRegion {
-public:
-    // AggregateVolume Public Methods
-    AggregateVolume(const vector<VolumeRegion *> &r);
-    ~AggregateVolume();
-    BBox worldBound() const;
-    bool intersectP(const Ray &ray, double *t0, double *t1) const;
-    Spectrum sigma_a(const Point3D &, const Vector3D &, double) const;
-    Spectrum sigma_s(const Point3D &, const Vector3D &, double) const;
-    Spectrum Lve(const Point3D &, const Vector3D &, double) const;
-    double p(const Point3D &, const Vector3D &, const Vector3D &, double) const;
-    Spectrum sigma_t(const Point3D &, const Vector3D &, double) const;
-    Spectrum tau(const Ray &ray, double, double) const;
-private:
-    // AggregateVolume Private Data
-    vector<VolumeRegion *> regions;
-    BBox bound;
-};
+//class AggregateVolume : public VolumeRegion {
+//public:
+//    // AggregateVolume Public Methods
+//    AggregateVolume(const vector<VolumeRegion *> &r);
+//    ~AggregateVolume();
+//    BBox worldBound() const;
+//    bool intersectP(const Ray &ray, double *t0, double *t1) const;
+//    Spectrum sigma_a(const Point3D &, const Vector3D &, double) const;
+//    Spectrum sigma_s(const Point3D &, const Vector3D &, double) const;
+//    Spectrum Lve(const Point3D &, const Vector3D &, double) const;
+//    double p(const Point3D &, const Vector3D &, const Vector3D &, double) const;
+//    Spectrum sigma_t(const Point3D &, const Vector3D &, double) const;
+//    Spectrum tau(const Ray &ray, double, double) const;
+//private:
+//    // AggregateVolume Private Data
+//    vector<VolumeRegion *> regions;
+//    BBox bound;
+//};
 
 
 bool volumeScatteringProperties(const std::string &name, Spectrum *sigma_a,

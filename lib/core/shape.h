@@ -70,16 +70,16 @@ public:
         Severe("Unimplemented Shape::Sample() method called");
         return Point3D();
     }
-    virtual double probabilityDistributionFunction(const Point3D &Pshape) const {
-        UNUSED(Pshape);
-        return 1.f / area();
-    }
+//    virtual double probabilityDistributionFunction(const Point3D &Pshape) const {
+//        UNUSED(Pshape);
+//        return 1.f / area();
+//    }
     virtual Point3D sample(const Point3D &P, double u1, double u2,
                          Normal *Ns) const {
         UNUSED(P);
         return sample(u1, u2, Ns);
     }
-    virtual double probabilityDistributionFunction(const Point3D &p, const Vector3D &wi) const;
+//    virtual double probabilityDistributionFunction(const Point3D &p, const Vector3D &wi) const;
 
     // Shape Public Data
     const Transform *ObjectToWorld, *WorldToObject;

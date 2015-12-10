@@ -68,9 +68,9 @@ inline bool VolumeGridDensity::intersectP(const Ray &r, double *t0, double *t1) 
 }
 
 inline double VolumeGridDensity::D(int x, int y, int z) const {
-    x = clamp(x, 0, density.n_rows-1);
-    y = clamp(y, 0, density.n_cols-1);
-    z = clamp(z, 0, density.n_slices-1);
+    x = clamp(x, 0, int(density.n_rows-1));
+    y = clamp(y, 0, int(density.n_cols-1));
+    z = clamp(z, 0, int(density.n_slices-1));
     double value = 0.0;
     try {
         value = density(x, y, z);

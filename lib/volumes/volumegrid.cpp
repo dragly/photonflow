@@ -60,12 +60,12 @@ double VolumeGridDensity::Density(const Point3D &Pobj) const {
 
     // Compute voxel coordinates and offsets for _Pobj_
     Vector3D vox = extent.offset(local);
-    vox.x = vox.x * density.n_rows; // - .5f;
-    vox.y = vox.y * density.n_cols; // - .5f;
-    vox.z = vox.z * density.n_slices; // - .5f;
-    int vx = Floor2Int(vox.x);
-    int vy = Floor2Int(vox.y);
-    int vz = Floor2Int(vox.z);
+    vox.x = vox.x * double(density.n_rows); // - .5f;
+    vox.y = vox.y * double(density.n_cols); // - .5f;
+    vox.z = vox.z * double(density.n_slices); // - .5f;
+    int vx = Floor2Int(vox.x.value());
+    int vy = Floor2Int(vox.y.value());
+    int vz = Floor2Int(vox.z.value()); // TODO: Is this proper with dimensions?
 //    double dx = vox.x - vx;
 //    double dy = vox.y - vy;
 //    double dz = vox.z - vz;

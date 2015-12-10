@@ -37,79 +37,79 @@
 #include "shape.h"
 
 // DifferentialGeometry Method Definitions
-DifferentialGeometry::DifferentialGeometry(const Point3D &P,
-        const Vector3D &DPDU, const Vector3D &DPDV,
-        const Normal &DNDU, const Normal &DNDV,
-        double uu, double vv, const Shape *sh)
-    : p(P), dpdu(DPDU), dpdv(DPDV), dndu(DNDU), dndv(DNDV) {
-    // Initialize _DifferentialGeometry_ from parameters
-    nn = Normal(normalize(cross(dpdu, dpdv)));
-    u = uu;
-    v = vv;
-    shape = sh;
-    dudx = dvdx = dudy = dvdy = 0;
+//DifferentialGeometry::DifferentialGeometry(const Point3D &P,
+//        const Vector3D &DPDU, const Vector3D &DPDV,
+//        const Normal &DNDU, const Normal &DNDV,
+//        double uu, double vv, const Shape *sh)
+//    : p(P), dpdu(DPDU), dpdv(DPDV), dndu(DNDU), dndv(DNDV) {
+//    // Initialize _DifferentialGeometry_ from parameters
+//    nn = Normal(normalize(cross(dpdu, dpdv)));
+//    u = uu;
+//    v = vv;
+//    shape = sh;
+//    dudx = dvdx = dudy = dvdy = 0;
 
-    // Adjust normal based on orientation and handedness
-    if (shape && (shape->ReverseOrientation ^ shape->TransformSwapsHandedness))
-        nn *= -1.f;
-}
+//    // Adjust normal based on orientation and handedness
+//    if (shape && (shape->ReverseOrientation ^ shape->TransformSwapsHandedness))
+//        nn *= -1.f;
+//}
 
 
-void DifferentialGeometry::computeDifferentials(
-        const RayDifferential &ray) const {
-    if (ray.hasDifferentials) {
-        // Estimate screen space change in $\pt{}$ and $(u,v)$
+//void DifferentialGeometry::computeDifferentials(
+//        const RayDifferential &ray) const {
+//    if (ray.hasDifferentials) {
+//        // Estimate screen space change in $\pt{}$ and $(u,v)$
 
-        // Compute auxiliary intersection points with plane
-        double d = -dot(nn, Vector3D(p.x, p.y, p.z));
-        Vector3D rxv(ray.rxOrigin.x, ray.rxOrigin.y, ray.rxOrigin.z);
-        double tx = -(dot(nn, rxv) + d) / dot(nn, ray.rxDirection);
-        if (isnan(tx)) goto fail;
-        Point3D px = ray.rxOrigin + tx * ray.rxDirection;
-        Vector3D ryv(ray.ryOrigin.x, ray.ryOrigin.y, ray.ryOrigin.z);
-        double ty = -(dot(nn, ryv) + d) / dot(nn, ray.ryDirection);
-        if (isnan(ty)) goto fail;
-        Point3D py = ray.ryOrigin + ty * ray.ryDirection;
-        dpdx = px - p;
-        dpdy = py - p;
+//        // Compute auxiliary intersection points with plane
+//        double d = -dot(nn, Vector3D(p.x, p.y, p.z));
+//        Vector3D rxv(ray.rxOrigin.x, ray.rxOrigin.y, ray.rxOrigin.z);
+//        double tx = -(dot(nn, rxv) + d) / dot(nn, ray.rxDirection);
+//        if (isnan(tx)) goto fail;
+//        Point3D px = ray.rxOrigin + tx * ray.rxDirection;
+//        Vector3D ryv(ray.ryOrigin.x, ray.ryOrigin.y, ray.ryOrigin.z);
+//        double ty = -(dot(nn, ryv) + d) / dot(nn, ray.ryDirection);
+//        if (isnan(ty)) goto fail;
+//        Point3D py = ray.ryOrigin + ty * ray.ryDirection;
+//        dpdx = px - p;
+//        dpdy = py - p;
 
-        // Compute $(u,v)$ offsets at auxiliary points
+//        // Compute $(u,v)$ offsets at auxiliary points
 
-        // Initialize _A_, _Bx_, and _By_ matrices for offset computation
-        double A[2][2], Bx[2], By[2];
-        int axes[2];
-        if (fabsf(nn.x) > fabsf(nn.y) && fabsf(nn.x) > fabsf(nn.z)) {
-            axes[0] = 1; axes[1] = 2;
-        }
-        else if (fabsf(nn.y) > fabsf(nn.z)) {
-            axes[0] = 0; axes[1] = 2;
-        }
-        else {
-            axes[0] = 0; axes[1] = 1;
-        }
+//        // Initialize _A_, _Bx_, and _By_ matrices for offset computation
+//        double A[2][2], Bx[2], By[2];
+//        int axes[2];
+//        if (fabsf(nn.x) > fabsf(nn.y) && fabsf(nn.x) > fabsf(nn.z)) {
+//            axes[0] = 1; axes[1] = 2;
+//        }
+//        else if (fabsf(nn.y) > fabsf(nn.z)) {
+//            axes[0] = 0; axes[1] = 2;
+//        }
+//        else {
+//            axes[0] = 0; axes[1] = 1;
+//        }
 
-        // Initialize matrices for chosen projection plane
-        A[0][0] = dpdu[axes[0]];
-        A[0][1] = dpdv[axes[0]];
-        A[1][0] = dpdu[axes[1]];
-        A[1][1] = dpdv[axes[1]];
-        Bx[0] = px[axes[0]] - p[axes[0]];
-        Bx[1] = px[axes[1]] - p[axes[1]];
-        By[0] = py[axes[0]] - p[axes[0]];
-        By[1] = py[axes[1]] - p[axes[1]];
-        if (!solveLinearSystem2x2(A, Bx, &dudx, &dvdx)) {
-            dudx = 0.; dvdx = 0.;
-        }
-        if (!solveLinearSystem2x2(A, By, &dudy, &dvdy)) {
-            dudy = 0.; dvdy = 0.;
-        }
-    }
-    else {
-fail:
-        dudx = dvdx = 0.;
-        dudy = dvdy = 0.;
-        dpdx = dpdy = Vector3D(0,0,0);
-    }
-}
+//        // Initialize matrices for chosen projection plane
+//        A[0][0] = dpdu[axes[0]];
+//        A[0][1] = dpdv[axes[0]];
+//        A[1][0] = dpdu[axes[1]];
+//        A[1][1] = dpdv[axes[1]];
+//        Bx[0] = px[axes[0]] - p[axes[0]];
+//        Bx[1] = px[axes[1]] - p[axes[1]];
+//        By[0] = py[axes[0]] - p[axes[0]];
+//        By[1] = py[axes[1]] - p[axes[1]];
+//        if (!solveLinearSystem2x2(A, Bx, &dudx, &dvdx)) {
+//            dudx = 0.; dvdx = 0.;
+//        }
+//        if (!solveLinearSystem2x2(A, By, &dudy, &dvdy)) {
+//            dudy = 0.; dvdy = 0.;
+//        }
+//    }
+//    else {
+//fail:
+//        dudx = dvdx = 0.;
+//        dudy = dvdy = 0.;
+//        dpdx = dpdy = Vector3D(0,0,0);
+//    }
+//}
 
 

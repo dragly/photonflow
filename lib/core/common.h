@@ -135,9 +135,19 @@ bool isnan(boost::units::quantity<T> val) {
     return isnan(val.value());
 }
 
+//template<typename T>
+//auto sqrt(boost::units::quantity<T> val) {
+//    return sqrt(val.value());
+//}
+
 template<typename T>
-auto sqrt(boost::units::quantity<T> val) {
-    return sqrt(val.value());
+auto min(boost::units::quantity<T> val) {
+    return min(val.value());
+}
+
+template<typename T>
+auto max(boost::units::quantity<T> val) {
+    return max(val.value());
 }
 
 #ifdef NDEBUG

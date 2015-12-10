@@ -143,40 +143,40 @@ double PhaseIsotropic(const Vector3D &, const Vector3D &) {
 }
 
 
-double PhaseRayleigh(const Vector3D &w, const Vector3D &wp) {
-    double costheta = dot(w, wp);
-    return  3.f/(16.f*M_PI) * (1 + costheta * costheta);
-}
+//double PhaseRayleigh(const Vector3D &w, const Vector3D &wp) {
+//    double costheta = dot(w, wp);
+//    return  3.f/(16.f*M_PI) * (1 + costheta * costheta);
+//}
 
 
-double PhaseMieHazy(const Vector3D &w, const Vector3D &wp) {
-    double costheta = dot(w, wp);
-    return (0.5f + 4.5f * powf(0.5 * (1.f + costheta), 8.f)) / (4.f*M_PI);
-}
+//double PhaseMieHazy(const Vector3D &w, const Vector3D &wp) {
+//    double costheta = dot(w, wp);
+//    return (0.5f + 4.5f * powf(0.5 * (1.f + costheta), 8.f)) / (4.f*M_PI);
+//}
 
 
-double PhaseMieMurky(const Vector3D &w, const Vector3D &wp) {
-    double costheta = dot(w, wp);
-    return (0.5f + 16.5f * powf(0.5 * (1.f + costheta), 32.f)) / (4.f*M_PI);
-}
+//double PhaseMieMurky(const Vector3D &w, const Vector3D &wp) {
+//    double costheta = dot(w, wp);
+//    return (0.5f + 16.5f * powf(0.5 * (1.f + costheta), 32.f)) / (4.f*M_PI);
+//}
 
 
 double PhaseHG(const Vector3D &w, const Vector3D &wp, double g) {
-    double costheta = dot(w, wp);
+    double costheta = dot(w, wp).value();
     return 1.f / (4.f * M_PI) *
         (1.f - g*g) / powf(1.f + g*g - 2.f * g * costheta, 1.5f);
 }
 
 
-double PhaseSchlick(const Vector3D &w, const Vector3D &wp, double g) {
-    // improved g->k mapping derived by Thies Heidecke
-    // see http://pbrt.org/bugtracker/view.php?id=102
-    double alpha = 1.5f;
-    double k = alpha * g + (1.f - alpha) * g * g * g;
-    double kcostheta = k * dot(w, wp);
-    return 1.f / (4.f * M_PI) *
-        (1.f - k*k) / ((1.f - kcostheta) * (1.f - kcostheta));
-}
+//double PhaseSchlick(const Vector3D &w, const Vector3D &wp, double g) {
+//    // improved g->k mapping derived by Thies Heidecke
+//    // see http://pbrt.org/bugtracker/view.php?id=102
+//    double alpha = 1.5f;
+//    double k = alpha * g + (1.f - alpha) * g * g * g;
+//    double kcostheta = k * dot(w, wp);
+//    return 1.f / (4.f * M_PI) *
+//        (1.f - k*k) / ((1.f - kcostheta) * (1.f - kcostheta));
+//}
 
 
 Spectrum VolumeRegion::sigma_t(const Point3D &p, const Vector3D &w,
@@ -185,83 +185,83 @@ Spectrum VolumeRegion::sigma_t(const Point3D &p, const Vector3D &w,
 }
 
 
-AggregateVolume::AggregateVolume(const vector<VolumeRegion *> &r) {
-    regions = r;
-    for (uint32_t i = 0; i < regions.size(); ++i)
-        bound = makeUnion(bound, regions[i]->worldBound());
-}
+//AggregateVolume::AggregateVolume(const vector<VolumeRegion *> &r) {
+//    regions = r;
+//    for (uint32_t i = 0; i < regions.size(); ++i)
+//        bound = makeUnion(bound, regions[i]->worldBound());
+//}
 
 
-Spectrum AggregateVolume::sigma_a(const Point3D &p, const Vector3D &w,
-                                  double time) const {
-    Spectrum s(0.);
-    for (uint32_t i = 0; i < regions.size(); ++i)
-        s += regions[i]->sigma_a(p, w, time);
-    return s;
-}
+//Spectrum AggregateVolume::sigma_a(const Point3D &p, const Vector3D &w,
+//                                  double time) const {
+//    Spectrum s(0.);
+//    for (uint32_t i = 0; i < regions.size(); ++i)
+//        s += regions[i]->sigma_a(p, w, time);
+//    return s;
+//}
 
 
-Spectrum AggregateVolume::sigma_s(const Point3D &p, const Vector3D &w, double time) const {
-    Spectrum s(0.);
-    for (uint32_t i = 0; i < regions.size(); ++i)
-        s += regions[i]->sigma_s(p, w, time);
-    return s;
-}
+//Spectrum AggregateVolume::sigma_s(const Point3D &p, const Vector3D &w, double time) const {
+//    Spectrum s(0.);
+//    for (uint32_t i = 0; i < regions.size(); ++i)
+//        s += regions[i]->sigma_s(p, w, time);
+//    return s;
+//}
 
 
-Spectrum AggregateVolume::Lve(const Point3D &p, const Vector3D &w, double time) const {
-    Spectrum L(0.);
-    for (uint32_t i = 0; i < regions.size(); ++i)
-        L += regions[i]->Lve(p, w, time);
-    return L;
-}
+//Spectrum AggregateVolume::Lve(const Point3D &p, const Vector3D &w, double time) const {
+//    Spectrum L(0.);
+//    for (uint32_t i = 0; i < regions.size(); ++i)
+//        L += regions[i]->Lve(p, w, time);
+//    return L;
+//}
 
 
-double AggregateVolume::p(const Point3D &p, const Vector3D &w, const Vector3D &wp,
-        double time) const {
-    double ph = 0, sumWt = 0;
-    for (uint32_t i = 0; i < regions.size(); ++i) {
-        double wt = regions[i]->sigma_s(p, w, time).y();
-        sumWt += wt;
-        ph += wt * regions[i]->p(p, w, wp, time);
-    }
-    return ph / sumWt;
-}
+//double AggregateVolume::p(const Point3D &p, const Vector3D &w, const Vector3D &wp,
+//        double time) const {
+//    double ph = 0, sumWt = 0;
+//    for (uint32_t i = 0; i < regions.size(); ++i) {
+//        double wt = regions[i]->sigma_s(p, w, time).y();
+//        sumWt += wt;
+//        ph += wt * regions[i]->p(p, w, wp, time);
+//    }
+//    return ph / sumWt;
+//}
 
 
-Spectrum AggregateVolume::sigma_t(const Point3D &p, const Vector3D &w, double time) const {
-    Spectrum s(0.);
-    for (uint32_t i = 0; i < regions.size(); ++i)
-        s += regions[i]->sigma_t(p, w, time);
-    return s;
-}
+//Spectrum AggregateVolume::sigma_t(const Point3D &p, const Vector3D &w, double time) const {
+//    Spectrum s(0.);
+//    for (uint32_t i = 0; i < regions.size(); ++i)
+//        s += regions[i]->sigma_t(p, w, time);
+//    return s;
+//}
 
 
-Spectrum AggregateVolume::tau(const Ray &ray, double step, double offset) const {
-    Spectrum t(0.);
-    for (uint32_t i = 0; i < regions.size(); ++i)
-        t += regions[i]->tau(ray, step, offset);
-    return t;
-}
+//Spectrum AggregateVolume::tau(const Ray &ray, double step, double offset) const {
+//    Spectrum t(0.);
+//    for (uint32_t i = 0; i < regions.size(); ++i)
+//        t += regions[i]->tau(ray, step, offset);
+//    return t;
+//}
 
 
-bool AggregateVolume::intersectP(const Ray &ray,
-                                 double *t0, double *t1) const {
-    *t0 = INFINITY;
-    *t1 = -INFINITY;
-    for (uint32_t i = 0; i < regions.size(); ++i) {
-        double tr0, tr1;
-        if (regions[i]->intersectP(ray, &tr0, &tr1)) {
-            *t0 = min(*t0, tr0);
-            *t1 = max(*t1, tr1);
-        }
-    }
-    return (*t0 < *t1);
-}
+//bool AggregateVolume::intersectP(const Ray &ray,
+//                                 double *t0, double *t1) const {
+//    *t0 = INFINITY;
+//    *t1 = -INFINITY;
+//    for (uint32_t i = 0; i < regions.size(); ++i) {
+//        double tr0, tr1;
+//        if (regions[i]->intersectP(ray, &tr0, &tr1)) {
+//            *t0 = min(*t0, tr0);
+//            *t1 = max(*t1, tr1);
+//        }
+//    }
+//    return (*t0 < *t1);
+//}
 
-BBox AggregateVolume::worldBound() const {
-    return bound;
-}
+//BBox AggregateVolume::worldBound() const {
+//    return bound;
+//}
 
 
 bool volumeScatteringProperties(const std::string &name, Spectrum *sigma_a,
@@ -299,20 +299,20 @@ DensityRegion::DensityRegion()
 {
 }
 
-Spectrum DensityRegion::tau(const Ray &r, double stepSize,
-                            double u) const {
-    double t0, t1;
-    double length = r.m_direction.length();
-    if (length == 0.0) return 0.0;
-    Ray rn(r.m_origin, r.m_direction / length, r.m_mint * length, r.m_maxt * length, r.m_time);
-    if (!intersectP(rn, &t0, &t1)) return 0.;
-    Spectrum tau(0.);
-    t0 += u * stepSize;
-    while (t0 < t1) {
-        tau += sigma_t(rn(t0), -rn.m_direction, r.m_time);
-        t0 += stepSize;
-    }
-    return tau * stepSize;
-}
+//Spectrum DensityRegion::tau(const Ray &r, double stepSize,
+//                            double u) const {
+//    double t0, t1;
+//    auto length = r.m_direction.length();
+//    if (length == 0.0) return 0.0;
+//    Ray rn(r.m_origin, r.m_direction / length, r.m_mint * length, r.m_maxt * length, r.m_time);
+//    if (!intersectP(rn, &t0, &t1)) return 0.;
+//    Spectrum tau(0.);
+//    t0 += u * stepSize;
+//    while (t0 < t1) {
+//        tau += sigma_t(rn(t0), -rn.m_direction, r.m_time);
+//        t0 += stepSize;
+//    }
+//    return tau * stepSize;
+//}
 
 

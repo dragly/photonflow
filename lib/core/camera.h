@@ -51,16 +51,16 @@ class CameraSample;
 class Camera {
 public:
     // Camera Interface
-    Camera(const Transform &cam2world, double sopen, double sclose,
+    Camera(const Transform &cam2world, boost::units::photonflow::time sopen, boost::units::photonflow::time sclose,
            std::shared_ptr<Film> film);
     virtual ~Camera();
     virtual double generateRay(const CameraSample &sample,
                               Ray *ray) const = 0;
-    virtual double generateRayDifferential(const CameraSample &sample, RayDifferential *rd) const;
+//    virtual double generateRayDifferential(const CameraSample &sample, RayDifferential *rd) const;
 
     // Camera Public Data
     Transform CameraToWorld;
-    const double shutterOpen, shutterClose;
+    const boost::units::photonflow::time shutterOpen, shutterClose;
     std::shared_ptr<Film> film;
 };
 
@@ -69,13 +69,18 @@ class ProjectiveCamera : public Camera {
 public:
     // ProjectiveCamera Public Methods
     ProjectiveCamera(const Transform &cam2world,
-        const Transform &proj, const Rectangle &screenWindow,
-        double sopen, double sclose, double lensr, double focald, std::shared_ptr<Film> film);
+                     const Transform &proj,
+                     const Rectangle &screenWindow,
+                     boost::units::photonflow::time sopen,
+                     boost::units::photonflow::time sclose,
+                     boost::units::photonflow::length lensr,
+                     boost::units::photonflow::length focald,
+                     std::shared_ptr<Film> film);
 protected:
     // ProjectiveCamera Protected Data
     Transform CameraToScreen, RasterToCamera;
     Transform ScreenToRaster, RasterToScreen;
-    double lensRadius, focalDistance;
+    boost::units::photonflow::length lensRadius, focalDistance;
 };
 
 

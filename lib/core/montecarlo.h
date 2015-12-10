@@ -130,9 +130,11 @@ double  uniformConePdf(double thetamax);
 void uniformSampleDisk(double u1, double u2, double *x, double *y);
 void concentricSampleDisk(double u1, double u2, double *dx, double *dy);
 inline Vector3D cosineSampleHemisphere(double u1, double u2) {
-    Vector3D ret;
-    concentricSampleDisk(u1, u2, &ret.x, &ret.y);
-    ret.z = sqrtf(max(0.0, 1.f - ret.x*ret.x - ret.y*ret.y));
+    double x;
+    double y;
+    concentricSampleDisk(u1, u2, &x, &y);
+    Vector3D ret(x*1.0_um, y*1.0_um, 0.0_um);
+    ret.z = sqrt(max(0.0_um*0.0_um, 1.0_um*1.0_um - ret.x*ret.x - ret.y*ret.y));
     return ret;
 }
 
