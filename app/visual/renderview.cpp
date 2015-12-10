@@ -35,14 +35,15 @@ RenderView::RenderView(QQuickItem *parent)
     data *= 255;
 
     BBox bbox;
-    bbox.pMin = Point3D(-1.0_um, -1.0_um, -1.0_um);
-    bbox.pMax = Point3D(1.0_um, 1.0_um, 1.0_um);
+    boost::units::photonflow::length side = 100.0_um;
+    bbox.pMin = Point3D(-side, -side, -side);
+    bbox.pMax = Point3D(side, side, side);
 
     double gg = 1.0;
 
-    double angle = 3.14;
+    double angle = 0.0;
 
-    Transform translation = translate(Vector3D(0.0_um, 0.0_um, 0.0_um));
+    Transform translation = translate(Vector3D(0.0_um, 0.0_um, 3.0 * side));
     Transform rotation = rotate(angle, Vector3D(0.0_um, 1.0_um, 0.0_um));
 
     Transform boxTransform = translation*rotation;
@@ -84,7 +85,7 @@ void RenderView::integrate()
     const int width = size.width();
     const int height = size.height();
 
-    const Transform cameraTransform = translate(Vector3D(0.0_um, 0.0_um, -3.0_um));
+    const Transform cameraTransform = translate(Vector3D(0.0_um, 0.0_um, 0.0_um));
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const double crop[4] = {0.0, 1.0, 0.0, 1.0};
 
