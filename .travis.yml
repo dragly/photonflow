@@ -17,7 +17,9 @@ install:
   - sudo apt-get -qq install qt55qbs
   - sudo apt-get -qq install libboost-dev
   - sudo apt-get -qq install gcc-5
+  - sudo apt-get -qq install g++-5
 script:
+  - dpkg -L g++-5
   - source /opt/qt55/bin/qt55-env.sh
      && mkdir build
      && cd build
