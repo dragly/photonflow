@@ -25,25 +25,25 @@ RenderView::RenderView(QQuickItem *parent)
 {
     QElapsedTimer timer;
     timer.start();
-//    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
     arma::Cube<short> data;
-    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/volume.hdf5", hdf5_binary);
+    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
+//    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/volume.hdf5", hdf5_binary);
     qDebug() << "Data size:" << data.n_rows << data.n_cols << data.n_slices;
     qDebug() << "Data load time:" << timer.elapsed() << "ms";
     qDebug() << "Data max value: " << data.max();
 
-    data *= 255;
+//    data *= 255;
 
     BBox bbox;
     boost::units::photonflow::length side = 100.0_um;
-    bbox.pMin = Point3D(-side, -side, -side);
-    bbox.pMax = Point3D(side, side, side);
+    bbox.pMin = Point3D(-side, -side, -0.2*side);
+    bbox.pMax = Point3D(side, side, 0.2*side);
 
     double gg = 1.0;
 
-    double angle = 0.0;
+    double angle = 0.5;
 
-    Transform translation = translate(Vector3D(0.0_um, 0.0_um, 3.0 * side));
+    Transform translation = translate(Vector3D(0.1 * side, 0.3 * side, 1.0 * side));
     Transform rotation = rotate(angle, Vector3D(0.0_um, 1.0_um, 0.0_um));
 
     Transform boxTransform = translation*rotation;
@@ -51,14 +51,14 @@ RenderView::RenderView(QQuickItem *parent)
 //    Transform boxTransform;
     cout << "Identity: " << boxTransform.isIdentity() << endl;
 
-    Spectrum sigma_a(0.99);
+    Spectrum sigma_a(0.95);
     Spectrum sigma_s(0.0);
-    Spectrum emita(10.0);
+    Spectrum emita(1.0);
 
     vr = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, data);
 }
 
-static const int threadCount = 1;
+static const int threadCount = 4;
 
 void RenderView::integrate()
 {
@@ -89,7 +89,8 @@ void RenderView::integrate()
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const double crop[4] = {0.0, 1.0, 0.0, 1.0};
 
-    BoxFilter filter(0.5, 0.5);
+    double boxSize = 1.0;
+    BoxFilter filter(boxSize * 0.5, boxSize * 0.5);
 
     if(m_image.size() != size || !film) {
         qDebug() << "Creating image of size" << size;
@@ -188,7 +189,7 @@ void RenderView::integrate()
             Pixel& pixel = (*film->pixels)(x, y);
             Spectrum result = Spectrum::fromXYZ(pixel.Lxyz);
 
-            result /= totalSampleCount;
+            result /= (totalSampleCount * boxSize);
 
             double rgb[3];
             result.toRGB(rgb);

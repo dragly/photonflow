@@ -46,7 +46,6 @@ BBox makeUnion(const BBox &b, const Point3D &p) {
     return ret;
 }
 
-
 BBox makeUnion(const BBox &b, const BBox &b2) {
     BBox ret;
     ret.pMin.x = min(b.pMin.x, b2.pMin.x);

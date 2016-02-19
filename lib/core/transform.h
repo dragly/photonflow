@@ -180,7 +180,7 @@ inline Point3D Transform::operator()(const Point3D &pt) const {
     auto yp = m.m[1][0]*x + m.m[1][1]*y + m.m[1][2]*z + m.m[1][3]*1.0_um;
     auto zp = m.m[2][0]*x + m.m[2][1]*y + m.m[2][2]*z + m.m[2][3]*1.0_um;
     auto wp = m.m[3][0]*x + m.m[3][1]*y + m.m[3][2]*z + m.m[3][3]*1.0_um;
-    photonFlowAssert(wp != 0);
+//    photonFlowAssert(wp != 0); // TODO was commented out for GCC6
     if (wp == 1.0_um) {
         return Point3D(xp, yp, zp);
     } else {

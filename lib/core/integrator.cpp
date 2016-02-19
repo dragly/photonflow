@@ -48,7 +48,7 @@ void Integrator::integrate(std::function<Control(const Ray& ray, boost::units::p
 {
     for(int i = 0; i < m_bounces; i++) {
         boost::units::photonflow::length ds = 10.0_um * -log(m_rng->randomFloat());
-        double g = 0.98;
+        double g = 0.99;
 
         double cosTheta = Distribution::heyneyGreenstein(g, *m_rng);
         double sinTheta = sqrt(1 - cosTheta*cosTheta);

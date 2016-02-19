@@ -12,4 +12,5 @@ Product {
     cpp.cxxLanguageVersion: "c++14"
     Depends { name: "cpp" }
     Depends { name: "photonflow-lib" }
+    Depends { name: "conanbuildinfo" }
 }

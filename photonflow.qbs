@@ -4,6 +4,7 @@ Project {
     references: [
         "app/app.qbs",
         "lib/lib.qbs",
-        "tests/tests.qbs"
+        "tests/tests.qbs",
+        "conanbuildinfo.qbs"
     ]
 }

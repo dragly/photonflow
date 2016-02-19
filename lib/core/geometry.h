@@ -540,7 +540,8 @@ public:
     Point3D pMin, pMax;
 };
 
-
+//BBox makeUnion(const BBox &b, const Point3D &p);
+//BBox makeUnion(const BBox &b, const BBox &b2);
 
 // Geometry Inline Functions
 template<typename T>
