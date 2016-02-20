@@ -23,7 +23,7 @@ using namespace neurona;
 class Cylinder
 {
 public:
-    Cylinder(Vector3D in_start, Vector3D in_end, length in_radius)
+    Cylinder(Point3D in_start, Point3D in_end, length in_radius)
         : start(in_start)
         , end(in_end)
         , center((in_start + in_end) * 0.5)
@@ -35,12 +35,12 @@ public:
         h = (in_end - in_start).length() * 0.5;
     }
 
-    Vector3D start;
-    Vector3D end;
-    Vector3D center;
+    Point3D start;
+    Point3D end;
+    Point3D center;
     length radius;
     area radius2;
-    Vector3D direction;
+    GeneralVector3D<dimensionless> direction;
     length h;
     length height;
 
@@ -91,19 +91,19 @@ void voxelize() {
                     auto proximalOptional = segment.proximal();
                     auto distal = segment.distal();
                     auto radius = segment.distal().diameter() * 0.5_um;
-                    Vector3D start(distal.x() * 1.0_um, distal.y() * 1.0_um, distal.z() * 1.0_um);
+                    Point3D start(distal.x() * 1.0_um, distal.y() * 1.0_um, distal.z() * 1.0_um);
                     bbox = makeUnion(bbox, start);
-                    Vector3D end;
+                    Point3D end;
                     bool hasProximal = false;
                     if(proximalOptional) {
                         hasProximal = true;
-                        end = Vector3D(proximalOptional->x() * 1.0_um, proximalOptional->y() * 1.0_um, proximalOptional->z() * 1.0_um);
+                        end = Point3D(proximalOptional->x() * 1.0_um, proximalOptional->y() * 1.0_um, proximalOptional->z() * 1.0_um);
                     } else if(parentOptional) {
                         hasProximal = true;
                         auto parentInMap = segments.find(segment.parent()->segment());
                         if(parentInMap != segments.end()) {
                             auto parentDistal = parentInMap->second.distal();
-                            end = Vector3D(parentDistal.x() * 1.0_um, parentDistal.y() * 1.0_um, parentDistal.z() * 1.0_um);
+                            end = Point3D(parentDistal.x() * 1.0_um, parentDistal.y() * 1.0_um, parentDistal.z() * 1.0_um);
                         }
                     }
                     if(hasProximal) {
@@ -155,8 +155,8 @@ void voxelize() {
         BBox localBounds(Point3D(-cylinder.h, -cylinder.radius, -cylinder.radius),
                          Point3D(cylinder.h, cylinder.radius, cylinder.radius));
 
-        auto perpendicular2 = cross(Vector3D(1.0_um, 0.0_um, 0.0_um), cylinder.direction);
-        Vector3D perpendicular = perpendicular2 / 1.0_um;
+        GeneralVector3D<dimensionless> perpendicular2 = cross(GeneralVector3D<dimensionless>(1.0, 0.0, 0.0), cylinder.direction);
+        Vector3D perpendicular = perpendicular2 * 1.0_um;
         Transform rotation;
         if(perpendicular.length() > 0.0_um) {
             double sinAngle = perpendicular.length().value();
@@ -164,7 +164,7 @@ void voxelize() {
 
             rotation = rotatec(cosAngle, sinAngle, perpendicular);
         }
-        Transform translation = translate(cylinder.center);
+        Transform translation = translate(Vector3D(cylinder.center));
         BBox bounds = translation(rotation(localBounds));
         bounds.expand(eps);
 
@@ -179,13 +179,13 @@ void voxelize() {
         for(int i = istart; i < iend + 1; i++) {
             for(int j = jstart; j < jend + 1; j++) {
                 for(int k = kstart; k < kend + 1; k++) {
-                    Vector3D p(step*double(i) + step / 2.0, step*double(j) + step / 2.0, step*double(k) + step / 2.0);
+                    Point3D p(step * (double(i) + 0.5), step * (double(j) + 0.5), step * (double(k) + 0.5));
                     Vector3D diff = p - cylinder.center;
                     length distance = diff.length();
                     if(distance > cylinder.h + eps && distance > cylinder.radius + eps) {
                         continue;
                     }
-                    auto yComponent = fabs(dot(diff, cylinder.direction)) / 1.0_um;
+                    auto yComponent = fabs(dot(diff, cylinder.direction * 1.0_um)) / 1.0_um;
                     if(yComponent <= cylinder.h + eps) {
                         auto y2 = yComponent*yComponent;
                         auto diff2 = dot(diff, diff);

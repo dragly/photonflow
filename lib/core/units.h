@@ -39,6 +39,7 @@ using system = make_system<micrometer_base_unit, microsecond_base_unit>::type;
 using length_unit = unit<length_dimension, system>;
 using area_unit = unit<area_dimension, system>;
 using time_unit = unit<time_dimension, system>;
+using dimensionless_unit = unit<dimensionless_type, system>;
 
 BOOST_UNITS_STATIC_CONSTANT(micrometer, length_unit);
 BOOST_UNITS_STATIC_CONSTANT(micrometers, length_unit);
@@ -49,6 +50,7 @@ BOOST_UNITS_STATIC_CONSTANT(microsecond, time_unit);
 BOOST_UNITS_STATIC_CONSTANT(microseconds, time_unit);
 
 using length = quantity<length_unit>;
+using dimensionless = quantity<dimensionless_unit>;
 using area = quantity<area_unit>;
 using time = quantity<time_unit>;
 

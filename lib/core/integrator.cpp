@@ -61,8 +61,7 @@ void Integrator::integrate(std::function<Control(const Ray& ray, boost::units::p
         Transform directionRotation = rotatec(cosTheta, sinTheta, perpendicular);
 
         Vector3D direction = directionRotation(m_ray.direction());
-        direction = direction.normalized();
-        direction = Vector3D(direction.x.value() * ds, direction.y.value() * ds, direction.z.value() * ds);
+        direction = direction.normalized() * ds;
 
         Point3D origin = m_ray.origin() + direction;
         m_ray = Ray(origin, direction);
