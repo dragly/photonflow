@@ -44,10 +44,10 @@ Integrator::Integrator(VolumeGridDensity *volumeGridDensity, Ray startRay, int b
 {
 }
 
-void Integrator::integrate(std::function<Control(const Ray& ray, boost::units::photonflow::length stepLength)> callback)
+void Integrator::integrate(std::function<Control(const Ray& ray, boost::units::photonflow::Length stepLength)> callback)
 {
     for(int i = 0; i < m_bounces; i++) {
-        boost::units::photonflow::length ds = 10.0_um * -log(m_rng->randomFloat());
+        boost::units::photonflow::Length ds = 10.0_um * -log(m_rng->randomFloat());
         double g = 0.99;
 
         double cosTheta = Distribution::heyneyGreenstein(g, *m_rng);

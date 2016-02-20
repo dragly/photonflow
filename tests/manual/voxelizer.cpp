@@ -23,7 +23,7 @@ using namespace neurona;
 class Cylinder
 {
 public:
-    Cylinder(Point3D in_start, Point3D in_end, length in_radius)
+    Cylinder(Point3D in_start, Point3D in_end, Length in_radius)
         : start(in_start)
         , end(in_end)
         , center((in_start + in_end) * 0.5)
@@ -38,11 +38,11 @@ public:
     Point3D start;
     Point3D end;
     Point3D center;
-    length radius;
-    area radius2;
-    GeneralVector3D<dimensionless> direction;
-    length h;
-    length height;
+    Length radius;
+    Area radius2;
+    GeneralVector3D<Dimensionless> direction;
+    Length h;
+    Length height;
 
     friend std::ostream& operator<< (std::ostream &out, const Point3D &point);
 };
@@ -121,10 +121,10 @@ void voxelize() {
     }
 
     int N = 2048;
-    length xSide = bbox.pMax[0] - bbox.pMin[0];
-    length ySide = bbox.pMax[1] - bbox.pMin[1];
-    length zSide = bbox.pMax[2] - bbox.pMin[2];
-    length maxLen = max(xSide, max(ySide, zSide));
+    Length xSide = bbox.pMax[0] - bbox.pMin[0];
+    Length ySide = bbox.pMax[1] - bbox.pMin[1];
+    Length zSide = bbox.pMax[2] - bbox.pMin[2];
+    Length maxLen = max(xSide, max(ySide, zSide));
     double xRatio = xSide / maxLen;
     double yRatio = ySide / maxLen;
     double zRatio = zSide / maxLen;
@@ -146,8 +146,8 @@ void voxelize() {
     bbox.pMin -= offset;
     bbox.pMax -= offset;
 
-    length step = maxLen / double(N - 1);
-    length eps = step / 2.0;
+    Length step = maxLen / double(N - 1);
+    Length eps = step / 2.0;
     cout << "Step: " << step.value() << endl;
     QElapsedTimer timer;
     timer.start();
@@ -155,7 +155,7 @@ void voxelize() {
         BBox localBounds(Point3D(-cylinder.h, -cylinder.radius, -cylinder.radius),
                          Point3D(cylinder.h, cylinder.radius, cylinder.radius));
 
-        GeneralVector3D<dimensionless> perpendicular2 = cross(GeneralVector3D<dimensionless>(1.0, 0.0, 0.0), cylinder.direction);
+        GeneralVector3D<Dimensionless> perpendicular2 = cross(GeneralVector3D<Dimensionless>(1.0, 0.0, 0.0), cylinder.direction);
         Vector3D perpendicular = perpendicular2 * 1.0_um;
         Transform rotation;
         if(perpendicular.length() > 0.0_um) {
@@ -181,7 +181,7 @@ void voxelize() {
                 for(int k = kstart; k < kend + 1; k++) {
                     Point3D p(step * (double(i) + 0.5), step * (double(j) + 0.5), step * (double(k) + 0.5));
                     Vector3D diff = p - cylinder.center;
-                    length distance = diff.length();
+                    Length distance = diff.length();
                     if(distance > cylinder.h + eps && distance > cylinder.radius + eps) {
                         continue;
                     }

@@ -35,7 +35,7 @@ RenderView::RenderView(QQuickItem *parent)
 //    data *= 255;
 
     BBox bbox;
-    boost::units::photonflow::length side = 100.0_um;
+    boost::units::photonflow::Length side = 100.0_um;
     bbox.pMin = Point3D(-side, -side, -0.2*side);
     bbox.pMax = Point3D(side, side, 0.2*side);
 
@@ -151,7 +151,7 @@ void RenderView::integrate()
 
                 Integrator integrator(&vr, startRay, bounces, rng);
 
-                integrator.integrate([&](const Ray& ray, boost::units::photonflow::length ds) {
+                integrator.integrate([&](const Ray& ray, boost::units::photonflow::Length ds) {
                     if(!vr.fuzzyInside(ray.origin())) {
                         return Integrator::Control::Break;
                     }

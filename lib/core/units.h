@@ -31,28 +31,28 @@ namespace units {
 
 namespace photonflow {
 
-using micrometer_base_unit = scaled_base_unit<si::meter_base_unit, scale<10, static_rational<-6> > >;
-using microsecond_base_unit = scaled_base_unit<si::second_base_unit, scale<10, static_rational<-6> > >;
+using MicrometerBaseUnit = scaled_base_unit<si::meter_base_unit, scale<10, static_rational<-6> > >;
+using MicrosecondBaseUnit = scaled_base_unit<si::second_base_unit, scale<10, static_rational<-6> > >;
 
-using system = make_system<micrometer_base_unit, microsecond_base_unit>::type;
+using PhotonflowUnitSystem = make_system<MicrometerBaseUnit, MicrosecondBaseUnit>::type;
 
-using length_unit = unit<length_dimension, system>;
-using area_unit = unit<area_dimension, system>;
-using time_unit = unit<time_dimension, system>;
-using dimensionless_unit = unit<dimensionless_type, system>;
+using LengthUnit = unit<length_dimension, PhotonflowUnitSystem>;
+using AreaUnit = unit<area_dimension, PhotonflowUnitSystem>;
+using TimeUnit = unit<time_dimension, PhotonflowUnitSystem>;
+using DimensionlessUnit = unit<dimensionless_type, PhotonflowUnitSystem>;
 
-BOOST_UNITS_STATIC_CONSTANT(micrometer, length_unit);
-BOOST_UNITS_STATIC_CONSTANT(micrometers, length_unit);
-BOOST_UNITS_STATIC_CONSTANT(micrometre, length_unit);
-BOOST_UNITS_STATIC_CONSTANT(micrometres, length_unit);
+BOOST_UNITS_STATIC_CONSTANT(micrometer, LengthUnit);
+BOOST_UNITS_STATIC_CONSTANT(micrometers, LengthUnit);
+BOOST_UNITS_STATIC_CONSTANT(micrometre, LengthUnit);
+BOOST_UNITS_STATIC_CONSTANT(micrometres, LengthUnit);
 
-BOOST_UNITS_STATIC_CONSTANT(microsecond, time_unit);
-BOOST_UNITS_STATIC_CONSTANT(microseconds, time_unit);
+BOOST_UNITS_STATIC_CONSTANT(microsecond, TimeUnit);
+BOOST_UNITS_STATIC_CONSTANT(microseconds, TimeUnit);
 
-using length = quantity<length_unit>;
-using dimensionless = quantity<dimensionless_unit>;
-using area = quantity<area_unit>;
-using time = quantity<time_unit>;
+using Length = quantity<LengthUnit>;
+using Dimensionless = quantity<DimensionlessUnit>;
+using Area = quantity<AreaUnit>;
+using Time = quantity<TimeUnit>;
 
 // Literals
 
@@ -92,9 +92,9 @@ BOOST_UNITS_LITERAL(suffix, unit, val, a, 0.00000000000000001) \
 BOOST_UNITS_LITERAL(suffix, unit, val, z, 0.00000000000000000001) \
 BOOST_UNITS_LITERAL(suffix, unit, val, y, 0.00000000000000000000001)
 
-BOOST_UNITS_LITERAL_SET(m, photonflow::length_unit, 1000*1000*photonflow::micrometer)
+BOOST_UNITS_LITERAL_SET(m, photonflow::LengthUnit, 1000*1000*photonflow::micrometer)
 //BOOST_UNITS_LITERAL_SET(g, si::mass, 0.001 * si::kilogram)
-BOOST_UNITS_LITERAL_SET(s, photonflow::time_unit, 1000*1000*photonflow::microsecond)
+BOOST_UNITS_LITERAL_SET(s, photonflow::TimeUnit, 1000*1000*photonflow::microsecond)
 //BOOST_UNITS_LITERAL_SET(A, si::current, si::ampere)
 //BOOST_UNITS_LITERAL_SET(K, si::temperature, si::kelvin)
 //BOOST_UNITS_LITERAL_SET(mol, si::amount, si::mole)

@@ -48,7 +48,7 @@ public:
     };
 
     Integrator(VolumeGridDensity *volumeGridDensity, Ray startRay, int bounces, RNG &rng);
-    void integrate(std::function<Control(const Ray & ray, boost::units::photonflow::length stepLength)> callback);
+    void integrate(std::function<Control(const Ray & ray, boost::units::photonflow::Length stepLength)> callback);
 
 private:
     VolumeGridDensity *m_volumeGridDensity;

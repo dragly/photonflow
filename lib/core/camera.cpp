@@ -46,8 +46,8 @@ Camera::~Camera() {
 
 
 Camera::Camera(const Transform &cam2world,
-               boost::units::photonflow::time sopen,
-               boost::units::photonflow::time sclose,
+               boost::units::photonflow::Time sopen,
+               boost::units::photonflow::Time sclose,
                std::shared_ptr<Film> f)
     : CameraToWorld(cam2world), shutterOpen(sopen), shutterClose(sclose) {
     film = f;
@@ -85,8 +85,8 @@ Camera::Camera(const Transform &cam2world,
 
 
 ProjectiveCamera::ProjectiveCamera(const Transform &cam2world,
-        const Transform &proj, const Rectangle &screenWindow, boost::units::photonflow::time sopen,
-        boost::units::photonflow::time sclose, boost::units::photonflow::length lensr, boost::units::photonflow::length focald, shared_ptr<Film> f)
+        const Transform &proj, const Rectangle &screenWindow, boost::units::photonflow::Time sopen,
+        boost::units::photonflow::Time sclose, boost::units::photonflow::Length lensr, boost::units::photonflow::Length focald, shared_ptr<Film> f)
     : Camera(cam2world, sopen, sclose, f) {
     // Initialize depth of field parameters
     lensRadius = lensr;

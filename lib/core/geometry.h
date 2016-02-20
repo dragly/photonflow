@@ -179,13 +179,13 @@ public:
     // Vector Public Data
     T x, y, z;
 };
-using Vector3D = GeneralVector3D<boost::units::photonflow::length>;
+using Vector3D = GeneralVector3D<boost::units::photonflow::Length>;
 
 class Point3D {
 public:
     // Point Public Methods
     Point3D() {  }
-    Point3D(boost::units::photonflow::length xx, boost::units::photonflow::length yy, boost::units::photonflow::length zz)
+    Point3D(boost::units::photonflow::Length xx, boost::units::photonflow::Length yy, boost::units::photonflow::Length zz)
         : x(xx), y(yy), z(zz) {
         photonFlowAssert(!hasNaNs());
     }
@@ -251,12 +251,12 @@ public:
         x *= inv; y *= inv; z *= inv;
         return *this;
     }
-    boost::units::photonflow::length operator[](int i) const {
+    boost::units::photonflow::Length operator[](int i) const {
         photonFlowAssert(i >= 0 && i <= 2);
         return (&x)[i];
     }
 
-    boost::units::photonflow::length &operator[](int i) {
+    boost::units::photonflow::Length &operator[](int i) {
         photonFlowAssert(i >= 0 && i <= 2);
         return (&x)[i];
     }
@@ -273,14 +273,14 @@ public:
     friend std::ostream& operator<< (std::ostream &out, const Point3D &point);
 
     // Point Public Data
-    boost::units::photonflow::length x, y, z;
+    boost::units::photonflow::Length x, y, z;
 };
 
 class Normal {
 public:
     // Normal Public Methods
     Normal() { x = y = z = 0.0_um; }
-    Normal(boost::units::photonflow::length xx, boost::units::photonflow::length yy, boost::units::photonflow::length zz)
+    Normal(boost::units::photonflow::Length xx, boost::units::photonflow::Length yy, boost::units::photonflow::Length zz)
         : x(xx), y(yy), z(zz) {
         photonFlowAssert(!hasNaNs());
     }
@@ -353,12 +353,12 @@ public:
         : x(v.x), y(v.y), z(v.z) {
         photonFlowAssert(!v.hasNaNs());
     }
-    boost::units::photonflow::length operator[](int i) const {
+    boost::units::photonflow::Length operator[](int i) const {
         photonFlowAssert(i >= 0 && i <= 2);
         return (&x)[i];
     }
 
-    boost::units::photonflow::length &operator[](int i) {
+    boost::units::photonflow::Length &operator[](int i) {
         photonFlowAssert(i >= 0 && i <= 2);
         return (&x)[i];
     }
@@ -371,7 +371,7 @@ public:
     }
 
     // Normal Public Data
-    boost::units::photonflow::length x, y, z;
+    boost::units::photonflow::Length x, y, z;
 };
 
 class Ray {
@@ -387,7 +387,7 @@ public:
     Ray(const Point3D &origin, const Vector3D &direction,
         double start = 0.0,
         double end = INFINITY,
-        boost::units::photonflow::time t = 0.0_us,
+        boost::units::photonflow::Time t = 0.0_us,
         int d = 0)
         : m_origin(origin)
         , m_direction(direction)
@@ -428,7 +428,7 @@ public:
     Vector3D m_direction;
     mutable double m_mint;
     mutable double m_maxt;
-    boost::units::photonflow::time m_time;
+    boost::units::photonflow::Time m_time;
     int m_depth;
 };
 
@@ -440,7 +440,7 @@ public:
     RayDifferential(const Point3D &org, const Vector3D &dir,
                     double start = 0.0,
                     double end = INFINITY,
-                    boost::units::photonflow::time t = 0.0_us,
+                    boost::units::photonflow::Time t = 0.0_us,
                     int d = 0)
         : Ray(org, dir, start, end, t, d) {
         hasDifferentials = false;
@@ -498,12 +498,12 @@ public:
                 pt.z >= pMin.z && pt.z <= pMax.z);
     }
     bool fuzzyInside(const Point3D &pt) const {
-        const boost::units::photonflow::length eps = 0.01_um;
+        const boost::units::photonflow::Length eps = 0.01_um;
         return (pt.x >= pMin.x - eps && pt.x <= pMax.x + eps &&
                 pt.y >= pMin.y - eps && pt.y <= pMax.y + eps &&
                 pt.z >= pMin.z - eps && pt.z <= pMax.z + eps);
     }
-    void expand(boost::units::photonflow::length delta) {
+    void expand(boost::units::photonflow::Length delta) {
         pMin -= Vector3D(delta, delta, delta);
         pMax += Vector3D(delta, delta, delta);
     }
@@ -535,7 +535,7 @@ public:
                         (p.y - pMin.y) / (pMax.y - pMin.y) * 1.0_um,
                         (p.z - pMin.z) / (pMax.z - pMin.z) * 1.0_um);
     }
-    void boundingSphere(Point3D *c, boost::units::photonflow::length *rad) const;
+    void boundingSphere(Point3D *c, boost::units::photonflow::Length *rad) const;
     bool intersectP(const Ray &ray, double *hitt0 = NULL, double *hitt1 = NULL) const;
 
     bool operator==(const BBox &b) const {

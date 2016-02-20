@@ -45,7 +45,7 @@ Sampler::~Sampler() {
 
 
 Sampler::Sampler(int xstart, int xend, int ystart, int yend, int spp,
-                 boost::units::photonflow::time sopen, boost::units::photonflow::time sclose)
+                 boost::units::photonflow::Time sopen, boost::units::photonflow::Time sclose)
     : xPixelStart(xstart), xPixelEnd(xend), yPixelStart(ystart),
       yPixelEnd(yend), samplesPerPixel(spp), shutterOpen(sopen),
       shutterClose(sclose) { }
