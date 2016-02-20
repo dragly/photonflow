@@ -44,26 +44,26 @@
 #include "../core/integrator.h"
 
 // Volume Scattering Declarations
-double PhaseIsotropic(const Vector3D &w, const Vector3D &wp);
-double PhaseRayleigh(const Vector3D &w, const Vector3D &wp);
-double PhaseMieHazy(const Vector3D &w, const Vector3D &wp);
-double PhaseMieMurky(const Vector3D &w, const Vector3D &wp);
-double PhaseHG(const Vector3D &w, const Vector3D &wp, double g);
-double PhaseSchlick(const Vector3D &w, const Vector3D &wp, double g);
+double PhaseIsotropic(const Length3D &w, const Length3D &wp);
+double PhaseRayleigh(const Length3D &w, const Length3D &wp);
+double PhaseMieHazy(const Length3D &w, const Length3D &wp);
+double PhaseMieMurky(const Length3D &w, const Length3D &wp);
+double PhaseHG(const Length3D &w, const Length3D &wp, double g);
+double PhaseSchlick(const Length3D &w, const Length3D &wp, double g);
 class VolumeRegion {
 public:
     // VolumeRegion Interface
     virtual BBox worldBound() const = 0;
     virtual bool intersectP(const Ray &ray, double *t0, double *t1) const = 0;
-    virtual Spectrum sigma_a(const Point3D &, const Vector3D &,
+    virtual Spectrum sigma_a(const Point3D &, const Length3D &,
                              double time) const = 0;
-    virtual Spectrum sigma_s(const Point3D &, const Vector3D &,
+    virtual Spectrum sigma_s(const Point3D &, const Length3D &,
                              double time) const = 0;
-    virtual Spectrum Lve(const Point3D &, const Vector3D &,
+    virtual Spectrum Lve(const Point3D &, const Length3D &,
                          double time) const = 0;
-    virtual double p(const Point3D &, const Vector3D &,
-                    const Vector3D &, double time) const = 0;
-    virtual Spectrum sigma_t(const Point3D &p, const Vector3D &wo, double time) const;
+    virtual double p(const Point3D &, const Length3D &,
+                    const Length3D &, double time) const = 0;
+    virtual Spectrum sigma_t(const Point3D &p, const Length3D &wo, double time) const;
 //    virtual Spectrum tau(const Ray &ray, double step = 1.f,
 //                         double offset = 0.5) const = 0;
 };
@@ -79,20 +79,20 @@ public:
           WorldToVolume(Inverse(VolumeToWorldIn)),
           VolumeToWorld(VolumeToWorldIn) { }
     virtual double Density(const Point3D &Pobj) const = 0;
-    Spectrum sigma_a(const Point3D &p, const Vector3D &, double) const {
+    Spectrum sigma_a(const Point3D &p, const Length3D &, double) const {
         UNUSED(p);
         return sig_a;
     }
-    Spectrum sigma_s(const Point3D &p, const Vector3D &, double) const {
+    Spectrum sigma_s(const Point3D &p, const Length3D &, double) const {
         return Density(p) * sig_s;
     }
-    Spectrum sigma_t(const Point3D &p, const Vector3D &, double) const {
+    Spectrum sigma_t(const Point3D &p, const Length3D &, double) const {
         return Density(p) * (sig_a + sig_s);
     }
-    Spectrum Lve(const Point3D &p, const Vector3D &, double) const {
+    Spectrum Lve(const Point3D &p, const Length3D &, double) const {
         return Density(p) * le;
     }
-    double p(const Point3D &p, const Vector3D &w, const Vector3D &wp, double) const {
+    double p(const Point3D &p, const Length3D &w, const Length3D &wp, double) const {
         UNUSED(p);
         return PhaseHG(w, wp, g);
     }

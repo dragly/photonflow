@@ -40,7 +40,7 @@ public:
     Point3D center;
     Length radius;
     Area radius2;
-    GeneralVector3D<Dimensionless> direction;
+    Vector3D<Dimensionless> direction;
     Length h;
     Length height;
 
@@ -57,7 +57,7 @@ std::ostream& operator << (std::ostream &out, const Cylinder &cylinder)
     return out;
 }
 
-BBox makeUnion(const BBox &b, const Vector3D &p) {
+BBox makeUnion(const BBox &b, const Length3D &p) {
     BBox ret = b;
     ret.pMin.x = min(b.pMin.x, p.x);
     ret.pMin.y = min(b.pMin.y, p.y);
@@ -137,7 +137,7 @@ void voxelize() {
     cout << "Min: " << bbox.pMin.x.value() << " " << bbox.pMin.y.value() << " " << bbox.pMin.z.value() << endl;
     cout << "Max: " << bbox.pMax.x.value() << " " << bbox.pMax.y.value() << " " << bbox.pMax.z.value() << endl;
 
-    Vector3D offset(bbox.pMin);
+    Length3D offset(bbox.pMin);
     for(Cylinder& cylinder : cylinders) {
         cylinder = Cylinder(cylinder.start - offset,
                             cylinder.end - offset,
@@ -155,8 +155,8 @@ void voxelize() {
         BBox localBounds(Point3D(-cylinder.h, -cylinder.radius, -cylinder.radius),
                          Point3D(cylinder.h, cylinder.radius, cylinder.radius));
 
-        GeneralVector3D<Dimensionless> perpendicular2 = cross(GeneralVector3D<Dimensionless>(1.0, 0.0, 0.0), cylinder.direction);
-        Vector3D perpendicular = perpendicular2 * 1.0_um;
+        Vector3D<Dimensionless> perpendicular2 = cross(Vector3D<Dimensionless>(1.0, 0.0, 0.0), cylinder.direction);
+        Length3D perpendicular = perpendicular2 * 1.0_um;
         Transform rotation;
         if(perpendicular.length() > 0.0_um) {
             double sinAngle = perpendicular.length().value();
@@ -164,7 +164,7 @@ void voxelize() {
 
             rotation = rotatec(cosAngle, sinAngle, perpendicular);
         }
-        Transform translation = translate(Vector3D(cylinder.center));
+        Transform translation = translate(Length3D(cylinder.center));
         BBox bounds = translation(rotation(localBounds));
         bounds.expand(eps);
 
@@ -180,7 +180,7 @@ void voxelize() {
             for(int j = jstart; j < jend + 1; j++) {
                 for(int k = kstart; k < kend + 1; k++) {
                     Point3D p(step * (double(i) + 0.5), step * (double(j) + 0.5), step * (double(k) + 0.5));
-                    Vector3D diff = p - cylinder.center;
+                    Length3D diff = p - cylinder.center;
                     Length distance = diff.length();
                     if(distance > cylinder.h + eps && distance > cylinder.radius + eps) {
                         continue;

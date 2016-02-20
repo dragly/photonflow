@@ -53,50 +53,50 @@ class Normal;
 
 // Geometry Declarations
 template<typename T = boost::units::photonflow::Dimensionless>
-class GeneralVector3D {
+class Vector3D {
 public:
     // Vector Public Methods
-    GeneralVector3D() { x = y = z = 0.0 * T(); }
+    Vector3D() { x = y = z = 0.0 * T(); }
 //    GeneralVector3D() {} // TODO: Proper initialization to zero for all types
-    GeneralVector3D(T xx, T yy, T zz)
+    Vector3D(T xx, T yy, T zz)
         : x(xx), y(yy), z(zz) {
         photonFlowAssert(!hasNaNs());
     }
     //    bool hasNaNs() const { return isnan(x) || isnan(y) || isnan(z); }
     bool hasNaNs() const { return false; }
-    explicit GeneralVector3D(const Point3D &p);
+    explicit Vector3D(const Point3D &p);
 
 #ifndef NDEBUG
     // The default versions of these are fine for release builds; for debug
     // we define them so that we can add the Assert checks.
-    GeneralVector3D(const GeneralVector3D &v) {
+    Vector3D(const Vector3D &v) {
         photonFlowAssert(!v.hasNaNs());
         x = v.x; y = v.y; z = v.z;
     }
 
     template<typename U>
-    GeneralVector3D &operator=(const GeneralVector3D<U> &v) {
+    Vector3D &operator=(const Vector3D<U> &v) {
         photonFlowAssert(!v.hasNaNs());
         x = v.x; y = v.y; z = v.z;
         return *this;
     }
 #endif // !NDEBUG
-    GeneralVector3D operator+(const GeneralVector3D &v) const {
+    Vector3D operator+(const Vector3D &v) const {
         photonFlowAssert(!v.hasNaNs());
-        return GeneralVector3D(x + v.x, y + v.y, z + v.z);
+        return Vector3D(x + v.x, y + v.y, z + v.z);
     }
 
-    GeneralVector3D& operator+=(const GeneralVector3D &v) {
+    Vector3D& operator+=(const Vector3D &v) {
         photonFlowAssert(!v.hasNaNs());
         x += v.x; y += v.y; z += v.z;
         return *this;
     }
-    GeneralVector3D operator-(const GeneralVector3D &v) const {
+    Vector3D operator-(const Vector3D &v) const {
         photonFlowAssert(!v.hasNaNs());
-        return GeneralVector3D(x - v.x, y - v.y, z - v.z);
+        return Vector3D(x - v.x, y - v.y, z - v.z);
     }
 
-    GeneralVector3D& operator-=(const GeneralVector3D &v) {
+    Vector3D& operator-=(const Vector3D &v) {
         photonFlowAssert(!v.hasNaNs());
         x -= v.x; y -= v.y; z -= v.z;
         return *this;
@@ -104,10 +104,10 @@ public:
 
     template<typename U>
     auto operator*(U f) const {
-        return GeneralVector3D<decltype(f*x)>(f*x, f*y, f*z);
+        return Vector3D<decltype(f*x)>(f*x, f*y, f*z);
     }
 
-    GeneralVector3D &operator*=(double f) {
+    Vector3D &operator*=(double f) {
         photonFlowAssert(!isnan(f));
         x *= f; y *= f; z *= f;
         return *this;
@@ -120,13 +120,13 @@ public:
         return (*this)*inv;
     }
 
-    GeneralVector3D &operator/=(double f) {
+    Vector3D &operator/=(double f) {
         photonFlowAssert(f != 0);
         auto inv = 1.f / f;
         x *= inv; y *= inv; z *= inv;
         return *this;
     }
-    GeneralVector3D operator-() const { return GeneralVector3D(-x, -y, -z); }
+    Vector3D operator-() const { return Vector3D(-x, -y, -z); }
     T operator[](int i) const {
         photonFlowAssert(i >= 0 && i <= 2);
         return (&x)[i];
@@ -148,28 +148,28 @@ public:
         return sqrt(lengthSquared());
     }
 
-    explicit GeneralVector3D(const Normal &n);
+    explicit Vector3D(const Normal &n);
 
-    bool operator==(const GeneralVector3D &v) const {
+    bool operator==(const Vector3D &v) const {
         return x == v.x && y == v.y && z == v.z;
     }
 
-    bool operator!=(const GeneralVector3D &v) const {
+    bool operator!=(const Vector3D &v) const {
         return x != v.x || y != v.y || z != v.z;
     }
 
     template<typename U>
-    friend std::ostream& operator<< (std::ostream &out, const GeneralVector3D<U> &vector);
+    friend std::ostream& operator<< (std::ostream &out, const Vector3D<U> &vector);
 
-    GeneralVector3D perpendicular() const
+    Vector3D perpendicular() const
     {
         if(x == 0.0 * T() && y == 0.0 * T()) {
             if(z == 0.0 * T()) {
-                return GeneralVector3D(0.0 * T(), 0.0 * T(), 0.0 * T());
+                return Vector3D(0.0 * T(), 0.0 * T(), 0.0 * T());
             }
-            return GeneralVector3D(0.0 * T(), 1.0 * T(), 0.0 * T());
+            return Vector3D(0.0 * T(), 1.0 * T(), 0.0 * T());
         }
-        return GeneralVector3D(-y, x, 0.0 * T());
+        return Vector3D(-y, x, 0.0 * T());
     }
 
     auto normalized() {
@@ -179,7 +179,7 @@ public:
     // Vector Public Data
     T x, y, z;
 };
-using Vector3D = GeneralVector3D<boost::units::photonflow::Length>;
+using Length3D = Vector3D<boost::units::photonflow::Length>;
 
 class Point3D {
 public:
@@ -201,27 +201,27 @@ public:
         return *this;
     }
 #endif // !NDEBUG
-    Point3D operator+(const Vector3D &v) const {
+    Point3D operator+(const Length3D &v) const {
         photonFlowAssert(!v.hasNaNs());
         return Point3D(x + v.x, y + v.y, z + v.z);
     }
 
-    Point3D &operator+=(const Vector3D &v) {
+    Point3D &operator+=(const Length3D &v) {
         photonFlowAssert(!v.hasNaNs());
         x += v.x; y += v.y; z += v.z;
         return *this;
     }
-    Vector3D operator-(const Point3D &p) const {
+    Length3D operator-(const Point3D &p) const {
         photonFlowAssert(!p.hasNaNs());
-        return Vector3D(x - p.x, y - p.y, z - p.z);
+        return Length3D(x - p.x, y - p.y, z - p.z);
     }
 
-    Point3D operator-(const Vector3D &v) const {
+    Point3D operator-(const Length3D &v) const {
         photonFlowAssert(!v.hasNaNs());
         return Point3D(x - v.x, y - v.y, z - v.z);
     }
 
-    Point3D &operator-=(const Vector3D &v) {
+    Point3D &operator-=(const Length3D &v) {
         photonFlowAssert(!v.hasNaNs());
         x -= v.x; y -= v.y; z -= v.z;
         return *this;
@@ -349,7 +349,7 @@ public:
         return *this;
     }
 #endif // !NDEBUG
-    explicit Normal(const Vector3D &v)
+    explicit Normal(const Length3D &v)
         : x(v.x), y(v.y), z(v.z) {
         photonFlowAssert(!v.hasNaNs());
     }
@@ -384,7 +384,7 @@ public:
         , m_depth(0)
     { }
 
-    Ray(const Point3D &origin, const Vector3D &direction,
+    Ray(const Point3D &origin, const Length3D &direction,
         double start = 0.0,
         double end = INFINITY,
         boost::units::photonflow::Time t = 0.0_us,
@@ -397,7 +397,7 @@ public:
         , m_depth(d)
     { }
 
-    Ray(const Point3D &origin, const Vector3D &direction, const Ray &parent,
+    Ray(const Point3D &origin, const Length3D &direction, const Ray &parent,
         double start = 0.0,
         double end = INFINITY)
         : m_origin(origin)
@@ -419,13 +419,13 @@ public:
     Point3D origin() const {
         return m_origin;
     }
-    Vector3D direction() const {
+    Length3D direction() const {
         return m_direction;
     }
 
     // Ray Public Data
     Point3D m_origin;
-    Vector3D m_direction;
+    Length3D m_direction;
     mutable double m_mint;
     mutable double m_maxt;
     boost::units::photonflow::Time m_time;
@@ -437,7 +437,7 @@ class RayDifferential : public Ray {
 public:
     // RayDifferential Public Methods
     RayDifferential() { hasDifferentials = false; }
-    RayDifferential(const Point3D &org, const Vector3D &dir,
+    RayDifferential(const Point3D &org, const Length3D &dir,
                     double start = 0.0,
                     double end = INFINITY,
                     boost::units::photonflow::Time t = 0.0_us,
@@ -468,7 +468,7 @@ public:
     // RayDifferential Public Data
     bool hasDifferentials;
     Point3D rxOrigin, ryOrigin;
-    Vector3D rxDirection, ryDirection;
+    Length3D rxDirection, ryDirection;
 };
 
 
@@ -504,19 +504,19 @@ public:
                 pt.z >= pMin.z - eps && pt.z <= pMax.z + eps);
     }
     void expand(boost::units::photonflow::Length delta) {
-        pMin -= Vector3D(delta, delta, delta);
-        pMax += Vector3D(delta, delta, delta);
+        pMin -= Length3D(delta, delta, delta);
+        pMax += Length3D(delta, delta, delta);
     }
     auto surfaceArea() const {
-        Vector3D d = pMax - pMin;
+        Length3D d = pMax - pMin;
         return 2.0 * (d.x * d.y + d.x * d.z + d.y * d.z);
     }
     auto volume() const {
-        Vector3D d = pMax - pMin;
+        Length3D d = pMax - pMin;
         return d.x * d.y * d.z;
     }
     int maximumExtent() const {
-        Vector3D diag = pMax - pMin;
+        Length3D diag = pMax - pMin;
         if (diag.x > diag.y && diag.x > diag.z)
             return 0;
         else if (diag.y > diag.z)
@@ -530,8 +530,8 @@ public:
         return Point3D(::lerp(tx, pMin.x, pMax.x), ::lerp(ty, pMin.y, pMax.y),
                        ::lerp(tz, pMin.z, pMax.z));
     }
-    Vector3D offset(const Point3D &p) const {
-        return Vector3D((p.x - pMin.x) / (pMax.x - pMin.x) * 1.0_um,
+    Length3D offset(const Point3D &p) const {
+        return Length3D((p.x - pMin.x) / (pMax.x - pMin.x) * 1.0_um,
                         (p.y - pMin.y) / (pMax.y - pMin.y) * 1.0_um,
                         (p.z - pMin.z) / (pMax.z - pMin.z) * 1.0_um);
     }
@@ -554,18 +554,18 @@ public:
 
 // Geometry Inline Functions
 template<typename T>
-inline GeneralVector3D<T>::GeneralVector3D(const Point3D &p)
+inline Vector3D<T>::Vector3D(const Point3D &p)
     : x(p.x), y(p.y), z(p.z) {
     photonFlowAssert(!hasNaNs());
 }
 
 template<typename T>
-inline GeneralVector3D<T> operator*(double f, const GeneralVector3D<T> &v) {
+inline Vector3D<T> operator*(double f, const Vector3D<T> &v) {
     return v*f;
 }
 
 template<typename T>
-inline auto dot(const GeneralVector3D<T> &v1, const GeneralVector3D<T> &v2) {
+inline auto dot(const Vector3D<T> &v1, const Vector3D<T> &v2) {
     photonFlowAssert(!v1.hasNaNs() && !v2.hasNaNs());
     return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 }
@@ -582,7 +582,7 @@ auto dummy(T a, T b) {
 }
 
 template<typename T>
-inline auto cross(const GeneralVector3D<T> &v1, const GeneralVector3D<T> &v2) {
+inline auto cross(const Vector3D<T> &v1, const Vector3D<T> &v2) {
     photonFlowAssert(!v1.hasNaNs() && !v2.hasNaNs());
     auto v1x = v1.x, v1y = v1.y, v1z = v1.z;
     auto v2x = v2.x, v2y = v2.y, v2z = v2.z;
@@ -592,7 +592,7 @@ inline auto cross(const GeneralVector3D<T> &v1, const GeneralVector3D<T> &v2) {
     auto v1xv2z = v1x * v2z;
     auto v1xv2y = v1x * v2y;
     auto v1yv2x = v1y * v2x;
-    return GeneralVector3D<decltype(v1x*v2x)>(
+    return Vector3D<decltype(v1x*v2x)>(
                 (v1yv2z - v1zv2y),
                 (v1zv2x - v1xv2z),
                 (v1xv2y - v1yv2x));
@@ -640,7 +640,7 @@ inline Normal normalize(const Normal &n) {
 }
 
 template<typename T>
-inline GeneralVector3D<T>::GeneralVector3D(const Normal &n)
+inline Vector3D<T>::Vector3D(const Normal &n)
     : x(n.x), y(n.y), z(n.z) {
     photonFlowAssert(!n.hasNaNs());
 }

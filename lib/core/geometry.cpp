@@ -87,7 +87,7 @@ bool BBox::intersectP(const Ray &ray,
     return true;
 }
 
-std::ostream& operator<< (std::ostream &out, const Vector3D &vector)
+std::ostream& operator<< (std::ostream &out, const Length3D &vector)
 {
     (void)vector;
     // TODO Reintroduce output

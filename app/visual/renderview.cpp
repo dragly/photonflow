@@ -43,8 +43,8 @@ RenderView::RenderView(QQuickItem *parent)
 
     double angle = 0.5;
 
-    Transform translation = translate(Vector3D(0.1 * side, 0.3 * side, 1.0 * side));
-    Transform rotation = rotate(angle, Vector3D(0.0_um, 1.0_um, 0.0_um));
+    Transform translation = translate(Length3D(0.1 * side, 0.3 * side, 1.0 * side));
+    Transform rotation = rotate(angle, Length3D(0.0_um, 1.0_um, 0.0_um));
 
     Transform boxTransform = translation*rotation;
 
@@ -85,7 +85,7 @@ void RenderView::integrate()
     const int width = size.width();
     const int height = size.height();
 
-    const Transform cameraTransform = translate(Vector3D(0.0_um, 0.0_um, 0.0_um));
+    const Transform cameraTransform = translate(Length3D(0.0_um, 0.0_um, 0.0_um));
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const double crop[4] = {0.0, 1.0, 0.0, 1.0};
 
@@ -156,9 +156,9 @@ void RenderView::integrate()
                         return Integrator::Control::Break;
                     }
                     double factor = (1.0_um - ds).value();
-                    Tr *= vr.sigma_a(ray.origin(), Vector3D(), 0.0);
+                    Tr *= vr.sigma_a(ray.origin(), Length3D(), 0.0);
                     if(vr.Density(ray.origin()) > 60) {
-                        Lv += Tr * vr.Lve(ray.origin(), Vector3D(), 0.0);
+                        Lv += Tr * vr.Lve(ray.origin(), Length3D(), 0.0);
                         photonFlowAssert(!Lv.hasNaNs());
                     }
                     if(Tr < Spectrum(0.01)) {

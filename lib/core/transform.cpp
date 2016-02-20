@@ -141,7 +141,7 @@ Matrix4x4 Inverse(const Matrix4x4 &m) {
 //}
 
 
-Transform translate(const Vector3D &delta) {
+Transform translate(const Length3D &delta) {
     Matrix4x4 m(1, 0, 0, delta.x.value(),
                 0, 1, 0, delta.y.value(),
                 0, 0, 1, delta.z.value(),
@@ -201,8 +201,8 @@ Transform rotateZ(double angle) {
 }
 
 
-Transform rotate(double angle, const Vector3D &axis) {
-    Vector3D a = normalize(axis);
+Transform rotate(double angle, const Length3D &axis) {
+    Length3D a = normalize(axis);
     double s = sinf((angle));
     double c = cosf((angle));
     double m[4][4];
@@ -233,8 +233,8 @@ Transform rotate(double angle, const Vector3D &axis) {
     return Transform(mat, Transpose(mat));
 }
 
-Transform rotatec(double cosAngle, double sinAngle, const Vector3D &axis) {
-    Vector3D a = normalize(axis);
+Transform rotatec(double cosAngle, double sinAngle, const Length3D &axis) {
+    Length3D a = normalize(axis);
     double s = sinAngle;
     double c = cosAngle;
     double m[4][4];
@@ -337,7 +337,7 @@ bool Transform::swapsHandedness() const {
 
 Transform orthographic(double znear, double zfar) {
     return scale(1.f, 1.f, 1.f / (zfar-znear)) *
-           translate(Vector3D(0.0_um, 0.0_um, -znear * 1.0_um));
+           translate(Length3D(0.0_um, 0.0_um, -znear * 1.0_um));
 }
 
 

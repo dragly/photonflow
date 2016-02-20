@@ -138,7 +138,7 @@ static double RdToAlphap(double reflectance, double A) {
 
 
 // Volume Scattering Definitions
-double PhaseIsotropic(const Vector3D &, const Vector3D &) {
+double PhaseIsotropic(const Length3D &, const Length3D &) {
     return 1.f / (4.f * M_PI);
 }
 
@@ -161,7 +161,7 @@ double PhaseIsotropic(const Vector3D &, const Vector3D &) {
 //}
 
 
-double PhaseHG(const Vector3D &w, const Vector3D &wp, double g) {
+double PhaseHG(const Length3D &w, const Length3D &wp, double g) {
     double costheta = dot(w, wp).value();
     return 1.f / (4.f * M_PI) *
         (1.f - g*g) / powf(1.f + g*g - 2.f * g * costheta, 1.5f);
@@ -179,7 +179,7 @@ double PhaseHG(const Vector3D &w, const Vector3D &wp, double g) {
 //}
 
 
-Spectrum VolumeRegion::sigma_t(const Point3D &p, const Vector3D &w,
+Spectrum VolumeRegion::sigma_t(const Point3D &p, const Length3D &w,
                                double time) const {
     return sigma_a(p, w, time) + sigma_s(p, w, time);
 }

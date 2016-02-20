@@ -57,7 +57,7 @@ double PerspectiveCamera::generateRay(const CameraSample &sample,
     Point3D Pras(sample.imageX*cameraLength, sample.imageY*cameraLength, 0);
     Point3D Pcamera;
     RasterToCamera(Pras, &Pcamera);
-    *ray = Ray(Point3D(), normalize(Vector3D(Pcamera)));
+    *ray = Ray(Point3D(), normalize(Length3D(Pcamera)));
     // Modify ray for depth of field
     if (lensRadius > 0.0_um) {
         // Sample point on lens

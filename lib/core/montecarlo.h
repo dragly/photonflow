@@ -119,21 +119,21 @@ private:
 
 
 void rejectionSampleDisk(double *x, double *y, RNG &rng);
-Vector3D uniformSampleHemisphere(double u1, double u2);
+Length3D uniformSampleHemisphere(double u1, double u2);
 double  uniformHemispherePdf();
-Vector3D uniformSampleSphere(double u1, double u2);
+Length3D uniformSampleSphere(double u1, double u2);
 double  uniformSpherePdf();
-Vector3D uniformSampleCone(double u1, double u2, double thetamax);
-Vector3D uniformSampleCone(double u1, double u2, double thetamax,
-    const Vector3D &x, const Vector3D &y, const Vector3D &z);
+Length3D uniformSampleCone(double u1, double u2, double thetamax);
+Length3D uniformSampleCone(double u1, double u2, double thetamax,
+    const Length3D &x, const Length3D &y, const Length3D &z);
 double  uniformConePdf(double thetamax);
 void uniformSampleDisk(double u1, double u2, double *x, double *y);
 void concentricSampleDisk(double u1, double u2, double *dx, double *dy);
-inline Vector3D cosineSampleHemisphere(double u1, double u2) {
+inline Length3D cosineSampleHemisphere(double u1, double u2) {
     double x;
     double y;
     concentricSampleDisk(u1, u2, &x, &y);
-    Vector3D ret(x*1.0_um, y*1.0_um, 0.0_um);
+    Length3D ret(x*1.0_um, y*1.0_um, 0.0_um);
     ret.z = sqrt(max(0.0_um*0.0_um, 1.0_um*1.0_um - ret.x*ret.x - ret.y*ret.y));
     return ret;
 }
@@ -257,8 +257,8 @@ inline void sample02(uint32_t n, const uint32_t scramble[2], double sample[2]);
 //int LDPixelSampleFloatsNeeded(const Sample *sample, int nPixelSamples);
 //void LDPixelSample(int xPos, int yPos, double shutterOpen,
 //    double shutterClose, int nPixelSamples, Sample *samples, double *buf, RandomNumberGenerator &rng);
-Vector3D sampleHG(const Vector3D &w, double g, double u1, double u2);
-double HGPdf(const Vector3D &w, const Vector3D &wp, double g);
+Length3D sampleHG(const Length3D &w, double g, double u1, double u2);
+double HGPdf(const Length3D &w, const Length3D &wp, double g);
 
 // Monte Carlo Inline Functions
 inline double balanceHeuristic(int nf, double fPdf, int ng, double gPdf) {

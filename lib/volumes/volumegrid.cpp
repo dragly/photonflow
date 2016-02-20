@@ -59,7 +59,7 @@ double VolumeGridDensity::Density(const Point3D &Pobj) const {
     }
 
     // Compute voxel coordinates and offsets for _Pobj_
-    Vector3D vox = extent.offset(local);
+    Length3D vox = extent.offset(local);
     vox.x = vox.x * double(density.n_rows); // - .5f;
     vox.y = vox.y * double(density.n_cols); // - .5f;
     vox.z = vox.z * double(density.n_slices); // - .5f;

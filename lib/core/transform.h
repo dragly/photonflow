@@ -139,8 +139,8 @@ public:
 //    }
     inline Point3D operator()(const Point3D &pt) const;
     inline void operator()(const Point3D &pt, Point3D *ptrans) const;
-    inline Vector3D operator()(const Vector3D &v) const;
-    inline void operator()(const Vector3D &v, Vector3D *vt) const;
+    inline Length3D operator()(const Length3D &v) const;
+    inline void operator()(const Length3D &v, Length3D *vt) const;
     inline Normal operator()(const Normal &) const;
     inline void operator()(const Normal &, Normal *nt) const;
     inline Ray operator()(const Ray &r) const;
@@ -158,14 +158,14 @@ private:
 };
 
 
-Transform translate(const Vector3D &delta);
+Transform translate(const Length3D &delta);
 Transform scale(double x, double y, double z);
 Transform rotateX(double angle);
 Transform rotateY(double angle);
 Transform rotateZ(double angle);
-Transform rotate(double angle, const Vector3D &axis);
-Transform rotatec(double cosAngle, double sinAngle, const Vector3D &axis);
-Transform lookAt(const Point3D &pos, const Point3D &look, const Vector3D &up);
+Transform rotate(double angle, const Length3D &axis);
+Transform rotatec(double cosAngle, double sinAngle, const Length3D &axis);
+Transform lookAt(const Point3D &pos, const Point3D &look, const Length3D &up);
 bool solveLinearSystem2x2(const double A[2][2], const double B[2],
     double *x0, double *x1);
 Transform orthographic(double znear, double zfar);
@@ -205,16 +205,16 @@ inline void Transform::operator()(const Point3D &pt,
 }
 
 
-inline Vector3D Transform::operator()(const Vector3D &v) const {
+inline Length3D Transform::operator()(const Length3D &v) const {
   auto x = v.x, y = v.y, z = v.z;
-  return Vector3D(m.m[0][0]*x + m.m[0][1]*y + m.m[0][2]*z,
+  return Length3D(m.m[0][0]*x + m.m[0][1]*y + m.m[0][2]*z,
                 m.m[1][0]*x + m.m[1][1]*y + m.m[1][2]*z,
                 m.m[2][0]*x + m.m[2][1]*y + m.m[2][2]*z);
 }
 
 
-inline void Transform::operator()(const Vector3D &v,
-        Vector3D *vt) const {
+inline void Transform::operator()(const Length3D &v,
+        Length3D *vt) const {
   auto x = v.x, y = v.y, z = v.z;
   vt->x = m.m[0][0] * x + m.m[0][1] * y + m.m[0][2] * z;
   vt->y = m.m[1][0] * x + m.m[1][1] * y + m.m[1][2] * z;

@@ -57,7 +57,7 @@ public:
 //                                  RayDifferential *ray) const;
 private:
     // PerspectiveCamera Private Data
-    Vector3D dxCamera, dyCamera;
+    Length3D dxCamera, dyCamera;
 };
 
 #endif // PBRT_CAMERAS_PERSPECTIVE_H
