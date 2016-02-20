@@ -57,7 +57,6 @@ BBox makeUnion(const BBox &b, const BBox &b2) {
     return ret;
 }
 
-
 void BBox::boundingSphere(Point3D *c, boost::units::photonflow::length *rad) const
 {
     *c = .5f * pMin + .5f * pMax;

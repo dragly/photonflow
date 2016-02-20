@@ -39,6 +39,7 @@
 #include <cmath>
 #include <boost/units/cmath.hpp>
 #include <ostream>
+#include <type_traits>
 
 #include "../core/common.h"
 #include "../core/units.h"
@@ -98,22 +99,28 @@ public:
         x -= v.x; y -= v.y; z -= v.z;
         return *this;
     }
-    GeneralVector3D operator*(double f) const { return GeneralVector3D(f*x, f*y, f*z); }
+
+    template<typename U>
+    auto operator*(U f) const {
+        return GeneralVector3D<decltype(f*x)>(f*x, f*y, f*z);
+    }
 
     GeneralVector3D &operator*=(double f) {
         photonFlowAssert(!isnan(f));
         x *= f; y *= f; z *= f;
         return *this;
     }
-    GeneralVector3D operator/(double f) const {
+
+    template<typename U>
+    auto operator/(U f) const {
         photonFlowAssert(f != 0);
-        double inv = 1.f / f;
-        return GeneralVector3D(x * inv, y * inv, z * inv);
+        auto inv = 1.0 / f;
+        return (*this)*inv;
     }
 
     GeneralVector3D &operator/=(double f) {
         photonFlowAssert(f != 0);
-        double inv = 1.f / f;
+        auto inv = 1.f / f;
         x *= inv; y *= inv; z *= inv;
         return *this;
     }
@@ -567,16 +574,26 @@ inline auto absDot(const auto &v1, const auto &v2) {
     return abs(dot(v1, v2));
 }
 
+template<typename T>
+auto dummy(T a, T b) {
+    return a*b;
+}
 
 template<typename T>
 inline auto cross(const GeneralVector3D<T> &v1, const GeneralVector3D<T> &v2) {
     photonFlowAssert(!v1.hasNaNs() && !v2.hasNaNs());
     auto v1x = v1.x, v1y = v1.y, v1z = v1.z;
     auto v2x = v2.x, v2y = v2.y, v2z = v2.z;
-    return GeneralVector3D<T>(
-                ((v1y * v2z) - (v1z * v2y)),
-                ((v1z * v2x) - (v1x * v2z)),
-                ((v1x * v2y) - (v1y * v2x)));
+    auto v1yv2z = v1y * v2z;
+    auto v1zv2y = v1z * v2y;
+    auto v1zv2x = v1z * v2x;
+    auto v1xv2z = v1x * v2z;
+    auto v1xv2y = v1x * v2y;
+    auto v1yv2x = v1y * v2x;
+    return GeneralVector3D<decltype(v1x*v2x)>(
+                (v1yv2z - v1zv2y),
+                (v1zv2x - v1xv2z),
+                (v1xv2y - v1yv2x));
 }
 
 inline auto normalize(const auto &v) {
