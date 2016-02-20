@@ -57,7 +57,6 @@ std::ostream& operator << (std::ostream &out, const Cylinder &cylinder)
     return out;
 }
 
-
 BBox makeUnion(const BBox &b, const Vector3D &p) {
     BBox ret = b;
     ret.pMin.x = min(b.pMin.x, p.x);
@@ -121,11 +120,11 @@ void voxelize() {
         cerr << e << endl;
     }
 
-//    bbox = BBox(Point3D(-5.0_um, -3.0_um, -3.0_um), Point3D(3.0_um, 4.0_um, 4.0_um));
-//    cylinders.clear();
-//    cylinders.push_back(Cylinder(Vector3D(-0.0_um, -2.0_um, 0.0_um), Vector3D(0.0_um, 1.0_um, 0.0_um), 1.0_um));
+    //    bbox = BBox(Point3D(-5.0_um, -3.0_um, -3.0_um), Point3D(3.0_um, 4.0_um, 4.0_um));
+    //    cylinders.clear();
+    //    cylinders.push_back(Cylinder(Vector3D(-0.0_um, -2.0_um, 0.0_um), Vector3D(0.0_um, 1.0_um, 0.0_um), 1.0_um));
 
-    int N = 512;
+    int N = 2048;
     length xSide = bbox.pMax[0] - bbox.pMin[0];
     length ySide = bbox.pMax[1] - bbox.pMin[1];
     length zSide = bbox.pMax[2] - bbox.pMin[2];
@@ -142,20 +141,62 @@ void voxelize() {
     cout << "Min: " << bbox.pMin.x.value() << " " << bbox.pMin.y.value() << " " << bbox.pMin.z.value() << endl;
     cout << "Max: " << bbox.pMax.x.value() << " " << bbox.pMax.y.value() << " " << bbox.pMax.z.value() << endl;
 
+    Vector3D offset(bbox.pMin);
+    for(Cylinder& cylinder : cylinders) {
+        cylinder = Cylinder(cylinder.start - offset,
+                            cylinder.end - offset,
+                            cylinder.radius);
+    }
+    bbox.pMin -= offset;
+    bbox.pMax -= offset;
+
     length step = maxLen / double(N - 1);
     length eps = step / 2.0;
     cout << "Step: " << step.value() << endl;
     QElapsedTimer timer;
     timer.start();
-//#pragma omp parallel num_threads(8)
-//#pragma omp for
-    for(int i = 0; i < int(voxels.n_slices); i++) {
-        cout << "Iteration " << i << endl;
-        for(int j = 0; j < int(voxels.n_rows); j++) {
-            for(int k = 0; k < int(voxels.n_cols); k++) {
-                Vector3D p(step*double(k), step*double(j), step*double(i));
-                p += Vector3D(bbox.pMin);
-                for(Cylinder& cylinder : cylinders) {
+    //#pragma omp parallel num_threads(8)
+    //#pragma omp for
+    //    for(int i = 0; i < int(voxels.n_slices); i++) {
+    //        cout << "Iteration " << i << endl;
+    //        for(int j = 0; j < int(voxels.n_rows); j++) {
+    //            for(int k = 0; k < int(voxels.n_cols); k++) {
+
+    //            }
+    //        }
+    //    }
+
+    //    Vector3D p(step*double(k), step*double(j), step*double(i));
+    //    p += Vector3D(bbox.pMin);
+    for(Cylinder& cylinder : cylinders) {
+        BBox localBounds(Point3D(-cylinder.h, -cylinder.radius, -cylinder.radius),
+                         Point3D(cylinder.h, cylinder.radius, cylinder.radius));
+
+        auto perpendicular2 = cross(Vector3D(1.0_um, 0.0_um, 0.0_um), cylinder.direction);
+        Vector3D perpendicular = perpendicular2 / 1.0_um;
+        Transform rotation;
+        if(perpendicular.length() > 0.0_um) {
+            double sinAngle = perpendicular.length().value();
+            double cosAngle = sqrt(1 - sinAngle*sinAngle);
+
+            rotation = rotatec(cosAngle, sinAngle, perpendicular);
+        }
+        Transform translation = translate(cylinder.center);
+        BBox bounds = translation(rotation(localBounds));
+        bounds.expand(eps);
+
+        int istart = bounds.pMin.x / step;
+        int jstart = bounds.pMin.y / step;
+        int kstart = bounds.pMin.z / step;
+
+        int iend = bounds.pMax.x / step + 1;
+        int jend = bounds.pMax.y / step + 1;
+        int kend = bounds.pMax.z / step + 1;
+
+        for(int i = istart; i < iend + 1; i++) {
+            for(int j = jstart; j < jend + 1; j++) {
+                for(int k = kstart; k < kend + 1; k++) {
+                    Vector3D p(step*double(i) + step / 2.0, step*double(j) + step / 2.0, step*double(k) + step / 2.0);
                     Vector3D diff = p - cylinder.center;
                     length distance = diff.length();
                     if(distance > cylinder.h + eps && distance > cylinder.radius + eps) {
@@ -167,14 +208,16 @@ void voxelize() {
                         auto diff2 = dot(diff, diff);
                         auto distanceToAxis = sqrt(diff2 - y2);
                         if(distanceToAxis <= cylinder.radius + eps) {
-                            voxels(j, k, i) = 1.0;
-                            break;
+                            if(voxels.in_range(j, i, k)) {
+                                voxels(j, i, k) = 1.0;
+                            }
                         }
                     }
                 }
             }
         }
     }
+
     cout << "Time: " << timer.elapsed() << endl;
 
     cout << "Voxels minmax: " << voxels.min() << " " << voxels.max() << endl;
