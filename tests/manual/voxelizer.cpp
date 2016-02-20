@@ -120,10 +120,6 @@ void voxelize() {
         cerr << e << endl;
     }
 
-    //    bbox = BBox(Point3D(-5.0_um, -3.0_um, -3.0_um), Point3D(3.0_um, 4.0_um, 4.0_um));
-    //    cylinders.clear();
-    //    cylinders.push_back(Cylinder(Vector3D(-0.0_um, -2.0_um, 0.0_um), Vector3D(0.0_um, 1.0_um, 0.0_um), 1.0_um));
-
     int N = 2048;
     length xSide = bbox.pMax[0] - bbox.pMin[0];
     length ySide = bbox.pMax[1] - bbox.pMin[1];
@@ -155,19 +151,6 @@ void voxelize() {
     cout << "Step: " << step.value() << endl;
     QElapsedTimer timer;
     timer.start();
-    //#pragma omp parallel num_threads(8)
-    //#pragma omp for
-    //    for(int i = 0; i < int(voxels.n_slices); i++) {
-    //        cout << "Iteration " << i << endl;
-    //        for(int j = 0; j < int(voxels.n_rows); j++) {
-    //            for(int k = 0; k < int(voxels.n_cols); k++) {
-
-    //            }
-    //        }
-    //    }
-
-    //    Vector3D p(step*double(k), step*double(j), step*double(i));
-    //    p += Vector3D(bbox.pMin);
     for(Cylinder& cylinder : cylinders) {
         BBox localBounds(Point3D(-cylinder.h, -cylinder.radius, -cylinder.radius),
                          Point3D(cylinder.h, cylinder.radius, cylinder.radius));
