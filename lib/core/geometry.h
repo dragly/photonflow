@@ -52,7 +52,7 @@ class Point3D;
 class Normal;
 
 // Geometry Declarations
-template<typename T = double>
+template<typename T = boost::units::photonflow::Dimensionless>
 class GeneralVector3D {
 public:
     // Vector Public Methods
