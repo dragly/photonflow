@@ -44,7 +44,7 @@ RenderView::RenderView(QQuickItem *parent)
     double angle = 0.5;
 
     Transform translation = translate(Length3D(0.1 * side, 0.3 * side, 1.0 * side));
-    Transform rotation = rotate(angle, Length3D(0.0_um, 1.0_um, 0.0_um));
+    Transform rotation = rotate(angle, Vector3D(0.0, 1.0, 0.0));
 
     Transform boxTransform = translation*rotation;
 
@@ -159,7 +159,7 @@ void RenderView::integrate()
                     Tr *= vr.sigma_a(ray.origin(), Length3D(), 0.0);
                     if(vr.Density(ray.origin()) > 60) {
                         Lv += Tr * vr.Lve(ray.origin(), Length3D(), 0.0);
-                        photonFlowAssert(!Lv.hasNaNs());
+                        photonflowAssert(!Lv.hasNaNs());
                     }
                     if(Tr < Spectrum(0.01)) {
                         return Integrator::Control::Break;

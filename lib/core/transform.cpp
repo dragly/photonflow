@@ -42,7 +42,7 @@ bool solveLinearSystem2x2(const double A[2][2],
         return false;
     *x0 = (A[1][1]*B[0] - A[0][1]*B[1]) / det;
     *x1 = (A[0][0]*B[1] - A[1][0]*B[0]) / det;
-    if (isnan(*x0) || isnan(*x1))
+    if (std::isnan(*x0) || std::isnan(*x1))
         return false;
     return true;
 }
@@ -64,7 +64,7 @@ Matrix4x4::Matrix4x4(double t00, double t01, double t02, double t03,
 }
 
 
-Matrix4x4 Transpose(const Matrix4x4 &m) {
+Matrix4x4 transpose(const Matrix4x4 &m) {
    return Matrix4x4(m.m[0][0], m.m[1][0], m.m[2][0], m.m[3][0],
                     m.m[0][1], m.m[1][1], m.m[2][1], m.m[3][1],
                     m.m[0][2], m.m[1][2], m.m[2][2], m.m[3][2],
@@ -72,7 +72,7 @@ Matrix4x4 Transpose(const Matrix4x4 &m) {
 }
 
 
-Matrix4x4 Inverse(const Matrix4x4 &m) {
+Matrix4x4 inverse(const Matrix4x4 &m) {
     int indxc[4], indxr[4];
     int ipiv[4] = { 0, 0, 0, 0 };
     double minv[4][4];
@@ -174,7 +174,7 @@ Transform rotateX(double angle) {
                 0, cos_t, -sin_t, 0,
                 0, sin_t,  cos_t, 0,
                 0,     0,      0, 1);
-    return Transform(m, Transpose(m));
+    return Transform(m, transpose(m));
 }
 
 
@@ -185,7 +185,7 @@ Transform rotateY(double angle) {
                  0,   1,      0, 0,
                 -sin_t,   0,  cos_t, 0,
                  0,   0,   0,    1);
-    return Transform(m, Transpose(m));
+    return Transform(m, transpose(m));
 }
 
 
@@ -197,61 +197,37 @@ Transform rotateZ(double angle) {
                 sin_t,  cos_t, 0, 0,
                 0,      0, 1, 0,
                 0,      0, 0, 1);
-    return Transform(m, Transpose(m));
+    return Transform(m, transpose(m));
 }
 
-
-Transform rotate(double angle, const Length3D &axis) {
-    Length3D a = normalize(axis);
+Transform rotate(double angle, const Vector3D &axis) {
     double s = sinf((angle));
     double c = cosf((angle));
-    double m[4][4];
 
-    // TODO: Verify use of units here
-
-    m[0][0] = a.x.value() * a.x.value() + (1.f - a.x.value() * a.x.value()) * c;
-    m[0][1] = a.x.value() * a.y.value() * (1.f - c) - a.z.value() * s;
-    m[0][2] = a.x.value() * a.z.value() * (1.f - c) + a.y.value() * s;
-    m[0][3] = 0;
-
-    m[1][0] = a.x.value() * a.y.value() * (1.f - c) + a.z.value() * s;
-    m[1][1] = a.y.value() * a.y.value() + (1.f - a.y.value() * a.y.value()) * c;
-    m[1][2] = a.y.value() * a.z.value() * (1.f - c) - a.x.value() * s;
-    m[1][3] = 0;
-
-    m[2][0] = a.x.value() * a.z.value() * (1.f - c) - a.y.value() * s;
-    m[2][1] = a.y.value() * a.z.value() * (1.f - c) + a.x.value() * s;
-    m[2][2] = a.z.value() * a.z.value() + (1.f - a.z.value() * a.z.value()) * c;
-    m[2][3] = 0;
-
-    m[3][0] = 0;
-    m[3][1] = 0;
-    m[3][2] = 0;
-    m[3][3] = 1;
-
-    Matrix4x4 mat(m);
-    return Transform(mat, Transpose(mat));
+    return rotate(c, s, axis);
 }
 
-Transform rotatec(double cosAngle, double sinAngle, const Length3D &axis) {
-    Length3D a = normalize(axis);
+Transform rotate(double cosAngle, double sinAngle, const Vector3D &axis) {
+    photonflowAssert(sinAngle >= -1 && sinAngle <= 1 && cosAngle >= -1 && cosAngle <= 1);
+
+    Vector3D a = normalize(axis);
     double s = sinAngle;
     double c = cosAngle;
     double m[4][4];
 
-    m[0][0] = a.x.value() * a.x.value() + (1.f - a.x.value() * a.x.value()) * c;
-    m[0][1] = a.x.value() * a.y.value() * (1.f - c) - a.z.value() * s;
-    m[0][2] = a.x.value() * a.z.value() * (1.f - c) + a.y.value() * s;
+    m[0][0] = a.x * a.x + (1.f - a.x * a.x) * c;
+    m[0][1] = a.x * a.y * (1.f - c) - a.z * s;
+    m[0][2] = a.x * a.z * (1.f - c) + a.y * s;
     m[0][3] = 0;
 
-    m[1][0] = a.x.value() * a.y.value() * (1.f - c) + a.z.value() * s;
-    m[1][1] = a.y.value() * a.y.value() + (1.f - a.y.value() * a.y.value()) * c;
-    m[1][2] = a.y.value() * a.z.value() * (1.f - c) - a.x.value() * s;
+    m[1][0] = a.x * a.y * (1.f - c) + a.z * s;
+    m[1][1] = a.y * a.y + (1.f - a.y * a.y) * c;
+    m[1][2] = a.y * a.z * (1.f - c) - a.x * s;
     m[1][3] = 0;
 
-    m[2][0] = a.x.value() * a.z.value() * (1.f - c) - a.y.value() * s;
-    m[2][1] = a.y.value() * a.z.value() * (1.f - c) + a.x.value() * s;
-    m[2][2] = a.z.value() * a.z.value() + (1.f - a.z.value() * a.z.value()) * c;
+    m[2][0] = a.x * a.z * (1.f - c) - a.y * s;
+    m[2][1] = a.y * a.z * (1.f - c) + a.x * s;
+    m[2][2] = a.z * a.z + (1.f - a.z * a.z) * c;
     m[2][3] = 0;
 
     m[3][0] = 0;
@@ -260,7 +236,7 @@ Transform rotatec(double cosAngle, double sinAngle, const Length3D &axis) {
     m[3][3] = 1;
 
     Matrix4x4 mat(m);
-    return Transform(mat, Transpose(mat));
+    return Transform(mat, transpose(mat));
 }
 
 

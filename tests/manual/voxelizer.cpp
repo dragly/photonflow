@@ -40,7 +40,7 @@ public:
     Point3D center;
     Length radius;
     Area radius2;
-    Vector3D<Dimensionless> direction;
+    Vector3D direction;
     Length h;
     Length height;
 
@@ -55,17 +55,6 @@ std::ostream& operator << (std::ostream &out, const Cylinder &cylinder)
     out << "    radius: " << cylinder.radius.value() << endl;
     out << ");";
     return out;
-}
-
-BBox makeUnion(const BBox &b, const Length3D &p) {
-    BBox ret = b;
-    ret.pMin.x = min(b.pMin.x, p.x);
-    ret.pMin.y = min(b.pMin.y, p.y);
-    ret.pMin.z = min(b.pMin.z, p.z);
-    ret.pMax.x = max(b.pMax.x, p.x);
-    ret.pMax.y = max(b.pMax.y, p.y);
-    ret.pMax.z = max(b.pMax.z, p.z);
-    return ret;
 }
 
 void voxelize() {
@@ -120,7 +109,7 @@ void voxelize() {
         cerr << e << endl;
     }
 
-    int N = 2048;
+    int N = 128;
     Length xSide = bbox.pMax[0] - bbox.pMin[0];
     Length ySide = bbox.pMax[1] - bbox.pMin[1];
     Length zSide = bbox.pMax[2] - bbox.pMin[2];
@@ -155,14 +144,16 @@ void voxelize() {
         BBox localBounds(Point3D(-cylinder.h, -cylinder.radius, -cylinder.radius),
                          Point3D(cylinder.h, cylinder.radius, cylinder.radius));
 
-        Vector3D<Dimensionless> perpendicular2 = cross(Vector3D<Dimensionless>(1.0, 0.0, 0.0), cylinder.direction);
-        Length3D perpendicular = perpendicular2 * 1.0_um;
+        Vector3D perpendicular = cross(Vector3D(1.0, 0.0, 0.0), cylinder.direction);
         Transform rotation;
-        if(perpendicular.length() > 0.0_um) {
-            double sinAngle = perpendicular.length().value();
-            double cosAngle = sqrt(1 - sinAngle*sinAngle);
+        double sinAngle = perpendicular.length();
+        if(sinAngle > 0.0) {
+            if(sinAngle > 1.0) {
+                sinAngle -= 2.2204460492503131e-16; // typical machine precision error
+            }
+            double cosAngle = sqrt(1.0 - sinAngle*sinAngle);
 
-            rotation = rotatec(cosAngle, sinAngle, perpendicular);
+            rotation = rotate(cosAngle, sinAngle, perpendicular);
         }
         Transform translation = translate(Length3D(cylinder.center));
         BBox bounds = translation(rotation(localBounds));

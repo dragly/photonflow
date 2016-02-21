@@ -101,8 +101,8 @@ ProjectiveCamera::ProjectiveCamera(const Transform &cam2world,
         scale(1.0 / (screenWindow.width()),
               1.0 / (screenWindow.height()), 1.0) *
         translate(Length3D(-screenWindow.x() * 1.0_um, -screenWindow.y() * 1.0_um, 0.0 * 1.0_um)); // TODO: Should be dimensionless?
-    RasterToScreen = Inverse(ScreenToRaster);
-    RasterToCamera = Inverse(CameraToScreen) * RasterToScreen;
+    RasterToScreen = inverse(ScreenToRaster);
+    RasterToCamera = inverse(CameraToScreen) * RasterToScreen;
 }
 
 

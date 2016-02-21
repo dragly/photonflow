@@ -19,7 +19,7 @@ inline double heyneyGreenstein(double g, RNG &rng)
     } else {
         cosTheta = 2*eta - 1;
     }
-    photonFlowAssert(cosTheta >= -1.0 && cosTheta <= 1.0);
+    photonflowAssert(cosTheta >= -1.0 && cosTheta <= 1.0);
     return cosTheta;
 }
 }

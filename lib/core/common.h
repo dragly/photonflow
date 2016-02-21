@@ -1,14 +1,14 @@
 #ifndef COMMON
 #define COMMON
 
-#include "../core/error.h"
-#include "../core/units.h"
-
 #include <assert.h>
 #include <algorithm>
 #include <vector>
 #include <string>
 #include <cmath>
+
+#include "../core/error.h"
+#include "../core/units.h"
 
 using std::min;
 using std::max;
@@ -24,7 +24,15 @@ class Renderer;
 class Sample;
 class RNG;
 class LightSampleOffsets;
-template <typename T, int logBlockSize = 2> class BlockedArray;
+
+template <typename T, int logBlockSize = 2>
+class BlockedArray;
+
+template<typename T>
+class BaseVector3D;
+
+using Vector3D = BaseVector3D<boost::units::photonflow::Dimensionless>;
+using Length3D = BaseVector3D<boost::units::photonflow::Length>;
 
 #define UNUSED(x) (void)(x)
 
@@ -125,35 +133,10 @@ inline int Ceil2Int(double val) {
     return (int)ceilf(val);
 }
 
-//template<typename U>
-//bool isNaN(U val) {
-//    return isnan(val.value());
-//}
-
-template<typename T>
-bool isnan(boost::units::quantity<T> val) {
-    return isnan(val.value());
-}
-
-//template<typename T>
-//auto sqrt(boost::units::quantity<T> val) {
-//    return sqrt(val.value());
-//}
-
-template<typename T>
-auto min(boost::units::quantity<T> val) {
-    return min(val.value());
-}
-
-template<typename T>
-auto max(boost::units::quantity<T> val) {
-    return max(val.value());
-}
-
 #ifdef NDEBUG
-#define photonFlowAssert(expr) ((void)0)
+#define photonflowAssert(expr) ((void)0)
 #else
-#define photonFlowAssert(expr) \
+#define photonflowAssert(expr) \
     ((expr) ? (void)0 : \
         Severe("Assertion \"%s\" failed in %s, line %d", \
                #expr, __FILE__, __LINE__))
@@ -173,7 +156,6 @@ inline bool Quadratic(double A, double B, double C, double *t0, double *t1) {
     if (*t0 > *t1) swap(*t0, *t1);
     return true;
 }
-
 
 #endif // COMMON
 

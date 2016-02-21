@@ -126,7 +126,7 @@ static double RdToAlphap(double reflectance, double A) {
     UNUSED(kd0);
     UNUSED(kd1);
     for (int i = 0; i < 16; ++i) {
-        photonFlowAssert(kd0 <= reflectance && kd1 >= reflectance);
+        photonflowAssert(kd0 <= reflectance && kd1 >= reflectance);
         double alphaMid = (alphaLow + alphaHigh) * 0.5f;
         double kd = RdIntegral(alphaMid, A);
         if (kd < reflectance) { alphaLow = alphaMid;  kd0 = kd; }

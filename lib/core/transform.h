@@ -41,8 +41,8 @@ struct Matrix4x4 {
     Matrix4x4() {
         m[0][0] = m[1][1] = m[2][2] = m[3][3] = 1.0;
         m[0][1] = m[0][2] = m[0][3] = m[1][0] =
-             m[1][2] = m[1][3] = m[2][0] = m[2][1] = m[2][3] =
-             m[3][0] = m[3][1] = m[3][2] = 0.0;
+                m[1][2] = m[1][3] = m[2][0] = m[2][1] = m[2][3] =
+                m[3][0] = m[3][1] = m[3][2] = 0.0;
     }
     Matrix4x4(double mat[4][4]);
     Matrix4x4(double t00, double t01, double t02, double t03,
@@ -67,12 +67,12 @@ struct Matrix4x4 {
         for (int i = 0; i < 4; ++i)
             for (int j = 0; j < 4; ++j)
                 r.m[i][j] = m1.m[i][0] * m2.m[0][j] +
-                            m1.m[i][1] * m2.m[1][j] +
-                            m1.m[i][2] * m2.m[2][j] +
-                            m1.m[i][3] * m2.m[3][j];
+                        m1.m[i][1] * m2.m[1][j] +
+                        m1.m[i][2] * m2.m[2][j] +
+                        m1.m[i][3] * m2.m[3][j];
         return r;
     }
-    friend Matrix4x4 Inverse(const Matrix4x4 &);
+    friend Matrix4x4 inverse(const Matrix4x4 &);
     double m[4][4];
 };
 
@@ -85,19 +85,19 @@ public:
     Transform() { }
     Transform(const double mat[4][4]) {
         m = Matrix4x4(mat[0][0], mat[0][1], mat[0][2], mat[0][3],
-                      mat[1][0], mat[1][1], mat[1][2], mat[1][3],
-                      mat[2][0], mat[2][1], mat[2][2], mat[2][3],
-                      mat[3][0], mat[3][1], mat[3][2], mat[3][3]);
-        mInv = Inverse(m);
+                mat[1][0], mat[1][1], mat[1][2], mat[1][3],
+                mat[2][0], mat[2][1], mat[2][2], mat[2][3],
+                mat[3][0], mat[3][1], mat[3][2], mat[3][3]);
+        mInv = inverse(m);
     }
     Transform(const Matrix4x4 &mat)
-        : m(mat), mInv(Inverse(mat)) {
+        : m(mat), mInv(inverse(mat)) {
     }
     Transform(const Matrix4x4 &mat, const Matrix4x4 &minv)
-       : m(mat), mInv(minv) {
+        : m(mat), mInv(minv) {
     }
     void print(FILE *f) const;
-    friend Transform Inverse(const Transform &t) {
+    friend Transform inverse(const Transform &t) {
         return Transform(t.mInv, t.m);
     }
     friend Transform Transpose(const Transform &t) {
@@ -129,18 +129,16 @@ public:
     }
     const Matrix4x4 &matrix() const { return m; }
     const Matrix4x4 &inverseMatrix() const { return mInv; }
-//    bool hasScale() const {
-//        auto la2 = (*this)(Vector3D(1,0,0)).lengthSquared();
-//        auto lb2 = (*this)(Vector3D(0,1,0)).lengthSquared();
-//        auto lc2 = (*this)(Vector3D(0,0,1)).lengthSquared();
-//#define NOT_ONE(x) ((x) < .999f || (x) > 1.001f)
-//        return (NOT_ONE(la2) || NOT_ONE(lb2) || NOT_ONE(lc2));
-//#undef NOT_ONE
-//    }
+    //    bool hasScale() const {
+    //        auto la2 = (*this)(Vector3D(1,0,0)).lengthSquared();
+    //        auto lb2 = (*this)(Vector3D(0,1,0)).lengthSquared();
+    //        auto lc2 = (*this)(Vector3D(0,0,1)).lengthSquared();
+    //#define NOT_ONE(x) ((x) < .999f || (x) > 1.001f)
+    //        return (NOT_ONE(la2) || NOT_ONE(lb2) || NOT_ONE(lc2));
+    //#undef NOT_ONE
+    //    }
     inline Point3D operator()(const Point3D &pt) const;
     inline void operator()(const Point3D &pt, Point3D *ptrans) const;
-    inline Length3D operator()(const Length3D &v) const;
-    inline void operator()(const Length3D &v, Length3D *vt) const;
     inline Normal operator()(const Normal &) const;
     inline void operator()(const Normal &, Normal *nt) const;
     inline Ray operator()(const Ray &r) const;
@@ -148,13 +146,20 @@ public:
     inline RayDifferential operator()(const RayDifferential &r) const;
     inline void operator()(const RayDifferential &r, RayDifferential *rt) const;
     BBox operator()(const BBox &b) const;
+
+    template<typename T>
+    inline BaseVector3D<T> operator()(const BaseVector3D<T> &v) const;
+
+    template<typename T>
+    inline void operator()(const BaseVector3D<T> &v, BaseVector3D<T> *vt) const;
+
     Transform operator*(const Transform &t2) const;
     bool swapsHandedness() const;
 private:
     // Transform Private Data
     Matrix4x4 m, mInv;
     friend class AnimatedTransform;
-//    friend struct Quaternion;
+    //    friend struct Quaternion;
 };
 
 
@@ -163,11 +168,11 @@ Transform scale(double x, double y, double z);
 Transform rotateX(double angle);
 Transform rotateY(double angle);
 Transform rotateZ(double angle);
-Transform rotate(double angle, const Length3D &axis);
-Transform rotatec(double cosAngle, double sinAngle, const Length3D &axis);
+Transform rotate(double angle, const Vector3D &axis);
+Transform rotate(double cosAngle, double sinAngle, const Vector3D &axis);
 Transform lookAt(const Point3D &pos, const Point3D &look, const Length3D &up);
 bool solveLinearSystem2x2(const double A[2][2], const double B[2],
-    double *x0, double *x1);
+double *x0, double *x1);
 Transform orthographic(double znear, double zfar);
 Transform perspective(double fov, double znear, double zfar);
 
@@ -180,7 +185,7 @@ inline Point3D Transform::operator()(const Point3D &pt) const {
     auto yp = m.m[1][0]*x + m.m[1][1]*y + m.m[1][2]*z + m.m[1][3]*1.0_um;
     auto zp = m.m[2][0]*x + m.m[2][1]*y + m.m[2][2]*z + m.m[2][3]*1.0_um;
     auto wp = m.m[3][0]*x + m.m[3][1]*y + m.m[3][2]*z + m.m[3][3]*1.0_um;
-//    photonFlowAssert(wp != 0); // TODO was commented out for GCC6
+    //    photonFlowAssert(wp != 0); // TODO was commented out for GCC6
     if (wp == 1.0_um) {
         return Point3D(xp, yp, zp);
     } else {
@@ -205,40 +210,41 @@ inline void Transform::operator()(const Point3D &pt,
 }
 
 
-inline Length3D Transform::operator()(const Length3D &v) const {
-  auto x = v.x, y = v.y, z = v.z;
-  return Length3D(m.m[0][0]*x + m.m[0][1]*y + m.m[0][2]*z,
-                m.m[1][0]*x + m.m[1][1]*y + m.m[1][2]*z,
-                m.m[2][0]*x + m.m[2][1]*y + m.m[2][2]*z);
+
+template<typename T>
+inline BaseVector3D<T> Transform::operator()(const BaseVector3D<T> &v) const {
+    auto x = v.x, y = v.y, z = v.z;
+    return BaseVector3D<T>(m.m[0][0]*x + m.m[0][1]*y + m.m[0][2]*z,
+            m.m[1][0]*x + m.m[1][1]*y + m.m[1][2]*z,
+            m.m[2][0]*x + m.m[2][1]*y + m.m[2][2]*z);
 }
 
-
-inline void Transform::operator()(const Length3D &v,
-        Length3D *vt) const {
-  auto x = v.x, y = v.y, z = v.z;
-  vt->x = m.m[0][0] * x + m.m[0][1] * y + m.m[0][2] * z;
-  vt->y = m.m[1][0] * x + m.m[1][1] * y + m.m[1][2] * z;
-  vt->z = m.m[2][0] * x + m.m[2][1] * y + m.m[2][2] * z;
+template<typename T>
+inline void Transform::operator()(const BaseVector3D<T> &v, BaseVector3D<T> *vt) const {
+    auto x = v.x, y = v.y, z = v.z;
+    vt->x = m.m[0][0] * x + m.m[0][1] * y + m.m[0][2] * z;
+    vt->y = m.m[1][0] * x + m.m[1][1] * y + m.m[1][2] * z;
+    vt->z = m.m[2][0] * x + m.m[2][1] * y + m.m[2][2] * z;
 }
 
 
 inline Normal Transform::operator()(const Normal &n) const {
     auto x = n.x, y = n.y, z = n.z;
     return Normal(mInv.m[0][0]*x + mInv.m[1][0]*y + mInv.m[2][0]*z,
-                  mInv.m[0][1]*x + mInv.m[1][1]*y + mInv.m[2][1]*z,
-                  mInv.m[0][2]*x + mInv.m[1][2]*y + mInv.m[2][2]*z);
+            mInv.m[0][1]*x + mInv.m[1][1]*y + mInv.m[2][1]*z,
+            mInv.m[0][2]*x + mInv.m[1][2]*y + mInv.m[2][2]*z);
 }
 
 
 inline void Transform::operator()(const Normal &n,
-        Normal *nt) const {
+                                  Normal *nt) const {
     auto x = n.x, y = n.y, z = n.z;
     nt->x = mInv.m[0][0] * x + mInv.m[1][0] * y +
-        mInv.m[2][0] * z;
+            mInv.m[2][0] * z;
     nt->y = mInv.m[0][1] * x + mInv.m[1][1] * y +
-        mInv.m[2][1] * z;
+            mInv.m[2][1] * z;
     nt->z = mInv.m[0][2] * x + mInv.m[1][2] * y +
-        mInv.m[2][2] * z;
+            mInv.m[2][2] * z;
 }
 
 

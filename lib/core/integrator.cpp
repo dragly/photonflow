@@ -54,11 +54,11 @@ void Integrator::integrate(std::function<Control(const Ray& ray, boost::units::p
         double sinTheta = sqrt(1 - cosTheta*cosTheta);
         double phi = 2.0 * M_PI * m_rng->randomFloat();
 
-        Length3D perpendicular = m_ray.direction().perpendicular();
-        Transform phiRotation = rotate(phi, m_ray.direction());
+        Vector3D perpendicular = m_ray.direction().perpendicular().normalized();
+        Transform phiRotation = rotate(phi, m_ray.direction().normalized());
         perpendicular = phiRotation(perpendicular);
 
-        Transform directionRotation = rotatec(cosTheta, sinTheta, perpendicular);
+        Transform directionRotation = rotate(cosTheta, sinTheta, perpendicular);
 
         Length3D direction = directionRotation(m_ray.direction());
         direction = direction.normalized() * ds;

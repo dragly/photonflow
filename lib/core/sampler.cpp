@@ -69,7 +69,7 @@ void Sampler::computeSubWindow(int num, int count, int *newXStart,
         nx >>= 1;
         ny <<= 1;
     }
-    photonFlowAssert(nx * ny == count);
+    photonflowAssert(nx * ny == count);
 
     // Compute $x$ and $y$ pixel sample range for sub-window
     int xo = num % nx, yo = num / nx;

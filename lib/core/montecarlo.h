@@ -87,12 +87,12 @@ struct Distribution1D {
         double *ptr = std::upper_bound(cdf, cdf+count+1, u);
         int offset = max(0, int(ptr-cdf-1));
         if (off) *off = offset;
-        photonFlowAssert(offset < count);
-        photonFlowAssert(u >= cdf[offset] && u < cdf[offset+1]);
+        photonflowAssert(offset < count);
+        photonflowAssert(u >= cdf[offset] && u < cdf[offset+1]);
 
         // Compute offset along CDF segment
         double du = (u - cdf[offset]) / (cdf[offset+1] - cdf[offset]);
-        photonFlowAssert(!isnan(du));
+        photonflowAssert(!std::isnan(du));
 
         // Compute PDF for sampled offset
         if (pdf) *pdf = func[offset] / funcInt;
@@ -104,8 +104,8 @@ struct Distribution1D {
         // Find surrounding CDF segments and _offset_
         double *ptr = std::upper_bound(cdf, cdf+count+1, u);
         int offset = max(0, int(ptr-cdf-1));
-        photonFlowAssert(offset < count);
-        photonFlowAssert(u >= cdf[offset] && u < cdf[offset+1]);
+        photonflowAssert(offset < count);
+        photonflowAssert(u >= cdf[offset] && u < cdf[offset+1]);
         if (pdf) *pdf = func[offset] / (funcInt * count);
         return offset;
     }

@@ -58,8 +58,8 @@ void sortSpectrumSamples(double *lambda, double *vals, int n) {
 
 double averageSpectrumSamples(const double *lambda, const double *vals,
         int n, double lambdaStart, double lambdaEnd) {
-    for (int i = 0; i < n-1; ++i) photonFlowAssert(lambda[i+1] > lambda[i]);
-    photonFlowAssert(lambdaStart < lambdaEnd);
+    for (int i = 0; i < n-1; ++i) photonflowAssert(lambda[i+1] > lambda[i]);
+    photonflowAssert(lambdaStart < lambdaEnd);
     // Handle cases with out-of-bounds range or single sample only
     if (lambdaEnd   <= lambda[0])   return vals[0];
     if (lambdaStart >= lambda[n-1]) return vals[n-1];
@@ -74,7 +74,7 @@ double averageSpectrumSamples(const double *lambda, const double *vals,
     // Advance to first relevant wavelength segment
     int i = 0;
     while (lambdaStart > lambda[i+1]) ++i;
-    photonFlowAssert(i+1 < n);
+    photonflowAssert(i+1 < n);
 
     // Loop over wavelength sample segments and add contributions
 #define INTERP(w, i) \
@@ -207,7 +207,7 @@ void Blackbody(const double *wl, int n, double temp, double *vals) {
 
 double InterpolateSpectrumSamples(const double *lambda, const double *vals,
                                  int n, double l) {
-    for (int i = 0; i < n-1; ++i) photonFlowAssert(lambda[i+1] > lambda[i]);
+    for (int i = 0; i < n-1; ++i) photonflowAssert(lambda[i+1] > lambda[i]);
     if (l <= lambda[0])   return vals[0];
     if (l >= lambda[n-1]) return vals[n-1];
     for (int i = 0; i < n-1; ++i) {

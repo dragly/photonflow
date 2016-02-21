@@ -104,7 +104,7 @@ public:
     CoefficientSpectrum(double v = 0.0) {
         for (int i = 0; i < nSamples; ++i)
             c[i] = v;
-        photonFlowAssert(!hasNaNs());
+        photonflowAssert(!hasNaNs());
     }
 #ifdef DEBUG
     CoefficientSpectrum(const CoefficientSpectrum &s) {
@@ -129,41 +129,41 @@ public:
         fprintf(f, "]");
     }
     CoefficientSpectrum &operator+=(const CoefficientSpectrum &s2) {
-        photonFlowAssert(!s2.hasNaNs());
+        photonflowAssert(!s2.hasNaNs());
         for (int i = 0; i < nSamples; ++i)
             c[i] += s2.c[i];
         return *this;
     }
     CoefficientSpectrum operator+(const CoefficientSpectrum &s2) const {
-        photonFlowAssert(!s2.hasNaNs());
+        photonflowAssert(!s2.hasNaNs());
         CoefficientSpectrum ret = *this;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] += s2.c[i];
         return ret;
     }
     CoefficientSpectrum operator-(const CoefficientSpectrum &s2) const {
-        photonFlowAssert(!s2.hasNaNs());
+        photonflowAssert(!s2.hasNaNs());
         CoefficientSpectrum ret = *this;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] -= s2.c[i];
         return ret;
     }
     CoefficientSpectrum operator/(const CoefficientSpectrum &s2) const {
-        photonFlowAssert(!s2.hasNaNs());
+        photonflowAssert(!s2.hasNaNs());
         CoefficientSpectrum ret = *this;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] /= s2.c[i];
         return ret;
     }
     CoefficientSpectrum operator*(const CoefficientSpectrum &sp) const {
-        photonFlowAssert(!sp.hasNaNs());
+        photonflowAssert(!sp.hasNaNs());
         CoefficientSpectrum ret = *this;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] *= sp.c[i];
         return ret;
     }
     CoefficientSpectrum &operator*=(const CoefficientSpectrum &sp) {
-        photonFlowAssert(!sp.hasNaNs());
+        photonflowAssert(!sp.hasNaNs());
         for (int i = 0; i < nSamples; ++i)
             c[i] *= sp.c[i];
         return *this;
@@ -172,30 +172,30 @@ public:
         CoefficientSpectrum ret = *this;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] *= a;
-        photonFlowAssert(!ret.hasNaNs());
+        photonflowAssert(!ret.hasNaNs());
         return ret;
     }
     CoefficientSpectrum &operator*=(double a) {
         for (int i = 0; i < nSamples; ++i)
             c[i] *= a;
-        photonFlowAssert(!hasNaNs());
+        photonflowAssert(!hasNaNs());
         return *this;
     }
     friend inline
     CoefficientSpectrum operator*(double a, const CoefficientSpectrum &s) {
-        photonFlowAssert(!isnan(a) && !s.hasNaNs());
+        photonflowAssert(!std::isnan(a) && !s.hasNaNs());
         return s * a;
     }
     CoefficientSpectrum operator/(double a) const {
-        photonFlowAssert(!isnan(a));
+        photonflowAssert(!std::isnan(a));
         CoefficientSpectrum ret = *this;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] /= a;
-        photonFlowAssert(!ret.hasNaNs());
+        photonflowAssert(!ret.hasNaNs());
         return ret;
     }
     CoefficientSpectrum &operator/=(double a) {
-        photonFlowAssert(!isnan(a));
+        photonflowAssert(!std::isnan(a));
         for (int i = 0; i < nSamples; ++i)
             c[i] /= a;
         return *this;
@@ -222,7 +222,7 @@ public:
         CoefficientSpectrum ret;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] = sqrtf(s.c[i]);
-        photonFlowAssert(!ret.hasNaNs());
+        photonflowAssert(!ret.hasNaNs());
         return ret;
     }
     template <int n> friend inline CoefficientSpectrum<n> Pow(const CoefficientSpectrum<n> &s, double e);
@@ -236,19 +236,19 @@ public:
         CoefficientSpectrum ret;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] = expf(s.c[i]);
-        photonFlowAssert(!ret.hasNaNs());
+        photonflowAssert(!ret.hasNaNs());
         return ret;
     }
     CoefficientSpectrum clamp(double low = 0, double high = INFINITY) const {
         CoefficientSpectrum ret;
         for (int i = 0; i < nSamples; ++i)
             ret.c[i] = ::clamp(c[i], low, high);
-        photonFlowAssert(!ret.hasNaNs());
+        photonflowAssert(!ret.hasNaNs());
         return ret;
     }
     bool hasNaNs() const {
         for (int i = 0; i < nSamples; ++i)
-            if (isnan(c[i])) return true;
+            if (std::isnan(c[i])) return true;
         return false;
     }
     bool Write(FILE *f) const {
@@ -412,7 +412,7 @@ public:
         s.c[0] = rgb[0];
         s.c[1] = rgb[1];
         s.c[2] = rgb[2];
-        photonFlowAssert(!s.hasNaNs());
+        photonflowAssert(!s.hasNaNs());
         return s;
     }
     void toRGB(double *rgb) const {
@@ -469,7 +469,7 @@ pow(const CoefficientSpectrum<nSamples> &s, double e) {
     CoefficientSpectrum<nSamples> ret;
     for (int i = 0; i < nSamples; ++i)
         ret.c[i] = powf(s.c[i], e);
-    photonFlowAssert(!ret.hasNaNs());
+    photonflowAssert(!ret.hasNaNs());
     return ret;
 }
 

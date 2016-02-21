@@ -76,7 +76,7 @@ public:
     DensityRegion(const Spectrum &sa, const Spectrum &ss, double gg,
                   const Spectrum &emita, const Transform &VolumeToWorldIn)
         : sig_a(sa), sig_s(ss), le(emita), g(gg),
-          WorldToVolume(Inverse(VolumeToWorldIn)),
+          WorldToVolume(inverse(VolumeToWorldIn)),
           VolumeToWorld(VolumeToWorldIn) { }
     virtual double Density(const Point3D &Pobj) const = 0;
     Spectrum sigma_a(const Point3D &p, const Length3D &, double) const {

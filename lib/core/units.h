@@ -3,6 +3,7 @@
 
 #include <boost/units/quantity.hpp>
 #include <boost/units/systems/si.hpp>
+#include <boost/units/cmath.hpp>
 
 namespace boost
 {
@@ -129,13 +130,15 @@ BOOST_UNITS_LITERAL_SET(s, photonflow::TimeUnit, 1000*1000*photonflow::microseco
 //BOOST_UNITS_LITERAL_SET(L, si::volume, 0.001 * si::cubic_meter)
 //BOOST_UNITS_LITERAL_SET(t, si::mass, 1000.0 * si::kilogram)
 
-}
+} // literals
 
 }
 
 }
 
 }
+
+std::ostream& operator<< (std::ostream& out, boost::units::photonflow::Length l);
 
 #endif // UNITS
 
