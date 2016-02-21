@@ -68,6 +68,8 @@ Product {
         "filters/triangle.h",
         "geometry/bbox.cpp",
         "geometry/bbox.h",
+        "geometry/cylinderfrustum.cpp",
+        "geometry/cylinderfrustum.h",
         "geometry/normal.cpp",
         "geometry/normal.h",
         "geometry/point3d.cpp",
