@@ -18,8 +18,7 @@ install:
   - sudo apt-get -qq install libboost-dev
   - sudo apt-get -qq install gcc-5
   - sudo apt-get -qq install g++-5
-  - sudo apt-get -qq install libxerces-c-dev 
-  - sudo apt-get -qq install xsdcxx
+  - sudo apt-get -qq install libpugixml-dev
   - sudo mv /usr/bin/gcc /usr/bin/gcc-old
   - sudo mv /usr/bin/g++ /usr/bin/g++-old
   - sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc

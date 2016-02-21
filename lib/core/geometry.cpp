@@ -98,6 +98,6 @@ std::ostream& operator<< (std::ostream &out, const Length3D &vector)
 std::ostream& operator<< (std::ostream &out, const Point3D &point)
 {
     (void)point;
-//    out << point.x << ", " << point.y << ", " << point.z;
+    out << point.x << ", " << point.y << ", " << point.z;
     return out;
 }

@@ -1,11 +1,12 @@
 #include <catch.hpp>
 
-#include "schema/NeuroML_v2beta3.h"
+//#include "schema/NeuroML_v2beta3.h"
 #include "core/geometry.h"
 #include "core/heyneygreenstein.h"
 #include "core/transform.h"
 #include "core/integrator.h"
-#include <QXmlStreamReader>
+#include <pugixml.hpp>
+//#include <QXmlStreamReader>
 
 #include <iostream>
 #include <fstream>
@@ -18,7 +19,11 @@
 
 using namespace std;
 using namespace boost::units::photonflow;
-using namespace neurona;
+//using namespace neurona;
+using namespace pugi;
+
+// TODO use frustum instead of cylinder (two radii)
+// TODO add tests to check that voxelization works properly
 
 class Cylinder
 {
@@ -62,54 +67,59 @@ void voxelize() {
 
     vector<Cylinder> cylinders;
 
-    unordered_map<uint, schema::Segment> segments;
-
     BBox bbox;
 
-    try
-    {
-        auto doc = schema::neuroml(path);
-
-        for(schema::Cell &cell : doc->cells()) {
-            if(cell.morphology()) {
-                for(schema::Segment &segment : cell.morphology()->segments()) {
-                    segments.insert({segment.id(), segment});
-                }
-                for(schema::Segment &segment : cell.morphology()->segments()) {
-                    auto parentOptional = segment.parent();
-                    auto proximalOptional = segment.proximal();
-                    auto distal = segment.distal();
-                    auto radius = segment.distal().diameter() * 0.5_um;
-                    Point3D start(distal.x() * 1.0_um, distal.y() * 1.0_um, distal.z() * 1.0_um);
-                    bbox = makeUnion(bbox, start);
-                    Point3D end;
-                    bool hasProximal = false;
-                    if(proximalOptional) {
-                        hasProximal = true;
-                        end = Point3D(proximalOptional->x() * 1.0_um, proximalOptional->y() * 1.0_um, proximalOptional->z() * 1.0_um);
-                    } else if(parentOptional) {
-                        hasProximal = true;
-                        auto parentInMap = segments.find(segment.parent()->segment());
-                        if(parentInMap != segments.end()) {
-                            auto parentDistal = parentInMap->second.distal();
-                            end = Point3D(parentDistal.x() * 1.0_um, parentDistal.y() * 1.0_um, parentDistal.z() * 1.0_um);
-                        }
-                    }
-                    if(hasProximal) {
-                        Cylinder cylinder(start, end, radius);
-                        cylinders.push_back(cylinder);
-                    }
-                }
+    xml_document doc;
+    xml_parse_result result = doc.load_file(path);
+    if(!result) {
+        cerr << "Could not parse XML document " << path << endl;
+        return;
+    }
+    xml_node cell = doc.child("neuroml").child("cell").child("morphology");
+    unordered_map<uint, xml_node> segments;
+    for(xml_node segment : cell.children("segment")) {
+        uint id = segment.attribute("id").as_uint(0);
+        segments.insert({id, segment});
+    }
+    for(xml_node segment : cell.children("segment")) {
+        uint id = segment.attribute("id").as_uint(0);
+        xml_node distal = segment.child("distal");
+        Length radius = distal.attribute("diameter").as_double() * 0.5_um;
+        xml_node proximal = segment.child("proximal");
+        xml_node parent = segment.child("parent");
+        if(!distal) {
+            continue;
+        }
+        Point3D start(distal.attribute("x").as_double() * 1.0_um,
+                      distal.attribute("y").as_double() * 1.0_um,
+                      distal.attribute("z").as_double() * 1.0_um);
+        Point3D end;
+        bbox = makeUnion(bbox, start);
+        bool hasProximal = false;
+        if(proximal) {
+            hasProximal = true;
+            end = Point3D(proximal.attribute("x").as_double() * 1.0_um,
+                          proximal.attribute("y").as_double() * 1.0_um,
+                          proximal.attribute("z").as_double() * 1.0_um);
+        } else if(parent) {
+            auto parentInMap = segments.find(parent.attribute("segment").as_uint());
+            if(parentInMap != segments.end()) {
+                hasProximal = true;
+                xml_node parentDistal = parentInMap->second.child("distal");
+                end = Point3D(parentDistal.attribute("x").as_double() * 1.0_um,
+                              parentDistal.attribute("y").as_double() * 1.0_um,
+                              parentDistal.attribute("z").as_double() * 1.0_um);
             }
         }
-
+        if(hasProximal) {
+            Cylinder cylinder(start, end, radius);
+            cylinders.push_back(cylinder);
+        }
     }
-    catch (const xml_schema::Exception& e)
-    {
-        cerr << e << endl;
-    }
 
-    int N = 128;
+    cout << "Cylinders: " << cylinders.size() << endl;
+
+    int N = 2048;
     Length xSide = bbox.pMax[0] - bbox.pMin[0];
     Length ySide = bbox.pMax[1] - bbox.pMin[1];
     Length zSide = bbox.pMax[2] - bbox.pMin[2];
