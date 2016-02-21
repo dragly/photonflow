@@ -1,12 +1,10 @@
 #include <catch.hpp>
 
-//#include "schema/NeuroML_v2beta3.h"
 #include "core/geometry.h"
 #include "core/heyneygreenstein.h"
 #include "core/transform.h"
 #include "core/integrator.h"
 #include <pugixml.hpp>
-//#include <QXmlStreamReader>
 
 #include <iostream>
 #include <fstream>
@@ -19,7 +17,6 @@
 
 using namespace std;
 using namespace photonflow;
-//using namespace neurona;
 using namespace pugi;
 
 // TODO add tests to check that voxelization works properly
