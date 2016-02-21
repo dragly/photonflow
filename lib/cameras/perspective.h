@@ -50,8 +50,8 @@ class PerspectiveCamera : public ProjectiveCamera {
 public:
     // PerspectiveCamera Public Methods
     PerspectiveCamera(const Transform &cam2world,
-        const Rectangle &screenWindow, boost::units::photonflow::Time sopen, boost::units::photonflow::Time sclose,
-        boost::units::photonflow::Length lensr, boost::units::photonflow::Length focald, double fov, std::shared_ptr<Film> film);
+        const Rectangle &screenWindow, photonflow::Time sopen, photonflow::Time sclose,
+        photonflow::Length lensr, photonflow::Length focald, double fov, std::shared_ptr<Film> film);
     double generateRay(const CameraSample &sample, Ray *) const;
 //    double generateRayDifferential(const CameraSample &sample,
 //                                  RayDifferential *ray) const;

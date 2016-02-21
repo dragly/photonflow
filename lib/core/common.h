@@ -31,8 +31,8 @@ class BlockedArray;
 template<typename T>
 class BaseVector3D;
 
-using Vector3D = BaseVector3D<boost::units::photonflow::Dimensionless>;
-using Length3D = BaseVector3D<boost::units::photonflow::Length>;
+using Vector3D = BaseVector3D<photonflow::Dimensionless>;
+using Length3D = BaseVector3D<photonflow::Length>;
 
 #define UNUSED(x) (void)(x)
 

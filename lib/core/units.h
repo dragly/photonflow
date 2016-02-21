@@ -26,21 +26,20 @@ namespace boost
   }
 }
 
-namespace boost {
-
-namespace units {
-
 namespace photonflow {
 
-using MicrometerBaseUnit = scaled_base_unit<si::meter_base_unit, scale<10, static_rational<-6> > >;
-using MicrosecondBaseUnit = scaled_base_unit<si::second_base_unit, scale<10, static_rational<-6> > >;
+namespace bu = boost::units;
 
-using PhotonflowUnitSystem = make_system<MicrometerBaseUnit, MicrosecondBaseUnit>::type;
+using MicrometerBaseUnit = bu::scaled_base_unit<bu::si::meter_base_unit, bu::scale<10, bu::static_rational<-6>>>;
+using MicrosecondBaseUnit = bu::scaled_base_unit<bu::si::second_base_unit, bu::scale<10, bu::static_rational<-6>>>;
 
-using LengthUnit = unit<length_dimension, PhotonflowUnitSystem>;
-using AreaUnit = unit<area_dimension, PhotonflowUnitSystem>;
-using TimeUnit = unit<time_dimension, PhotonflowUnitSystem>;
-using DimensionlessUnit = unit<dimensionless_type, PhotonflowUnitSystem>;
+using PhotonflowUnitSystem = bu::make_system<MicrometerBaseUnit, MicrosecondBaseUnit>::type;
+
+using LengthUnit = bu::unit<bu::length_dimension, PhotonflowUnitSystem>;
+using AreaUnit = bu::unit<bu::area_dimension, PhotonflowUnitSystem>;
+using VolumeUnit = bu::unit<bu::volume_dimension, PhotonflowUnitSystem>;
+using TimeUnit = bu::unit<bu::time_dimension, PhotonflowUnitSystem>;
+using DimensionlessUnit = bu::unit<bu::dimensionless_type, PhotonflowUnitSystem>;
 
 BOOST_UNITS_STATIC_CONSTANT(micrometer, LengthUnit);
 BOOST_UNITS_STATIC_CONSTANT(micrometers, LengthUnit);
@@ -50,23 +49,24 @@ BOOST_UNITS_STATIC_CONSTANT(micrometres, LengthUnit);
 BOOST_UNITS_STATIC_CONSTANT(microsecond, TimeUnit);
 BOOST_UNITS_STATIC_CONSTANT(microseconds, TimeUnit);
 
-using Length = quantity<LengthUnit>;
-using Dimensionless = quantity<DimensionlessUnit>;
-using Area = quantity<AreaUnit>;
-using Time = quantity<TimeUnit>;
+using Length = bu::quantity<LengthUnit>;
+using Dimensionless = bu::quantity<DimensionlessUnit>;
+using Area = bu::quantity<AreaUnit>;
+using Volume = bu::quantity<VolumeUnit>;
+using Time = bu::quantity<TimeUnit>;
 
 // Literals
 
 namespace literals {
 
 #define BOOST_UNITS_LITERAL(suffix, unit, val, prefix, multiplier) \
-inline quantity<unit, double> operator "" _##prefix##suffix(long double x) \
+inline bu::quantity<unit, double> operator "" _##prefix##suffix(long double x) \
 { \
-    return quantity<unit, double>(x * multiplier * val); \
+    return bu::quantity<unit, double>(x * multiplier * val); \
 } \
-inline quantity<unit, unsigned long long> operator "" _##prefix##suffix(unsigned long long x) \
+inline bu::quantity<unit, unsigned long long> operator "" _##prefix##suffix(unsigned long long x) \
 { \
-    return quantity<unit, unsigned long long>(x * multiplier * val); \
+    return bu::quantity<unit, unsigned long long>(x * multiplier * val); \
 }
 
 
@@ -134,11 +134,7 @@ BOOST_UNITS_LITERAL_SET(s, photonflow::TimeUnit, 1000*1000*photonflow::microseco
 
 }
 
-}
-
-}
-
-std::ostream& operator<< (std::ostream& out, boost::units::photonflow::Length l);
+std::ostream& operator<< (std::ostream& out, photonflow::Length l);
 
 #endif // UNITS
 

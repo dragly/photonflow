@@ -4,14 +4,14 @@
 #include "../core/units.h"
 #include "../core/common.h"
 
-using namespace boost::units::photonflow::literals;
+using namespace photonflow::literals;
 
 class Normal
 {
 public:
     // Normal Public Methods
     Normal();
-    Normal(boost::units::photonflow::Length xx, boost::units::photonflow::Length yy, boost::units::photonflow::Length zz);
+    Normal(photonflow::Length xx, photonflow::Length yy, photonflow::Length zz);
     Normal operator-() const;
     Normal operator+ (const Normal &n) const;
     Normal& operator+=(const Normal &n);
@@ -34,22 +34,22 @@ public:
     Normal &operator=(const Normal &n);
 #endif // !NDEBUG
     explicit Normal(const Length3D &v);
-    boost::units::photonflow::Length operator[](int i) const;
+    photonflow::Length operator[](int i) const;
 
-    boost::units::photonflow::Length &operator[](int i);
+    photonflow::Length &operator[](int i);
 
     bool operator==(const Normal &n) const;
     bool operator!=(const Normal &n) const;
 
     // Normal Public Data
-    boost::units::photonflow::Length x, y, z;
+    photonflow::Length x, y, z;
 };
 
 #include "vector3d.h"
 
 inline Normal::Normal() { x = y = z = 0.0_um; }
 
-inline Normal::Normal(boost::units::photonflow::Length xx, boost::units::photonflow::Length yy, boost::units::photonflow::Length zz)
+inline Normal::Normal(photonflow::Length xx, photonflow::Length yy, photonflow::Length zz)
     : x(xx), y(yy), z(zz) {
     photonflowAssert(!hasNaNs());
 }
@@ -131,12 +131,12 @@ inline Normal::Normal(const Length3D &v)
     photonflowAssert(!v.hasNaNs());
 }
 
-inline boost::units::photonflow::Length Normal::operator[](int i) const {
+inline photonflow::Length Normal::operator[](int i) const {
     photonflowAssert(i >= 0 && i <= 2);
     return (&x)[i];
 }
 
-inline boost::units::photonflow::Length &Normal::operator[](int i) {
+inline photonflow::Length &Normal::operator[](int i) {
     photonflowAssert(i >= 0 && i <= 2);
     return (&x)[i];
 }

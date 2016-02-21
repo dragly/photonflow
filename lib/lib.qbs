@@ -11,6 +11,7 @@ Product {
         "armadillo_includer.h",
         "cameras/perspective.cpp",
         "cameras/perspective.h",
+        "core/camera.h",
         "core/camera.cpp",
         "core/common.h",
         "core/diffgeom.cpp",

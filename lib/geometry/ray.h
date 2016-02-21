@@ -7,7 +7,7 @@
 #include "point3d.h"
 #include "vector3d.h"
 
-using namespace boost::units::photonflow::literals;
+using namespace photonflow::literals;
 
 class Ray {
 public:
@@ -22,7 +22,7 @@ public:
     Ray(const Point3D &origin, const Length3D &direction,
         double start = 0.0,
         double end = INFINITY,
-        boost::units::photonflow::Time t = 0.0_us,
+        photonflow::Time t = 0.0_us,
         int d = 0)
         : m_origin(origin)
         , m_direction(direction)
@@ -62,7 +62,7 @@ public:
     Length3D m_direction;
     mutable double m_mint;
     mutable double m_maxt;
-    boost::units::photonflow::Time m_time;
+    photonflow::Time m_time;
     int m_depth;
 };
 

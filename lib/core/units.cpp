@@ -3,7 +3,7 @@
 #include <ostream>
 
 using namespace std;
-using namespace boost::units::photonflow;
+using namespace photonflow;
 
 ostream& operator<< (ostream& out, Length l)
 {

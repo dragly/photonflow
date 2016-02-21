@@ -18,11 +18,10 @@
 #include <armadillo>
 
 using namespace std;
-using namespace boost::units::photonflow;
+using namespace photonflow;
 //using namespace neurona;
 using namespace pugi;
 
-// TODO use frustum instead of cylinder (two radii)
 // TODO add tests to check that voxelization works properly
 
 class CylinderFrustum

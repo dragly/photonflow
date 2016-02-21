@@ -38,7 +38,7 @@
 //#include "../core/camera.h"
 
 RandomSampler::RandomSampler(int xstart, int xend,
-        int ystart, int yend, int ns, boost::units::photonflow::Time sopen, boost::units::photonflow::Time sclose)
+        int ystart, int yend, int ns, photonflow::Time sopen, photonflow::Time sclose)
     : Sampler(xstart, xend, ystart, yend, ns, sopen, sclose) {
     xPos = xPixelStart;
     yPos = yPixelStart;

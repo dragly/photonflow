@@ -7,13 +7,13 @@
 #include <iostream>
 
 using namespace std;
-using namespace boost::units::photonflow::literals;
+using namespace photonflow::literals;
 
 class Point3D {
 public:
     // Point Public Methods
     Point3D();
-    Point3D(boost::units::photonflow::Length xx, boost::units::photonflow::Length yy, boost::units::photonflow::Length zz);
+    Point3D(photonflow::Length xx, photonflow::Length yy, photonflow::Length zz);
 #ifndef NDEBUG
     Point3D(const Point3D &p);
     Point3D &operator=(const Point3D &p);
@@ -30,9 +30,9 @@ public:
     Point3D &operator*=(double f);
     Point3D operator/ (double f) const;
     Point3D &operator/=(double f);
-    boost::units::photonflow::Length operator[](int i) const;
+    photonflow::Length operator[](int i) const;
 
-    boost::units::photonflow::Length &operator[](int i);
+    photonflow::Length &operator[](int i);
     bool hasNaNs() const;
 
     bool operator==(const Point3D &p) const;
@@ -40,7 +40,7 @@ public:
     friend std::ostream& operator<< (std::ostream &out, const Point3D &point);
 
     // Point Public Data
-    boost::units::photonflow::Length x, y, z;
+    photonflow::Length x, y, z;
 };
 
 #include "vector3d.h"
@@ -53,7 +53,7 @@ inline Point3D::Point3D()
 
 }
 
-inline Point3D::Point3D(boost::units::photonflow::Length xx, boost::units::photonflow::Length yy, boost::units::photonflow::Length zz)
+inline Point3D::Point3D(photonflow::Length xx, photonflow::Length yy, photonflow::Length zz)
     : x(xx),
       y(yy),
       z(zz)
@@ -131,12 +131,12 @@ inline Point3D &Point3D::operator/=(double f) {
     return *this;
 }
 
-inline boost::units::photonflow::Length Point3D::operator[](int i) const {
+inline photonflow::Length Point3D::operator[](int i) const {
     photonflowAssert(i >= 0 && i <= 2);
     return (&x)[i];
 }
 
-inline boost::units::photonflow::Length &Point3D::operator[](int i) {
+inline photonflow::Length &Point3D::operator[](int i) {
     photonflowAssert(i >= 0 && i <= 2);
     return (&x)[i];
 }

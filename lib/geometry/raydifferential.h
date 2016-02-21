@@ -10,7 +10,7 @@ public:
     RayDifferential(const Point3D &org, const Length3D &dir,
                     double start = 0.0,
                     double end = INFINITY,
-                    boost::units::photonflow::Time t = 0.0_us,
+                    photonflow::Time t = 0.0_us,
                     int d = 0)
         : Ray(org, dir, start, end, t, d) {
         hasDifferentials = false;

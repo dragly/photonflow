@@ -39,8 +39,8 @@
 
 // PerspectiveCamera Method Definitions
 PerspectiveCamera:: PerspectiveCamera(const Transform &cam2world,
-        const Rectangle &screenWindow, boost::units::photonflow::Time sopen, boost::units::photonflow::Time sclose,
-        boost::units::photonflow::Length lensr, boost::units::photonflow::Length focald, double fov, std::shared_ptr<Film> f)
+        const Rectangle &screenWindow, photonflow::Time sopen, photonflow::Time sclose,
+        photonflow::Length lensr, photonflow::Length focald, double fov, std::shared_ptr<Film> f)
     : ProjectiveCamera(cam2world, perspective(fov, 1e-2f, 1000.0),
                        screenWindow, sopen, sclose, lensr, focald, f) {
     // Compute differential changes in origin for perspective camera rays
@@ -64,8 +64,8 @@ double PerspectiveCamera::generateRay(const CameraSample &sample,
         double lensU, lensV;
         concentricSampleDisk(sample.lensU, sample.lensV, &lensU, &lensV);
 
-        boost::units::photonflow::Length x = lensU * lensRadius;
-        boost::units::photonflow::Length y = lensU * lensRadius;
+        photonflow::Length x = lensU * lensRadius;
+        photonflow::Length y = lensU * lensRadius;
 
         // Compute point on plane of focus
         double ft = focalDistance / ray->m_direction.z;
