@@ -25,15 +25,15 @@ using namespace pugi;
 // TODO use frustum instead of cylinder (two radii)
 // TODO add tests to check that voxelization works properly
 
-class Cylinder
+class CylinderFrustum
 {
 public:
-    Cylinder(Point3D in_start, Point3D in_end, Length in_radius)
+    CylinderFrustum(Point3D in_start, Point3D in_end, Length in_startRadius, Length in_endRadius)
         : start(in_start)
         , end(in_end)
         , center((in_start + in_end) * 0.5)
-        , radius(in_radius)
-        , radius2(in_radius*in_radius)
+        , startRadius(in_startRadius)
+        , endRadius(in_endRadius)
         , direction((in_end - in_start).normalized())
     {
         height = (in_end - in_start).length();
@@ -43,8 +43,8 @@ public:
     Point3D start;
     Point3D end;
     Point3D center;
-    Length radius;
-    Area radius2;
+    Length startRadius;
+    Length endRadius;
     Vector3D direction;
     Length h;
     Length height;
@@ -52,12 +52,12 @@ public:
     friend std::ostream& operator<< (std::ostream &out, const Point3D &point);
 };
 
-std::ostream& operator << (std::ostream &out, const Cylinder &cylinder)
+std::ostream& operator << (std::ostream &out, const CylinderFrustum &cylinder)
 {
     out << "Cylinder(" << endl;
     out << "    start: " << cylinder.start.x.value() << " " << cylinder.start.y.value() << " " << cylinder.start.z.value() << " " << endl;
     out << "    end: " << cylinder.end.x.value() << " " << cylinder.end.y.value() << " " << cylinder.end.z.value() << " " << endl;
-    out << "    radius: " << cylinder.radius.value() << endl;
+    out << "    radius: " << cylinder.startRadius.value() << endl;
     out << ");";
     return out;
 }
@@ -65,7 +65,7 @@ std::ostream& operator << (std::ostream &out, const Cylinder &cylinder)
 void voxelize() {
     auto path = "/home/svenni/Dropbox/projects/programming/neuroscience/neurona/neurona/hay_et_al_2011.nml";
 
-    vector<Cylinder> cylinders;
+    vector<CylinderFrustum> cylinders;
 
     BBox bbox;
 
@@ -83,36 +83,39 @@ void voxelize() {
     }
     for(xml_node segment : cell.children("segment")) {
         uint id = segment.attribute("id").as_uint(0);
-        xml_node distal = segment.child("distal");
-        Length radius = distal.attribute("diameter").as_double() * 0.5_um;
+        xml_node distalNode = segment.child("distal");
+        Length distalRadius = distalNode.attribute("diameter").as_double() * 0.5_um;
+        Length proximalRadius;
         xml_node proximal = segment.child("proximal");
         xml_node parent = segment.child("parent");
-        if(!distal) {
+        if(!distalNode) {
             continue;
         }
-        Point3D start(distal.attribute("x").as_double() * 1.0_um,
-                      distal.attribute("y").as_double() * 1.0_um,
-                      distal.attribute("z").as_double() * 1.0_um);
-        Point3D end;
-        bbox = makeUnion(bbox, start);
+        Point3D distalPoint(distalNode.attribute("x").as_double() * 1.0_um,
+                      distalNode.attribute("y").as_double() * 1.0_um,
+                      distalNode.attribute("z").as_double() * 1.0_um);
+        Point3D proximalPoint;
+        bbox = makeUnion(bbox, distalPoint);
         bool hasProximal = false;
         if(proximal) {
             hasProximal = true;
-            end = Point3D(proximal.attribute("x").as_double() * 1.0_um,
+            proximalPoint = Point3D(proximal.attribute("x").as_double() * 1.0_um,
                           proximal.attribute("y").as_double() * 1.0_um,
                           proximal.attribute("z").as_double() * 1.0_um);
+            proximalRadius = proximal.attribute("diameter").as_double() * 0.5_um;
         } else if(parent) {
             auto parentInMap = segments.find(parent.attribute("segment").as_uint());
             if(parentInMap != segments.end()) {
                 hasProximal = true;
                 xml_node parentDistal = parentInMap->second.child("distal");
-                end = Point3D(parentDistal.attribute("x").as_double() * 1.0_um,
+                proximalPoint = Point3D(parentDistal.attribute("x").as_double() * 1.0_um,
                               parentDistal.attribute("y").as_double() * 1.0_um,
                               parentDistal.attribute("z").as_double() * 1.0_um);
+                proximalRadius = parentDistal.attribute("diameter").as_double() * 0.5_um;
             }
         }
         if(hasProximal) {
-            Cylinder cylinder(start, end, radius);
+            CylinderFrustum cylinder(proximalPoint, distalPoint, proximalRadius, distalRadius);
             cylinders.push_back(cylinder);
         }
     }
@@ -137,10 +140,11 @@ void voxelize() {
     cout << "Max: " << bbox.pMax.x.value() << " " << bbox.pMax.y.value() << " " << bbox.pMax.z.value() << endl;
 
     Length3D offset(bbox.pMin);
-    for(Cylinder& cylinder : cylinders) {
-        cylinder = Cylinder(cylinder.start - offset,
-                            cylinder.end - offset,
-                            cylinder.radius);
+    for(CylinderFrustum& cylinder : cylinders) {
+        cylinder = CylinderFrustum(cylinder.start - offset,
+                                   cylinder.end - offset,
+                                   cylinder.startRadius,
+                                   cylinder.endRadius);
     }
     bbox.pMin -= offset;
     bbox.pMax -= offset;
@@ -150,9 +154,9 @@ void voxelize() {
     cout << "Step: " << step.value() << endl;
     QElapsedTimer timer;
     timer.start();
-    for(Cylinder& cylinder : cylinders) {
-        BBox localBounds(Point3D(-cylinder.h, -cylinder.radius, -cylinder.radius),
-                         Point3D(cylinder.h, cylinder.radius, cylinder.radius));
+    for(CylinderFrustum& cylinder : cylinders) {
+        BBox localBounds(Point3D(-cylinder.h, -cylinder.startRadius, -cylinder.startRadius),
+                         Point3D(cylinder.h, cylinder.startRadius, cylinder.startRadius));
 
         Vector3D perpendicular = cross(Vector3D(1.0, 0.0, 0.0), cylinder.direction);
         Transform rotation;
@@ -183,15 +187,17 @@ void voxelize() {
                     Point3D p(step * (double(i) + 0.5), step * (double(j) + 0.5), step * (double(k) + 0.5));
                     Length3D diff = p - cylinder.center;
                     Length distance = diff.length();
-                    if(distance > cylinder.h + eps && distance > cylinder.radius + eps) {
+                    if(distance > cylinder.h + eps && distance > cylinder.startRadius + eps) {
                         continue;
                     }
-                    auto yComponent = fabs(dot(diff, cylinder.direction * 1.0_um)) / 1.0_um;
-                    if(yComponent <= cylinder.h + eps) {
+                    auto yComponent = dot(diff, cylinder.direction * 1.0_um) / 1.0_um;
+                    if(fabs(yComponent) <= cylinder.h + eps) {
                         auto y2 = yComponent*yComponent;
                         auto diff2 = dot(diff, diff);
                         auto distanceToAxis = sqrt(diff2 - y2);
-                        if(distanceToAxis <= cylinder.radius + eps) {
+                        double endProportion = (yComponent + cylinder.h) / (2.0 * cylinder.h);
+                        Length radius = cylinder.startRadius * (1 - endProportion) + endProportion * cylinder.endRadius;
+                        if(distanceToAxis <= radius + eps) {
                             if(voxels.in_range(j, i, k)) {
                                 voxels(j, i, k) = 1.0;
                             }
@@ -206,6 +212,7 @@ void voxelize() {
 
     cout << "Voxels minmax: " << voxels.min() << " " << voxels.max() << endl;
     cout << "Voxels shape: " << voxels.n_slices << " " << voxels.n_rows << " " << voxels.n_cols << endl;
+    cout << "Saving data to disk..." << endl;
     voxels.save("/tmp/out.raw", arma::raw_binary);
 }
 
