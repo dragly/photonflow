@@ -42,7 +42,7 @@ VolumeGridDensity::VolumeGridDensity()
 
 }
 
-VolumeGridDensity::VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, double gg, const Spectrum &emita, const BBox &e, const Transform &v2w, arma::Cube<short> densitya)
+VolumeGridDensity::VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, double gg, const Spectrum &emita, const BoundingBox &e, const Transform &v2w, arma::Cube<short> densitya)
     : DensityRegion(sa, ss, gg, emita, v2w)
     , extent(e)
     , m_worldBound(VolumeToWorld(extent))

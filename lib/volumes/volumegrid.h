@@ -47,9 +47,9 @@ public:
     // VolumeGridDensity Public Methods
     VolumeGridDensity();
     VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, double gg,
-            const Spectrum &emita, const BBox &e, const Transform &v2w,
+            const Spectrum &emita, const BoundingBox &e, const Transform &v2w,
             arma::Cube<short> densitya);
-    BBox worldBound() const { return m_worldBound; }
+    BoundingBox worldBound() const { return m_worldBound; }
     bool intersectP(const Ray &r, double *t0, double *t1) const;
     double Density(const Point3D &Pobj) const;
     double D(int x, int y, int z) const;
@@ -57,9 +57,9 @@ public:
     bool fuzzyInside(const Point3D &p) const;
 private:
     // VolumeGridDensity Private Data
-    BBox extent;
+    BoundingBox extent;
     arma::Cube<short> density;
-    BBox m_worldBound;
+    BoundingBox m_worldBound;
 };
 
 inline bool VolumeGridDensity::intersectP(const Ray &r, double *t0, double *t1) const {

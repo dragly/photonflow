@@ -4,7 +4,7 @@
 
 namespace photonflow {
 
-arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const BBox &boundingBox, int maxExtent)
+arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const BoundingBox &boundingBox, int maxExtent)
 {
     Length xSide = boundingBox.pMax[0] - boundingBox.pMin[0];
     Length ySide = boundingBox.pMax[1] - boundingBox.pMin[1];
@@ -24,7 +24,7 @@ arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const BBox &bounding
                                    cylinder.startRadius,
                                    cylinder.endRadius);
     }
-    BBox offsetBox = boundingBox;
+    BoundingBox offsetBox = boundingBox;
     offsetBox.pMin -= offset;
     offsetBox.pMax -= offset;
 
@@ -32,7 +32,7 @@ arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const BBox &bounding
     Length eps = step / 2.0;
     cout << "Step: " << step.value() << endl;
     for(CylinderFrustum& cylinder : cylinders) {
-        BBox localBounds(Point3D(-cylinder.h, -cylinder.startRadius, -cylinder.startRadius),
+        BoundingBox localBounds(Point3D(-cylinder.h, -cylinder.startRadius, -cylinder.startRadius),
                          Point3D(cylinder.h, cylinder.startRadius, cylinder.startRadius));
 
         Vector3D perpendicular = cross(Vector3D(1.0, 0.0, 0.0), cylinder.direction);
@@ -47,7 +47,7 @@ arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const BBox &bounding
             rotation = rotate(cosAngle, sinAngle, perpendicular);
         }
         Transform translation = translate(Length3D(cylinder.center));
-        BBox bounds = translation(rotation(localBounds));
+        BoundingBox bounds = translation(rotation(localBounds));
         bounds.expand(eps);
 
         int istart = bounds.pMin.x / step;

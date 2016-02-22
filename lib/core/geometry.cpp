@@ -35,8 +35,8 @@
 #include "geometry.h"
 
 // BBox Method Definitions
-BBox makeUnion(const BBox &b, const Point3D &p) {
-    BBox ret = b;
+BoundingBox makeUnion(const BoundingBox &b, const Point3D &p) {
+    BoundingBox ret = b;
     ret.pMin.x = min(b.pMin.x, p.x);
     ret.pMin.y = min(b.pMin.y, p.y);
     ret.pMin.z = min(b.pMin.z, p.z);
@@ -46,8 +46,8 @@ BBox makeUnion(const BBox &b, const Point3D &p) {
     return ret;
 }
 
-BBox makeUnion(const BBox &b, const BBox &b2) {
-    BBox ret;
+BoundingBox makeUnion(const BoundingBox &b, const BoundingBox &b2) {
+    BoundingBox ret;
     ret.pMin.x = min(b.pMin.x, b2.pMin.x);
     ret.pMin.y = min(b.pMin.y, b2.pMin.y);
     ret.pMin.z = min(b.pMin.z, b2.pMin.z);
@@ -57,14 +57,14 @@ BBox makeUnion(const BBox &b, const BBox &b2) {
     return ret;
 }
 
-void BBox::boundingSphere(Point3D *c, photonflow::Length *rad) const
+void BoundingBox::boundingSphere(Point3D *c, photonflow::Length *rad) const
 {
     *c = .5f * pMin + .5f * pMax;
     *rad = inside(*c) ? distance(*c, pMax) : 0.0_um;
 }
 
 
-bool BBox::intersectP(const Ray &ray,
+bool BoundingBox::intersectP(const Ray &ray,
                       double *hitt0,
                       double *hitt1) const
 {

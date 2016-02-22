@@ -145,7 +145,7 @@ public:
     inline void operator()(const Ray &r, Ray *rt) const;
     inline RayDifferential operator()(const RayDifferential &r) const;
     inline void operator()(const RayDifferential &r, RayDifferential *rt) const;
-    BBox operator()(const BBox &b) const;
+    BoundingBox operator()(const BoundingBox &b) const;
 
     template<typename T>
     inline BaseVector3D<T> operator()(const BaseVector3D<T> &v) const;

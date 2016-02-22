@@ -49,8 +49,8 @@ public:
     // Shape Interface
     Shape(const Transform *o2w, const Transform *w2o, bool ro);
     virtual ~Shape();
-    virtual BBox objectBound() const = 0;
-    virtual BBox worldBound() const;
+    virtual BoundingBox objectBound() const = 0;
+    virtual BoundingBox worldBound() const;
     virtual bool canIntersect() const;
     virtual void refine(vector<Shape> &refined) const;
     virtual bool intersect(const Ray &ray, double *tHit,

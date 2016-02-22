@@ -276,9 +276,9 @@ Transform rotate(double cosAngle, double sinAngle, const Vector3D &axis) {
 //}
 
 
-BBox Transform::operator()(const BBox &b) const {
+BoundingBox Transform::operator()(const BoundingBox &b) const {
     const Transform &M = *this;
-    BBox ret(        M(Point3D(b.pMin.x, b.pMin.y, b.pMin.z)));
+    BoundingBox ret(        M(Point3D(b.pMin.x, b.pMin.y, b.pMin.z)));
     ret = makeUnion(ret, M(Point3D(b.pMax.x, b.pMin.y, b.pMin.z)));
     ret = makeUnion(ret, M(Point3D(b.pMin.x, b.pMax.y, b.pMin.z)));
     ret = makeUnion(ret, M(Point3D(b.pMin.x, b.pMin.y, b.pMax.z)));

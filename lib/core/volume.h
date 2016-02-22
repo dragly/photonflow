@@ -53,7 +53,7 @@ double PhaseSchlick(const Length3D &w, const Length3D &wp, double g);
 class VolumeRegion {
 public:
     // VolumeRegion Interface
-    virtual BBox worldBound() const = 0;
+    virtual BoundingBox worldBound() const = 0;
     virtual bool intersectP(const Ray &ray, double *t0, double *t1) const = 0;
     virtual Spectrum sigma_a(const Point3D &, const Length3D &,
                              double time) const = 0;

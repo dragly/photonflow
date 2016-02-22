@@ -44,11 +44,11 @@ public:
     // Scene Public Methods
     Scene(VolumeRegion *vr);
     ~Scene();
-    const BBox &worldBound() const;
+    const BoundingBox &worldBound() const;
 
     // Scene Public Data
     VolumeRegion *volumeRegion;
-    BBox bound;
+    BoundingBox bound;
 };
 
 

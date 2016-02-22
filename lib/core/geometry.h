@@ -138,14 +138,14 @@ inline auto faceforward(const auto &n, const auto &v) {
 }
 
 
-inline const Point3D &BBox::operator[](int i) const {
+inline const Point3D &BoundingBox::operator[](int i) const {
     photonflowAssert(i == 0 || i == 1);
     return (&pMin)[i];
 }
 
 
 
-inline Point3D &BBox::operator[](int i) {
+inline Point3D &BoundingBox::operator[](int i) {
     photonflowAssert(i == 0 || i == 1);
     return (&pMin)[i];
 }

@@ -8,7 +8,7 @@
 
 namespace photonflow {
 
-arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const BBox &boundingBox, int maxExtent);
+arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const BoundingBox &boundingBox, int maxExtent);
 
 } // namespace
 

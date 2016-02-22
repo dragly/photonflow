@@ -52,7 +52,7 @@ Scene::Scene(VolumeRegion *vr) {
 }
 
 
-const BBox &Scene::worldBound() const {
+const BoundingBox &Scene::worldBound() const {
     return bound;
 }
 

@@ -22,11 +22,11 @@ using namespace photonflow;
 
 // TODO add tests to check that voxelization works properly
 
-void voxelize() {
+void voxelizeTest() {
     std::string path("/home/svenni/Dropbox/projects/programming/neuroscience/neurona/neurona/hay_et_al_2011.nml");
     NeuroMlReader reader(path);
     vector<CylinderFrustum> cylinders = reader.cylinders();
-    BBox boundingBox = reader.boundingBox();
+    BoundingBox boundingBox = reader.boundingBox();
 
     arma::cube voxels = voxelize(cylinders, boundingBox, 2048);
 
@@ -38,6 +38,6 @@ void voxelize() {
 
 TEST_CASE( "Voxelizer", "[voxelizer]" ) {
     SECTION("Voxelizers") {
-        voxelize();
+        voxelizeTest();
     }
 }

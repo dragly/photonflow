@@ -32,7 +32,7 @@ bool NeuroMlReader::load(const std::string &path)
 
     m_cylinders.clear();
 
-    BBox boundingBox;
+    BoundingBox boundingBox;
 
     xml_document doc;
     xml_parse_result result = doc.load_file(m_path.c_str());
@@ -94,7 +94,7 @@ std::vector<CylinderFrustum> NeuroMlReader::cylinders() const
     return m_cylinders;
 }
 
-BBox NeuroMlReader::boundingBox() const
+BoundingBox NeuroMlReader::boundingBox() const
 {
     return m_boundingBox;
 }

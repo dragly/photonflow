@@ -17,12 +17,12 @@ public:
     bool load(const std::string &path);
 
     std::vector<CylinderFrustum> cylinders() const;
-    BBox boundingBox() const;
+    BoundingBox boundingBox() const;
 
 private:
     std::string m_path;
     std::vector<CylinderFrustum> m_cylinders;
-    BBox m_boundingBox;
+    BoundingBox m_boundingBox;
 };
 
 } // namespace

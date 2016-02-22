@@ -34,7 +34,7 @@ RenderView::RenderView(QQuickItem *parent)
 
 //    data *= 255;
 
-    BBox bbox;
+    BoundingBox bbox;
     photonflow::Length side = 100.0_um;
     bbox.pMin = Point3D(-side, -side, -0.2*side);
     bbox.pMax = Point3D(side, side, 0.2*side);
