@@ -47,9 +47,14 @@
 #else
 #define PRINTF_FUNC
 #endif // __GNUG__
+
+namespace photonflow {
+
 void Info(const char *, ...) PRINTF_FUNC;
 void Warning(const char *, ...) PRINTF_FUNC;
 void Error(const char *, ...) PRINTF_FUNC;
 void Severe(const char *, ...) PRINTF_FUNC;
+
+} // namespace
 
 #endif // PBRT_CORE_ERROR_H

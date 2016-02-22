@@ -35,6 +35,8 @@
 #include "filters/mitchell.h"
 //#include "paramset.h"
 
+namespace photonflow {
+
 // Mitchell Filter Method Definitions
 double MitchellFilter::evaluate(double x, double y) const {
     return Mitchell1D(x * invXWidth) * Mitchell1D(y * invYWidth);
@@ -51,3 +53,4 @@ double MitchellFilter::evaluate(double x, double y) const {
 //}
 
 
+} // namespace

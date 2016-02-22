@@ -35,6 +35,7 @@
 #include "diffgeom.h"
 #include "transform.h"
 #include "shape.h"
+namespace photonflow {
 
 // DifferentialGeometry Method Definitions
 //DifferentialGeometry::DifferentialGeometry(const Point3D &P,
@@ -113,3 +114,4 @@
 //}
 
 
+} // namespace

@@ -6,6 +6,8 @@
 
 using namespace photonflow::literals;
 
+namespace photonflow {
+
 class Ray;
 
 class BoundingBox {
@@ -95,8 +97,9 @@ inline int BoundingBox::maximumExtent() const {
 }
 
 inline Point3D BoundingBox::lerp(double tx, double ty, double tz) const {
-    return Point3D(::lerp(tx, pMin.x, pMax.x), ::lerp(ty, pMin.y, pMax.y),
-                   ::lerp(tz, pMin.z, pMax.z));
+    return Point3D(::photonflow::lerp(tx, pMin.x, pMax.x),
+                   ::photonflow::lerp(ty, pMin.y, pMax.y),
+                   ::photonflow::lerp(tz, pMin.z, pMax.z));
 }
 
 inline Length3D BoundingBox::offset(const Point3D &p) const {
@@ -112,5 +115,7 @@ inline bool BoundingBox::operator==(const BoundingBox &b) const {
 inline bool BoundingBox::operator!=(const BoundingBox &b) const {
     return b.pMin != pMin || b.pMax != pMax;
 }
+
+} // namespace
 
 #endif // BBOX_H

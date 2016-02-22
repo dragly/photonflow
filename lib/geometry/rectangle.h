@@ -3,6 +3,8 @@
 
 #include "../core/geometry.h"
 
+namespace photonflow {
+
 class Rectangle
 {
 public:
@@ -20,5 +22,7 @@ private:
     double m_width = 0.0;
     double m_height = 0.0;
 };
+
+} // namespace
 
 #endif // RECTANGLE_H

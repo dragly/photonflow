@@ -34,6 +34,8 @@
 #include "stdafx.h"
 #include "shape.h"
 
+namespace photonflow {
+
 // Shape Method Definitions
 Shape::~Shape() {
 }
@@ -105,3 +107,4 @@ double Shape::area() const {
 //}
 
 
+} // namespace

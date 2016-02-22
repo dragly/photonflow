@@ -33,9 +33,11 @@
 // core/filter.cpp*
 #include "stdafx.h"
 #include "filter.h"
+namespace photonflow {
 
 // Filter Method Definitions
 Filter::~Filter() {
 }
 
 
+} // namespace

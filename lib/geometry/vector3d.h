@@ -4,6 +4,8 @@
 #include "../core/common.h"
 #include <iostream>
 
+namespace photonflow {
+
 class Point3D;
 class Normal;
 
@@ -154,12 +156,18 @@ inline BaseVector3D<T> operator*(double f, const BaseVector3D<T> &v) {
     return v*f;
 }
 
+}
+
 #include "point3d.h"
+
+namespace photonflow {
 
 template<typename T>
 inline BaseVector3D<T>::BaseVector3D(const Point3D &p)
     : x(p.x), y(p.y), z(p.z) {
     photonflowAssert(!hasNaNs());
 }
+
+} // namespace
 
 #endif // VECTOR3D_H

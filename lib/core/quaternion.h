@@ -34,6 +34,8 @@
 
 #include "../core/geometry.h"
 
+namespace photonflow {
+
 class Transform;
 
 // Quaternion Declarations
@@ -109,4 +111,6 @@ class Transform;
 //inline Quaternion normalize(const Quaternion &q) {
 //    return q / sqrtf(dot(q, q));
 //}
+} // namespace
+
 #endif // PBRT_CORE_QUATERNION_H

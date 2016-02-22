@@ -49,6 +49,9 @@ using std::max;
 #define PBRT_ERROR_CONTINUE 1
 #define PBRT_ERROR_ABORT 2
 
+namespace photonflow {
+
+
 const char *findWordEnd(const char *buf) {
     while (*buf != '\0' && !isspace(*buf))
         ++buf;
@@ -164,3 +167,4 @@ void Severe(const char *format, ...) {
 }
 
 
+} // namespace

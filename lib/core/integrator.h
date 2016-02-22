@@ -37,6 +37,8 @@
 #include "../core/transform.h"
 #include "../core/heyneygreenstein.h"
 
+namespace photonflow {
+
 class VolumeGridDensity;
 
 class Integrator
@@ -56,5 +58,7 @@ private:
     int m_bounces;
     RNG *m_rng;
 };
+
+} // namespace
 
 #endif // PBRT_CORE_INTEGRATOR_H

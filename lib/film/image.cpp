@@ -39,6 +39,8 @@
 //#include "../core/parallel.h"
 //#include "imageio.h"
 
+namespace photonflow {
+
 // ImageFilm Method Definitions
 ImageFilm::ImageFilm(int xres, int yres, Filter *filt, const double crop[4])
     : Film(xres, yres) {
@@ -271,3 +273,4 @@ void ImageFilm::updateDisplay(int x0, int y0, int x1, int y1, double splatScale)
 //}
 
 
+} // namespace

@@ -9,6 +9,8 @@
 
 using namespace photonflow::literals;
 
+namespace photonflow {
+
 class Ray {
 public:
     // Ray Public Methods
@@ -67,5 +69,7 @@ public:
 };
 
 
+
+} // namespace
 
 #endif // RAY_H

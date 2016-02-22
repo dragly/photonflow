@@ -38,6 +38,7 @@
 #include "sampler.h"
 //#include "integrator.h"
 //#include "volume.h"
+namespace photonflow {
 
 // Sampler Method Definitions
 Sampler::~Sampler() {
@@ -126,3 +127,4 @@ double &Sample::get(int i, int j)
 }
 
 
+} // namespace

@@ -33,9 +33,11 @@
 // core/renderer.cpp*
 #include "stdafx.h"
 #include "renderer.h"
+namespace photonflow {
 
 // Renderer Method Definitions
 Renderer::~Renderer() {
 }
 
 
+} // namespace

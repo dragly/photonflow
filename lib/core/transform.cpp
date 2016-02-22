@@ -34,6 +34,8 @@
 #include "../core/common.h"
 #include <memory.h>
 
+namespace photonflow {
+
 // Matrix4x4 Method Definitions
 bool solveLinearSystem2x2(const double A[2][2],
         const double B[2], double *x0, double *x1) {
@@ -478,3 +480,4 @@ Transform perspective(double fov, double n, double f) {
 //}
 
 
+} // namespace

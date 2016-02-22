@@ -39,6 +39,8 @@
 // core/filter.h*
 #include "../core/common.h"
 
+namespace photonflow {
+
 // Filter Declarations
 class Filter {
 public:
@@ -55,5 +57,7 @@ public:
 };
 
 
+
+} // namespace
 
 #endif // PBRT_CORE_FILTER_H

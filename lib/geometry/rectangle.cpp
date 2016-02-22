@@ -1,5 +1,7 @@
 #include "rectangle.h"
 
+namespace photonflow {
+
 Rectangle::Rectangle()
 {
 
@@ -33,3 +35,4 @@ double Rectangle::height() const
 {
     return m_height;
 }
+} // namespace

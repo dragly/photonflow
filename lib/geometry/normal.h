@@ -6,6 +6,8 @@
 
 using namespace photonflow::literals;
 
+namespace photonflow {
+
 class Normal
 {
 public:
@@ -45,7 +47,11 @@ public:
     photonflow::Length x, y, z;
 };
 
+} // namespace
+
 #include "vector3d.h"
+
+namespace photonflow {
 
 inline Normal::Normal() { x = y = z = 0.0_um; }
 
@@ -148,5 +154,7 @@ inline bool Normal::operator==(const Normal &n) const {
 inline bool Normal::operator!=(const Normal &n) const {
     return x != n.x || y != n.y || z != n.z;
 }
+
+} // namespace
 
 #endif // NORMAL_H

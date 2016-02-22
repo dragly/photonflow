@@ -41,6 +41,8 @@
 #include "armadillo_includer.h"
 #include <memory.h>
 
+namespace photonflow {
+
 // VolumeGridDensity Declarations
 class VolumeGridDensity : public DensityRegion {
 public:
@@ -85,5 +87,7 @@ inline double VolumeGridDensity::D(int x, int y, int z) const {
 
 //VolumeGridDensity *CreateGridVolumeRegion(const Transform &volume2world,
 //        const ParamSet &params);
+
+} // namespace
 
 #endif // PBRT_VOLUMES_VOLUMEGRID_H

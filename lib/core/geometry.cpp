@@ -33,6 +33,7 @@
 // core/geometry.cpp*
 #include "stdafx.h"
 #include "geometry.h"
+namespace photonflow {
 
 // BBox Method Definitions
 BoundingBox makeUnion(const BoundingBox &b, const Point3D &p) {
@@ -101,3 +102,5 @@ std::ostream& operator<< (std::ostream &out, const Point3D &point)
     out << point.x << ", " << point.y << ", " << point.z;
     return out;
 }
+
+} // namespace

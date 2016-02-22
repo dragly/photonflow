@@ -35,6 +35,8 @@
 #include "filters/box.h"
 //#include "paramset.h"
 
+namespace photonflow {
+
 // Box Filter Method Definitions
 double BoxFilter::evaluate(double x, double y) const {
     UNUSED(x);
@@ -50,3 +52,4 @@ double BoxFilter::evaluate(double x, double y) const {
 //}
 
 
+} // namespace

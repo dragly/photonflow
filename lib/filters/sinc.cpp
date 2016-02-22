@@ -35,6 +35,8 @@
 #include "filters/sinc.h"
 //#include "paramset.h"
 
+namespace photonflow {
+
 // Sinc Filter Method Definitions
 double LanczosSincFilter::evaluate(double x, double y) const {
     return Sinc1D(x * invXWidth) * Sinc1D(y * invYWidth);
@@ -49,3 +51,4 @@ double LanczosSincFilter::evaluate(double x, double y) const {
 //}
 
 
+} // namespace

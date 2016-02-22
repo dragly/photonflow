@@ -40,6 +40,8 @@
 #include "../core/common.h"
 //#include "parallel.h"
 
+namespace photonflow {
+
 // Memory Declarations
 //class ReferenceCounted {
 //public:
@@ -205,6 +207,6 @@ private:
     uint32_t uRes, vRes, uBlocks;
 };
 
-
+} // namespace
 
 #endif // PBRT_CORE_MEMORY_H

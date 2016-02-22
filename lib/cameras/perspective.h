@@ -45,6 +45,8 @@
 
 class ParamSet;
 
+namespace photonflow {
+
 // PerspectiveCamera Declarations
 class PerspectiveCamera : public ProjectiveCamera {
 public:
@@ -59,5 +61,7 @@ private:
     // PerspectiveCamera Private Data
     Length3D dxCamera, dyCamera;
 };
+
+}
 
 #endif // PBRT_CAMERAS_PERSPECTIVE_H

@@ -31,6 +31,7 @@
 
 #include "quaternion.h"
 #include "transform.h"
+namespace photonflow {
 
 //// Quaternion Method Definitions
 //Transform Quaternion::toTransform() const {
@@ -103,3 +104,4 @@
 //}
 
 
+} // namespace

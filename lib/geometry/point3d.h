@@ -9,6 +9,8 @@
 using namespace std;
 using namespace photonflow::literals;
 
+namespace photonflow {
+
 class Point3D {
 public:
     // Point Public Methods
@@ -43,7 +45,11 @@ public:
     photonflow::Length x, y, z;
 };
 
+} // namespace
+
 #include "vector3d.h"
+
+namespace photonflow {
 
 inline Point3D::Point3D()
     : x(0.0_m)
@@ -53,7 +59,7 @@ inline Point3D::Point3D()
 
 }
 
-inline Point3D::Point3D(photonflow::Length xx, photonflow::Length yy, photonflow::Length zz)
+inline Point3D::Point3D(Length xx, Length yy, Length zz)
     : x(xx),
       y(yy),
       z(zz)
@@ -131,12 +137,12 @@ inline Point3D &Point3D::operator/=(double f) {
     return *this;
 }
 
-inline photonflow::Length Point3D::operator[](int i) const {
+inline Length Point3D::operator[](int i) const {
     photonflowAssert(i >= 0 && i <= 2);
     return (&x)[i];
 }
 
-inline photonflow::Length &Point3D::operator[](int i) {
+inline Length &Point3D::operator[](int i) {
     photonflowAssert(i >= 0 && i <= 2);
     return (&x)[i];
 }
@@ -152,5 +158,7 @@ inline bool Point3D::operator==(const Point3D &p) const {
 inline bool Point3D::operator!=(const Point3D &p) const {
     return x != p.x || y != p.y || z != p.z;
 }
+
+} // namespace
 
 #endif // POINT3D_H

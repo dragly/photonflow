@@ -40,6 +40,8 @@
 #include "../core/common.h"
 #include "geometry.h"
 
+namespace photonflow {
+
 class Shape;
 
 // DifferentialGeometry Declarations
@@ -67,5 +69,7 @@ struct DifferentialGeometry {
 };
 
 
+
+} // namespace
 
 #endif // PBRT_CORE_DIFFGEOM_H

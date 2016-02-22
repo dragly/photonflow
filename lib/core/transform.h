@@ -35,6 +35,8 @@
 #include "../core/geometry.h"
 #include "quaternion.h"
 
+namespace photonflow {
+
 // Matrix4x4 Declarations
 struct Matrix4x4 {
     // Matrix4x4 Public Methods
@@ -326,5 +328,7 @@ inline RayDifferential Transform::operator()(const RayDifferential &r) const {
 //};
 
 
+
+} // namespace
 
 #endif // PBRT_CORE_TRANSFORM_H

@@ -14,6 +14,7 @@
 using namespace boost;
 using namespace boost::accumulators;
 using namespace std;
+using namespace photonflow;
 
 void distribution() {
     RNG rng;
@@ -49,5 +50,3 @@ TEST_CASE( "Heyney Greenstein Distribution", "[heyneygreensteindistribution]" ) 
         distribution();
     }
 }
-
-

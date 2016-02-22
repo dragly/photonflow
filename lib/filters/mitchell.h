@@ -39,6 +39,8 @@
 // filters/mitchell.h*
 #include "../core/filter.h"
 
+namespace photonflow {
+
 // Mitchell Filter Declarations
 class MitchellFilter : public Filter {
 public:
@@ -63,5 +65,7 @@ private:
 
 
 //MitchellFilter *CreateMitchellFilter(const ParamSet &ps);
+
+} // namespace
 
 #endif // PBRT_FILTERS_MITCHELL_H

@@ -3,6 +3,8 @@
 
 #include "ray.h"
 
+namespace photonflow {
+
 class RayDifferential : public Ray {
 public:
     // RayDifferential Public Methods
@@ -40,5 +42,7 @@ public:
     Point3D rxOrigin, ryOrigin;
     Length3D rxDirection, ryDirection;
 };
+
+} // namespace
 
 #endif // RAYDIFFERENTIAL_H

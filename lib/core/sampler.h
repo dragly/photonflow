@@ -42,6 +42,8 @@
 #include "../core/randomnumbergenerator.h"
 #include "memory.h"
 
+namespace photonflow {
+
 class Sample;
 class RGBSpectrum;
 using Spectrum=RGBSpectrum;
@@ -98,5 +100,7 @@ private:
 };
 
 
+
+} // namespace
 
 #endif // PBRT_CORE_SAMPLER_H

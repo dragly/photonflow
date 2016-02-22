@@ -11,6 +11,8 @@
 #include <QImage>
 #include <memory>
 
+namespace photonflow {
+
 class RenderView : public QQuickPaintedItem
 {
     Q_OBJECT
@@ -31,5 +33,7 @@ private:
     VolumeGridDensity vr;
     vector<RNG> rngs;
 };
+
+}
 
 #endif // RENDERVIEW_H

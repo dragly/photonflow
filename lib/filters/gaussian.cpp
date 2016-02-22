@@ -35,6 +35,8 @@
 #include "filters/gaussian.h"
 //#include "paramset.h"
 
+namespace photonflow {
+
 // Gaussian Filter Method Definitions
 double GaussianFilter::evaluate(double x, double y) const {
     return Gaussian(x, expX) * Gaussian(y, expY);
@@ -50,3 +52,4 @@ double GaussianFilter::evaluate(double x, double y) const {
 //}
 
 
+} // namespace

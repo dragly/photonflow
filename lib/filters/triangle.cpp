@@ -35,6 +35,8 @@
 #include "filters/triangle.h"
 //#include "paramset.h"
 
+namespace photonflow {
+
 // Triangle Filter Method Definitions
 double TriangleFilter::evaluate(double x, double y) const {
     return max(0.0, xWidth - fabsf(x)) *
@@ -50,3 +52,4 @@ double TriangleFilter::evaluate(double x, double y) const {
 //}
 
 
+} // namespace

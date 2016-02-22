@@ -37,6 +37,8 @@
 
 using namespace arma;
 
+namespace photonflow {
+
 VolumeGridDensity::VolumeGridDensity()
 {
 
@@ -94,3 +96,4 @@ bool VolumeGridDensity::fuzzyInside(const Point3D &p) const
     return extent.fuzzyInside(local);
 }
 
+} // namespace

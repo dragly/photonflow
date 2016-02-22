@@ -36,6 +36,8 @@
 #include "../core/common.h"
 #include "integrator.h"
 
+namespace photonflow {
+
 class VolumeRegion;
 
 // Scene Declarations
@@ -52,5 +54,7 @@ public:
 };
 
 
+
+} // namespace
 
 #endif // PBRT_CORE_SCENE_H

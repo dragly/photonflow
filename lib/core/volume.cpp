@@ -37,6 +37,8 @@
 
 using namespace std;
 
+namespace photonflow {
+
 inline double Fdr(double eta) {
     if (eta >= 1)
         return -1.4399f / (eta*eta) + 0.7099f / eta + 0.6681f +
@@ -316,3 +318,4 @@ DensityRegion::DensityRegion()
 //}
 
 
+} // namespace

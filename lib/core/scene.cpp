@@ -39,6 +39,8 @@
 #include "volume.h"
 #include "renderer.h"
 
+namespace photonflow {
+
 // Scene Method Definitions
 Scene::~Scene() {
 }
@@ -57,3 +59,4 @@ const BoundingBox &Scene::worldBound() const {
 }
 
 
+} // namespace

@@ -39,6 +39,8 @@
 // filters/gaussian.h*
 #include "../core/filter.h"
 
+namespace photonflow {
+
 // Gaussian Filter Declarations
 class GaussianFilter : public Filter {
 public:
@@ -60,5 +62,7 @@ private:
 
 
 //GaussianFilter *CreateGaussianFilter(const ParamSet &ps);
+
+} // namespace
 
 #endif // PBRT_FILTERS_GAUSSIAN_H

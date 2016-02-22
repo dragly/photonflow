@@ -43,6 +43,8 @@
 #include "../core/diffgeom.h"
 //#include "../core/memory.h"
 
+namespace photonflow {
+
 // Shape Declarations
 class Shape {
 public:
@@ -89,5 +91,7 @@ public:
 };
 
 
+
+} // namespace
 
 #endif // PBRT_CORE_SHAPE_H

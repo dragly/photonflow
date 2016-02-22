@@ -4,6 +4,8 @@
 #include "../core/randomnumbergenerator.h"
 #include "../core/common.h"
 
+namespace photonflow {
+
 namespace Distribution {
 inline double heyneyGreenstein(double g, RNG &rng)
 {
@@ -24,5 +26,8 @@ inline double heyneyGreenstein(double g, RNG &rng)
 }
 }
 
+} // namespace
+
 #endif // HEYNEYGREENSTEIN_H
+
 

@@ -37,6 +37,8 @@
 #include "../core/camera.h"
 //#include "../core/camera.h"
 
+namespace photonflow {
+
 RandomSampler::RandomSampler(int xstart, int xend,
         int ystart, int yend, int ns, photonflow::Time sopen, photonflow::Time sclose)
     : Sampler(xstart, xend, ystart, yend, ns, sopen, sclose) {
@@ -112,3 +114,4 @@ int RandomSampler::moreSamples(Sample *sample, RNG &rng) {
     ++samplePos;
     return 1;
 }
+} // namespace

@@ -43,6 +43,8 @@
 #include "../core/transform.h"
 #include "../core/integrator.h"
 
+namespace photonflow {
+
 // Volume Scattering Declarations
 double PhaseIsotropic(const Length3D &w, const Length3D &wp);
 double PhaseRayleigh(const Length3D &w, const Length3D &wp);
@@ -144,5 +146,7 @@ bool volumeScatteringProperties(const std::string &name, Spectrum *sigma_a,
 
 void subsurfaceFromDiffuse(const Spectrum &Kd, double meanPathLength, double eta,
                            Spectrum *sigma_a, Spectrum *sigma_prime_s);
+
+} // namespace
 
 #endif // PBRT_CORE_VOLUME_H

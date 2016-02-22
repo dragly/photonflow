@@ -15,6 +15,7 @@
 using namespace boost;
 using namespace boost::accumulators;
 using namespace std;
+using namespace photonflow;
 
 using histogram_type = iterator_range<std::vector<std::pair<double, double> >::iterator >;
 

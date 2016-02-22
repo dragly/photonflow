@@ -34,6 +34,8 @@
 #include "stdafx.h"
 #include "spectrum.h"
 
+namespace photonflow {
+
 // Spectrum Method Definitions
 bool spectrumSamplesSorted(const double *lambda, const double *vals, int n) {
     UNUSED(vals);
@@ -199,9 +201,9 @@ void Blackbody(const double *wl, int n, double temp, double *vals) {
         return;
     }
     const double C2 = 1.4388e7;
-    double norm = pow(555.0, 5.0) * (exp(C2/(555.0*temp)) - 1.);
+    double norm = std::pow(555.0, 5.0) * (exp(C2/(555.0*temp)) - 1.);
     for (int i = 0; i < n; ++i)
-        vals[i] = double(norm/(pow(double(wl[i]), 5.0)*(exp(C2/(wl[i]*temp))-1.)));
+        vals[i] = double(norm/(std::pow(double(wl[i]), 5.0)*(exp(C2/(wl[i]*temp))-1.)));
 }
 
 
@@ -905,3 +907,4 @@ const double RGBIllum2SpectBlue[nRGB2SpectSamples] =  {
     1.5535067531939065e-01,   1.4878477178237029e-01,
     1.6624255403475907e-01,   1.6997613960634927e-01,
     1.5769743995852967e-01,   1.9069090525482305e-01 };
+} // namespace

@@ -39,6 +39,8 @@
 // filters/sinc.h*
 #include "../core/filter.h"
 
+namespace photonflow {
+
 // Sinc Filter Declarations
 class LanczosSincFilter : public Filter {
 public:
@@ -61,5 +63,7 @@ private:
 
 
 //LanczosSincFilter *CreateSincFilter(const ParamSet &ps);
+
+} // namespace
 
 #endif // PBRT_FILTERS_SINC_H

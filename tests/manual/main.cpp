@@ -3,10 +3,11 @@
 
 #include "geometry/rectangle.h"
 
+using namespace photonflow;
+
 TEST_CASE("test", "[banana]") {
     SECTION("LOL") {
         Rectangle a(1.0, 2.0, 3.0, 4.0);
-
     }
 }
 

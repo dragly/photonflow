@@ -43,6 +43,8 @@
 using std::vector;
 //#include "parallel.h"
 
+namespace photonflow {
+
 class RGBSpectrum;
 using Spectrum=RGBSpectrum;
 
@@ -242,7 +244,7 @@ public:
     CoefficientSpectrum clamp(double low = 0, double high = INFINITY) const {
         CoefficientSpectrum ret;
         for (int i = 0; i < nSamples; ++i)
-            ret.c[i] = ::clamp(c[i], low, high);
+            ret.c[i] = ::photonflow::clamp(c[i], low, high);
         photonflowAssert(!ret.hasNaNs());
         return ret;
     }
@@ -479,5 +481,7 @@ inline Spectrum lerp(double t, const Spectrum &s1, const Spectrum &s2) {
 }
 
 
+
+} // namespace
 
 #endif // PBRT_CORE_SPECTRUM_H

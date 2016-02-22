@@ -39,6 +39,8 @@
 
 using namespace std;
 
+namespace photonflow {
+
 // Camera Method Definitions
 Camera::~Camera() {
 //    delete film;
@@ -106,3 +108,4 @@ ProjectiveCamera::ProjectiveCamera(const Transform &cam2world,
 }
 
 
+} // namespace

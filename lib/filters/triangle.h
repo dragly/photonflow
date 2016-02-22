@@ -39,6 +39,8 @@
 // filters/triangle.h*
 #include "../core/filter.h"
 
+namespace photonflow {
+
 // Triangle Filter Declarations
 class TriangleFilter : public Filter {
 public:
@@ -48,5 +50,7 @@ public:
 
 
 //TriangleFilter *CreateTriangleFilter(const ParamSet &ps);
+
+} // namespace
 
 #endif // PBRT_FILTERS_TRIANGLE_H

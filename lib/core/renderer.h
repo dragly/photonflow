@@ -39,6 +39,8 @@
 // core/renderer.h*
 #include "../core/common.h"
 
+namespace photonflow {
+
 class Scene;
 class Ray;
 class RayDifferential;
@@ -63,5 +65,7 @@ public:
 };
 
 
+
+} // namespace
 
 #endif // PBRT_CORE_RENDERER_H

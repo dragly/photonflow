@@ -34,6 +34,7 @@
 #include "stdafx.h"
 #include "../core/memory.h"
 #include <malloc.h>
+namespace photonflow {
 
 // Memory Allocation Functions
 void *allocateAligned(size_t size) {
@@ -69,5 +70,4 @@ void freeAligned(void *ptr) {
 #endif
 }
 
-
-
+} // namespace

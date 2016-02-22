@@ -132,9 +132,10 @@ BOOST_UNITS_LITERAL_SET(s, photonflow::TimeUnit, 1000*1000*photonflow::microseco
 
 } // literals
 
-}
+std::ostream& operator<< (std::ostream& out, Length l);
 
-std::ostream& operator<< (std::ostream& out, photonflow::Length l);
+} // namespace
+
 
 #endif // UNITS
 

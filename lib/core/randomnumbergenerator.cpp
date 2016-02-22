@@ -32,6 +32,7 @@
 #define MATRIX_A 0x9908b0dfUL   /* constant vector a */
 #define UPPER_MASK 0x80000000UL /* most significant w-r bits */
 #define LOWER_MASK 0x7fffffffUL /* least significant r bits */
+namespace photonflow {
 
 void RNG::seed(uint32_t seed) const {
     mt[0]= seed & 0xffffffffUL;
@@ -94,3 +95,4 @@ uint32_t RNG::randomUInt() const
 
     return y;
 }
+} // namespace

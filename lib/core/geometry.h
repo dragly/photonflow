@@ -50,6 +50,8 @@
 #include "../geometry/point3d.h"
 #include "../geometry/vector3d.h"
 
+namespace photonflow {
+
 // Geometry Inline Functions
 
 template<typename T>
@@ -177,5 +179,7 @@ inline Point3D &BoundingBox::operator[](int i) {
 //    return (p < 0.0) ? p + 2.f*M_PI : p;
 //}
 
+
+} // namespace
 
 #endif // PBRT_CORE_GEOMETRY_H

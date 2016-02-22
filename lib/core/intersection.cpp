@@ -35,9 +35,12 @@
 #include "intersection.h"
 #include "shape.h"
 
+namespace photonflow {
+
 Spectrum Intersection::emission(const Length3D &w) const {
     UNUSED(w);
     return Spectrum(0.);
 }
 
 
+} // namespace

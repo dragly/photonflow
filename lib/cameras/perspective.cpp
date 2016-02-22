@@ -37,6 +37,8 @@
 #include "../core/sampler.h"
 #include "../core/montecarlo.h"
 
+namespace photonflow {
+
 // PerspectiveCamera Method Definitions
 PerspectiveCamera:: PerspectiveCamera(const Transform &cam2world,
         const Rectangle &screenWindow, photonflow::Time sopen, photonflow::Time sclose,
@@ -139,3 +141,4 @@ double PerspectiveCamera::generateRay(const CameraSample &sample,
 //    ray->hasDifferentials = true;
 //    return 1.f;
 //}
+} // namespace

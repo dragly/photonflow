@@ -36,6 +36,7 @@
 #include "geometry.h"
 //#include "shape.h"
 //#include "volume.h"
+namespace photonflow {
 
 // Sampling Local Definitions
 static const int primes[] = {
@@ -442,3 +443,4 @@ double uniformConePdf(double cosThetaMax) {
 //}
 
 
+} // namespace

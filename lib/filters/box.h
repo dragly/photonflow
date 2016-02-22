@@ -39,6 +39,8 @@
 // filters/box.h*
 #include "../core/filter.h"
 
+namespace photonflow {
+
 // Box Filter Declarations
 class BoxFilter : public Filter {
 public:
@@ -48,5 +50,7 @@ public:
 
 
 //BoxFilter *CreateBoxFilter(const ParamSet &ps);
+
+} // namespace
 
 #endif // PBRT_FILTERS_BOX_H

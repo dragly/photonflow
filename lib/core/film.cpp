@@ -34,6 +34,7 @@
 #include "stdafx.h"
 #include "film.h"
 //#include "paramset.h"
+namespace photonflow {
 
 // Film Method Definitions
 Film::~Film() {
@@ -50,3 +51,4 @@ void Film::updateDisplay(int x0, int y0, int x1, int y1,
 }
 
 
+} // namespace

@@ -42,6 +42,8 @@
 #include "../core/transform.h"
 #include "../core/spectrum.h"
 
+namespace photonflow {
+
 // Intersection Declarations
 struct Intersection {
     // Intersection Public Methods
@@ -59,5 +61,7 @@ struct Intersection {
 };
 
 
+
+} // namespace
 
 #endif // PBRT_CORE_INTERSECTION_H

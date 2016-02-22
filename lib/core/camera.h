@@ -44,6 +44,8 @@
 
 #include <memory>
 
+namespace photonflow {
+
 class Film;
 class CameraSample;
 
@@ -84,5 +86,7 @@ protected:
 };
 
 
+
+} //namespace
 
 #endif // PBRT_CORE_CAMERA_H

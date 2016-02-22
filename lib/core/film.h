@@ -40,6 +40,8 @@
 #include "../core/common.h"
 #include "../core/sampler.h"
 
+namespace photonflow {
+
 class RGBSpectrum;
 using Spectrum=RGBSpectrum;
 
@@ -65,5 +67,7 @@ public:
 };
 
 
+
+} // namespace
 
 #endif // PBRT_CORE_FILM_H

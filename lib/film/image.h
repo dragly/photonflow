@@ -44,6 +44,8 @@
 #include "../core/memory.h"
 //#include "paramset.h"
 
+namespace photonflow {
+
 
 class Pixel {
 public:
@@ -84,5 +86,7 @@ public:
 
 
 //ImageFilm *CreateImageFilm(const ParamSet &params, Filter *filter);
+
+} // namespace
 
 #endif // PBRT_FILM_IMAGE_H

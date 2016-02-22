@@ -36,6 +36,8 @@
 
 using namespace std;
 
+namespace photonflow {
+
 Integrator::Integrator(VolumeGridDensity *volumeGridDensity, Ray startRay, int bounces, RNG &rng)
     : m_volumeGridDensity(volumeGridDensity)
     , m_ray(startRay)
@@ -72,3 +74,4 @@ void Integrator::integrate(std::function<Control(const Ray& ray, photonflow::Len
         }
     }
 }
+} // namespace

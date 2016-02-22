@@ -17,6 +17,8 @@ using std::sort;
 using std::vector;
 using std::string;
 
+namespace photonflow {
+
 class LightSample;
 class VisibilityTester;
 class Scene;
@@ -156,6 +158,8 @@ inline bool Quadratic(double A, double B, double C, double *t0, double *t1) {
     if (*t0 > *t1) swap(*t0, *t1);
     return true;
 }
+
+} // namespace
 
 #endif // COMMON
 

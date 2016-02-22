@@ -41,6 +41,8 @@
 #include "../core/film.h"
 #include "../core/randomnumbergenerator.h"
 
+namespace photonflow {
+
 class RandomSampler : public Sampler {
 public:
     RandomSampler(int xstart, int xend, int ystart,
@@ -58,5 +60,7 @@ private:
     double *imageSamples, *lensSamples, *timeSamples;
     int samplePos;
 };
+
+} // namespace
 
 #endif // PBRT_SAMPLERS_RANDOM_H

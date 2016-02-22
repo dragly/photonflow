@@ -2,6 +2,8 @@
 #include <QQmlApplicationEngine>
 #include "visual/renderview.h"
 
+using namespace photonflow;
+
 int main(int argc, char *argv[])
 {
     qmlRegisterType<RenderView>("Photonflow", 1, 0, "RenderView");

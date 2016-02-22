@@ -20,6 +20,8 @@
 using namespace std;
 using namespace arma;
 
+namespace photonflow {
+
 RenderView::RenderView(QQuickItem *parent)
     : QQuickPaintedItem(parent)
 {
@@ -216,3 +218,5 @@ void RenderView::paint(QPainter *painter)
     painter->drawImage(0, 0, m_image);
     qDebug() << "Paint done!";
 }
+
+} // namespace

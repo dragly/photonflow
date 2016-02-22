@@ -28,6 +28,8 @@
 
 #include <stdint.h>
 
+namespace photonflow {
+
 // Random Number Declarations
 class RNG {
 public:
@@ -47,5 +49,7 @@ private:
 };
 
 
+
+} // namespace
 
 #endif // PBRT_CORE_RNG_H
