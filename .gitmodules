@@ -1,0 +1,3 @@
+[submodule "vendor/SimVis"]
+	path = vendor/SimVis
+	url = git@github.com:ComputationalPhysics/SimVis.git

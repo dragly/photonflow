@@ -1,15 +1,16 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
-#include "visual/renderview.h"
 
-using namespace photonflow;
+#include "neuronsimulator.h"
+#include <vendor.h>
 
 int main(int argc, char *argv[])
 {
-    qmlRegisterType<RenderView>("Photonflow", 1, 0, "RenderView");
+    qmlRegisterType<NeuronSimulator>("Photonflow", 1, 0, "NeuronSimulator");
     QApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
+    qpm::init(app, engine);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     return app.exec();

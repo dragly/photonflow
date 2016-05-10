@@ -5,6 +5,10 @@ Project {
         "app/app.qbs",
         "lib/lib.qbs",
         "tests/tests.qbs",
-        "conanbuildinfo.qbs"
+        "tools/tools.qbs",
+
+        "conanbuildinfo.qbs",
+        "vendor/SimVis/package.qbs"
     ]
 }
+

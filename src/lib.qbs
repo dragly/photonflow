@@ -95,6 +95,10 @@ Product {
     cpp.includePaths: ["."]
     cpp.cxxLanguageVersion: "c++14"
     Depends { name: 'cpp' }
+    Depends {
+        name: "Qt"
+        submodules: ["core", "gui", "xml"]
+    }
 
     Export {
         Depends { name: "cpp" }

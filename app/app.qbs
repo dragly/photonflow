@@ -13,7 +13,6 @@ Product {
     cpp.cxxFlags: ["-fopenmp"]
     cpp.linkerFlags: ["-fopenmp"]
     cpp.dynamicLibraries: [hdf5LibraryName]
-
     cpp.cxxLanguageVersion: "c++14"
     Depends {
         name: "photonflow-lib"
@@ -23,9 +22,15 @@ Product {
         submodules: [
             "core",
             "gui",
+            "opengl",
             "qml",
             "quick",
-            "widgets"
+            "widgets",
+            "3dcore",
+            "3drender",
+            "3dinput",
+            "3dquick"
         ]
     }
 }
+

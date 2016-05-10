@@ -8,7 +8,6 @@ Product {
         "henyeygreensteinmanual_tests.cpp",
         "henyeygreensteinvector_tests.cpp",
         "main.cpp",
-        "voxelizer.cpp",
     ]
     cpp.cxxLanguageVersion: "c++14"
     cpp.cppFlags: ["-fopenmp"]
