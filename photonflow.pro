@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
 SUBDIRS *= \
-#    app \
-#    tests \
+    app \
+    tests \
     tools \

@@ -25,11 +25,15 @@ namespace photonflow {
 RenderView::RenderView(QQuickItem *parent)
     : QQuickPaintedItem(parent)
 {
+    qDebug() << "RenderView::RenderView(): Init";
     QElapsedTimer timer;
     timer.start();
-    arma::Cube<short> data;
-    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
+//    arma::Cube<short> data;
+    arma::cube data;
+//    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
 //    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/volume.hdf5", hdf5_binary);
+    data.load("/tmp/out.h5", hdf5_binary);
+
     qDebug() << "Data size:" << data.n_rows << data.n_cols << data.n_slices;
     qDebug() << "Data load time:" << timer.elapsed() << "ms";
     qDebug() << "Data max value: " << data.max();
@@ -46,6 +50,7 @@ RenderView::RenderView(QQuickItem *parent)
     double angle = 0.5;
 
     Transform translation = translate(Length3D(0.1 * side, 0.3 * side, 1.0 * side));
+//    Transform translation = translate(Length3D(0.0 * side, 0.0 * side, 0.0 * side));
     Transform rotation = rotate(angle, Vector3D(0.0, 1.0, 0.0));
 
     Transform boxTransform = translation*rotation;
@@ -54,10 +59,11 @@ RenderView::RenderView(QQuickItem *parent)
     cout << "Identity: " << boxTransform.isIdentity() << endl;
 
     Spectrum sigma_a(0.95);
-    Spectrum sigma_s(0.0);
-    Spectrum emita(1.0);
+    Spectrum sigma_s(0.1);
+    Spectrum emita(0.1);
 
-    vr = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, data);
+    arma::Cube<short> dataShort = arma::conv_to<arma::Cube<short>>::from(data*32000);
+    vr = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, dataShort);
 }
 
 static const int threadCount = 4;
@@ -154,10 +160,11 @@ void RenderView::integrate()
                 Integrator integrator(&vr, startRay, bounces, rng);
 
                 integrator.integrate([&](const Ray& ray, photonflow::Length ds) {
+                    Q_UNUSED(ds);
                     if(!vr.fuzzyInside(ray.origin())) {
                         return Integrator::Control::Break;
                     }
-                    double factor = (1.0_um - ds).value();
+//                    double factor = (1.0_um - ds).value();
                     Tr *= vr.sigma_a(ray.origin(), Length3D(), 0.0);
                     if(vr.Density(ray.origin()) > 60) {
                         Lv += Tr * vr.Lve(ray.origin(), Length3D(), 0.0);

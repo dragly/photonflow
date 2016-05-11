@@ -13,7 +13,6 @@ class Segment {
 public:
     int id = -1;
     int parentID = -1;
-    Segment* parent;
     Point3D proximal;
     Point3D distal;
     Length proximalWidth = 0.0_um;
@@ -64,7 +63,13 @@ bool NeuroMlReader::load(const std::string &path)
         if(reader.isStartElement()) {
             if(reader.name() == "segment") {
                 if(!dummySegment) {
-                    segments.append(segment);
+                    if(!segment.hasProximal && !segment.hasParentID) {
+                        cerr << "WARNING: NeuroMlReader: Got segment without proximal or parent." << endl;
+                    } else if(!segment.hasDistal) {
+                        cerr << "WARNING: NeuroMlReader: Got segment without distal." << endl;
+                    } else {
+                        segments.append(segment);
+                    }
                 }
                 dummySegment = false;
                 segment = Segment();
@@ -121,10 +126,12 @@ bool NeuroMlReader::load(const std::string &path)
                                  segment.proximalWidth * 0.5,
                                  segment.distalWidth * 0.5);
 
+        boundingBox = makeUnion(boundingBox, cylinder.start);
+        boundingBox = makeUnion(boundingBox, cylinder.end);
         m_cylinders.push_back(cylinder);
     }
 
-    //    m_boundingBox = boundingBox;
+    m_boundingBox = boundingBox;
     return true;
 }
 
