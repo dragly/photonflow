@@ -6,13 +6,15 @@ compiler:
 sudo: required
 dist: trusty
 install:
+  - sudo add-apt-repository -y ppa:beineri/opt-qt56-xenial
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get -qq update
   - sudo apt-get -qq install catch
   - sudo apt-get -qq install libarmadillo-dev
   - sudo apt-get -qq install libboost-all-dev
   - sudo apt-get -qq install libhdf5-dev
-  - sudo apt-get -qq install qtdeclarative5-dev
+  - sudo apt-get -qq install qt563d
+  - sudo apt-get -qq install qt56declarative
   - sudo apt-get -qq install libboost-dev
   - sudo apt-get -qq install gcc-5
   - sudo apt-get -qq install g++-5
@@ -23,12 +25,11 @@ install:
   - sudo ln -s /usr/bin/g++-5 /usr/bin/g++
 script:
   - dpkg -L g++-5
-  - source /opt/qt55/bin/qt55-env.sh
+  - source /opt/qt56/bin/qt56-env.sh
      && mkdir build
      && cd build
-     && /opt/qt55/bin/qbs setup-toolchains --detect
-     && /opt/qt55/bin/qbs setup-qt /opt/qt55/bin/qmake qt5
-     && /opt/qt55/bin/qbs build -f ../photonflow.qbs photonflow-app.hdf5LibraryName:hdf5 profile:qt5 release
-     && cd qt5-release
-     && cd auto-tests*
-     && ./auto-tests
+     && /opt/qt56/bin/qmake ..
+     && make
+     && cd tests
+     && cd auto
+     && ./auto
