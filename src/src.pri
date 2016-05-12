@@ -5,8 +5,13 @@ CONFIG += c++14
 INCLUDEPATH = $$PWD
 
 DEFINES += ARMA_USE_HDF5
-DEFINES += ARMA_HDF5_INCLUDE_DIR=/usr/include/hdf5/serial/
-LIBS += -lhdf5_serial
+
+trusty {
+    LIBS += -lhdf5
+} else {
+    LIBS += -lhdf5_serial
+    DEFINES += ARMA_HDF5_INCLUDE_DIR=/usr/include/hdf5/serial/
+}
 
 HEADERS += \
     $$PWD/cameras/perspective.h \

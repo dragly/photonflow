@@ -28,7 +28,7 @@ script:
   - source /opt/qt56/bin/qt56-env.sh
      && mkdir build
      && cd build
-     && /opt/qt56/bin/qmake ..
+     && /opt/qt56/bin/qmake .. CONFIG=trusty
      && make
      && cd tests
      && cd auto
