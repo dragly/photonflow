@@ -1,5 +1,7 @@
 DISTFILES +=
 
+QT += core gui opengl widgets xml
+
 CONFIG += c++14
 
 INCLUDEPATH = $$PWD
