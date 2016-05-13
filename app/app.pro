@@ -14,8 +14,10 @@ RESOURCES += \
 
 SOURCES += \
     main.cpp \
-    visual/renderview.cpp
+    visual/renderview.cpp \
+    visual/imageviewer.cpp
 
 HEADERS += \
-    visual/renderview.h
+    visual/renderview.h \
+    visual/imageviewer.h
 

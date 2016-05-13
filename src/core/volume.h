@@ -98,6 +98,16 @@ public:
         UNUSED(p);
         return PhaseHG(w, wp, g);
     }
+    void setSigmaA(const Spectrum &sigmaA) {
+        sig_a = sigmaA;
+    }
+    void setSigmaS(const Spectrum &sigmaS) {
+        sig_s = sigmaS;
+    }
+    void setEmissionFactor(const Spectrum &emissionFactor) {
+        le = emissionFactor;
+    }
+
 //    Spectrum tau(const Ray &r, double stepSize, double offset) const;
 protected:
     // DensityRegion Protected Data

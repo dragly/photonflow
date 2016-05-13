@@ -10,14 +10,11 @@ ApplicationWindow {
     height: 1024
     title: qsTr("Photonflow")
 
-    PhotonflowSimulator {
-        id: simulator
+    RenderView {
+        id: renderView
+        anchors.fill: parent
     }
 
-    ImageViewer {
-        anchors.fill: parent
-        image: simulator.image
-    }
 
 //    Timer {
 //        running: true
@@ -45,20 +42,20 @@ ApplicationWindow {
 //        onClicked: timer.running = !timer.running
 //    }
 
-//    Timer {
-//        id: timer
-//        property real lastTime: Date.now()
-//        property real totalTime: 0
-//        running: true
-//        repeat: true
-//        interval: 16
+    Timer {
+        id: timer
+        property real lastTime: Date.now()
+        property real totalTime: 0
+        running: true
+        repeat: true
+        interval: 16
 
-//        onTriggered: {
-//            console.log("Triggered!")
-//            totalTime += Date.now() - lastTime
-//            lastTime = Date.now()
-//            renderView.requestIntegrate()
-//        }
-//    }
+        onTriggered: {
+            console.log("Triggered!")
+            totalTime += Date.now() - lastTime
+            lastTime = Date.now()
+            renderView.integrate()
+        }
+    }
 }
 

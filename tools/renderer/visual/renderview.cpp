@@ -13,8 +13,6 @@
 
 #include <QElapsedTimer>
 #include <QPainter>
-#include <QMutexLocker>
-
 #include <iostream>
 #include <memory>
 #include <omp.h>
@@ -24,45 +22,13 @@ using namespace arma;
 
 namespace photonflow {
 
-PhotonflowSimulator::PhotonflowSimulator(QNode *parent)
-    : Simulator(parent)
+PhotonflowSimulator::PhotonflowSimulator(QQuickItem *parent)
+    : QQuickPaintedItem(parent)
 {
-}
-
-QImage PhotonflowSimulator::image()
-{
-    return m_image;
-}
-
-static const int threadCount = 1;
-
-void PhotonflowSimulator::integrate()
-{
-
-}
-
-void PhotonflowSimulator::requestIntegrate()
-{
-
-}
-
-void PhotonflowSimulator::setImage(QImage image)
-{
-    if (m_image == image)
-        return;
-
-    m_image = image;
-    emit imageChanged(image);
-}
-
-PhotonflowWorker::PhotonflowWorker()
-    : SimulatorWorker()
-{
-
     qDebug() << "RenderView::RenderView(): Init";
     QElapsedTimer timer;
     timer.start();
-    //    arma::Cube<short> data;
+//    arma::Cube<short> data;
     arma::cube data;
 //    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
 //    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/volume.hdf5", hdf5_binary);
@@ -100,7 +66,9 @@ PhotonflowWorker::PhotonflowWorker()
     vr = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, dataShort);
 }
 
-void PhotonflowWorker::work()
+static const int threadCount = 4;
+
+void PhotonflowSimulator::integrate()
 {
     if(rngs.size() < threadCount) {
         rngs.resize(threadCount);
@@ -113,8 +81,7 @@ void PhotonflowWorker::work()
     QElapsedTimer timer;
     timer.start();
 
-//    const QSize size = boundingRect().size().toSize();
-    QSize size(640, 480); // TODO actually get size from simulator
+    const QSize size = boundingRect().size().toSize();
     if(size.width() <= 0 || size.height() <= 0 || size.width() > 1e6 || size.height() > 1e6) {
         qWarning() << "WARNING: Integrate returns due to invalid size:" << size;
         return;
@@ -247,19 +214,16 @@ void PhotonflowWorker::work()
             m_image.setPixel(x, y, color.rgba());
         }
     }
+
     qDebug() << "Done after" << timer.elapsed() << "ms";
+    update();
 }
 
-void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
+void PhotonflowSimulator::paint(QPainter *painter)
 {
-    PhotonflowSimulator *renderView = qobject_cast<PhotonflowSimulator*>(simulator);
-    renderView->m_image = m_image;
-    emit renderView->imageChanged(renderView->m_image);
-}
-
-SimulatorWorker *PhotonflowSimulator::createWorker()
-{
-    return new PhotonflowWorker();
+    qDebug() << "Paint!";
+    painter->drawImage(0, 0, m_image);
+    qDebug() << "Paint done!";
 }
 
 } // namespace
