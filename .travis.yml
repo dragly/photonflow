@@ -13,6 +13,7 @@ install:
   - sudo apt-get -qq install libarmadillo-dev
   - sudo apt-get -qq install libboost-all-dev
   - sudo apt-get -qq install libhdf5-dev
+  - sudo apt-get -qq install qt56-meta
   - sudo apt-get -qq install qt563d
   - sudo apt-get -qq install qt56declarative
   - sudo apt-get -qq install libboost-dev
