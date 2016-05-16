@@ -50,7 +50,7 @@ public:
     VolumeGridDensity();
     VolumeGridDensity(const Spectrum &sa, const Spectrum &ss, double gg,
             const Spectrum &emita, const BoundingBox &e, const Transform &v2w,
-            arma::Cube<short> densitya);
+            arma::cube densitya);
     BoundingBox worldBound() const { return m_worldBound; }
     bool intersectP(const Ray &r, double *t0, double *t1) const;
     double Density(const Point3D &Pobj) const;
@@ -60,7 +60,7 @@ public:
 private:
     // VolumeGridDensity Private Data
     BoundingBox extent;
-    arma::Cube<short> density;
+    arma::cube density;
     BoundingBox m_worldBound;
 };
 
@@ -75,7 +75,7 @@ inline double VolumeGridDensity::D(int x, int y, int z) const {
     z = clamp(z, 0, int(density.n_slices-1));
     double value = 0.0;
     try {
-        value = density(x, y, z);
+        return 32000.0 * density(x, y, z);
     } catch(std::logic_error &e) {
         std::cout << "Error on fetching value for " << x << " " << y << " " << z << std::endl;
         std::cout << "Size is " << density.n_rows << " " << density.n_cols << " " << density.n_slices << std::endl;

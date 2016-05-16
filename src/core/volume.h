@@ -57,15 +57,15 @@ public:
     // VolumeRegion Interface
     virtual BoundingBox worldBound() const = 0;
     virtual bool intersectP(const Ray &ray, double *t0, double *t1) const = 0;
-    virtual Spectrum sigma_a(const Point3D &, const Length3D &,
+    virtual Spectrum absorption(const Point3D &, const Length3D &,
                              double time) const = 0;
-    virtual Spectrum sigma_s(const Point3D &, const Length3D &,
+    virtual Spectrum scattering(const Point3D &, const Length3D &,
                              double time) const = 0;
-    virtual Spectrum Lve(const Point3D &, const Length3D &,
+    virtual Spectrum emission(const Point3D &, const Length3D &,
                          double time) const = 0;
-    virtual double p(const Point3D &, const Length3D &,
+    virtual double phase(const Point3D &, const Length3D &,
                     const Length3D &, double time) const = 0;
-    virtual Spectrum sigma_t(const Point3D &p, const Length3D &wo, double time) const;
+    virtual Spectrum extinction(const Point3D &p, const Length3D &wo, double time) const;
 //    virtual Spectrum tau(const Ray &ray, double step = 1.f,
 //                         double offset = 0.5) const = 0;
 };
@@ -77,44 +77,54 @@ public:
     DensityRegion();
     DensityRegion(const Spectrum &sa, const Spectrum &ss, double gg,
                   const Spectrum &emita, const Transform &VolumeToWorldIn)
-        : sig_a(sa), sig_s(ss), le(emita), g(gg),
-          WorldToVolume(inverse(VolumeToWorldIn)),
-          VolumeToWorld(VolumeToWorldIn) { }
+        : m_absorptionCoefficient(sa)
+        , m_scatteringCoefficient(ss)
+        , m_emissionCoefficient(emita)
+        , m_henyeyGreensteinFactor(gg)
+        , WorldToVolume(inverse(VolumeToWorldIn))
+        , VolumeToWorld(VolumeToWorldIn) { }
     virtual double Density(const Point3D &Pobj) const = 0;
-    Spectrum sigma_a(const Point3D &p, const Length3D &, double) const {
+    Spectrum absorption(const Point3D &p, const Length3D &, double) const {
         UNUSED(p);
-        return sig_a;
+        return m_absorptionCoefficient;
     }
-    Spectrum sigma_s(const Point3D &p, const Length3D &, double) const {
-        return Density(p) * sig_s;
+    virtual Spectrum scattering(const Point3D &p, const Length3D &, double) const override {
+        return Density(p) * m_scatteringCoefficient;
     }
-    Spectrum sigma_t(const Point3D &p, const Length3D &, double) const {
-        return Density(p) * (sig_a + sig_s);
+    virtual Spectrum extinction(const Point3D &p, const Length3D &, double) const override {
+        return Density(p) * (m_absorptionCoefficient + m_scatteringCoefficient);
     }
-    Spectrum Lve(const Point3D &p, const Length3D &, double) const {
-        return Density(p) * le;
+    virtual Spectrum emission(const Point3D &p, const Length3D &, double) const override {
+        return Density(p) * m_emissionCoefficient;
     }
-    double p(const Point3D &p, const Length3D &w, const Length3D &wp, double) const {
-        UNUSED(p);
-        return PhaseHG(w, wp, g);
+    virtual double phase(const Point3D &phase, const Length3D &w, const Length3D &wp, double) const override {
+        UNUSED(phase);
+        return PhaseHG(w, wp, m_henyeyGreensteinFactor);
     }
-    void setSigmaA(const Spectrum &sigmaA) {
-        sig_a = sigmaA;
+    double henyeyGreensteinFactor() {
+        return m_henyeyGreensteinFactor;
     }
-    void setSigmaS(const Spectrum &sigmaS) {
-        sig_s = sigmaS;
+
+    void setAbsorptionCoefficient(const Spectrum &value) {
+        m_absorptionCoefficient = value;
     }
-    void setEmissionFactor(const Spectrum &emissionFactor) {
-        le = emissionFactor;
+    void setScatteringCoefficient(const Spectrum &value) {
+        m_scatteringCoefficient = value;
+    }
+    void setEmissionCoefficient(const Spectrum &value) {
+        m_emissionCoefficient = value;
+    }
+    void setHenyeyGreensteinFactor(double value) {
+        m_henyeyGreensteinFactor = value;
     }
 
 //    Spectrum tau(const Ray &r, double stepSize, double offset) const;
 protected:
     // DensityRegion Protected Data
-    Spectrum sig_a;
-    Spectrum sig_s;
-    Spectrum le;
-    double g = 0.0;
+    Spectrum m_absorptionCoefficient;
+    Spectrum m_scatteringCoefficient;
+    Spectrum m_emissionCoefficient;
+    double m_henyeyGreensteinFactor = 0.0;
     Transform WorldToVolume;
     Transform VolumeToWorld;
 };

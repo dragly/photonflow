@@ -24,6 +24,8 @@ using namespace arma;
 
 namespace photonflow {
 
+static const int threadCount = 8;
+
 PhotonflowSimulator::PhotonflowSimulator(QNode *parent)
     : Simulator(parent)
 {
@@ -34,16 +36,32 @@ QImage PhotonflowSimulator::image()
     return m_image;
 }
 
-static const int threadCount = 1;
-
-void PhotonflowSimulator::integrate()
+double PhotonflowSimulator::emissionFactor() const
 {
-
+    return m_emissionCoefficient;
 }
 
-void PhotonflowSimulator::requestIntegrate()
+double PhotonflowSimulator::absorptionCoefficient() const
 {
+    return m_absorptionCoefficient;
+}
 
+double PhotonflowSimulator::scatteringCoefficient() const
+{
+    return m_scatteringCoefficient;
+}
+
+double PhotonflowSimulator::henyeyGreensteinFactor() const
+{
+    return m_henyeyGreensteinFactor;
+}
+
+
+void PhotonflowSimulator::clear()
+{
+    m_clearRequested = true;
+    m_image.fill(QColor("black"));
+    emit imageChanged(m_image);
 }
 
 void PhotonflowSimulator::setImage(QImage image)
@@ -55,19 +73,56 @@ void PhotonflowSimulator::setImage(QImage image)
     emit imageChanged(image);
 }
 
+void PhotonflowSimulator::setEmissionFactor(double emissionFactor)
+{
+    if (m_emissionCoefficient == emissionFactor)
+        return;
+
+    m_emissionCoefficient = emissionFactor;
+    emit emissionFactorChanged(emissionFactor);
+}
+
+void PhotonflowSimulator::setAbsorptionCoefficient(double absorptionCoefficient)
+{
+    if (m_absorptionCoefficient == absorptionCoefficient)
+        return;
+
+    m_absorptionCoefficient = absorptionCoefficient;
+    emit absorptionCoefficientChanged(absorptionCoefficient);
+}
+
+void PhotonflowSimulator::setScatteringCoefficient(double scatteringCoefficient)
+{
+    if (m_scatteringCoefficient == scatteringCoefficient)
+        return;
+
+    m_scatteringCoefficient = scatteringCoefficient;
+    emit scatteringCoefficientChanged(scatteringCoefficient);
+}
+
+void PhotonflowSimulator::setHenyeyGreensteinFactor(double henyeyGreensteinFactor)
+{
+    if (m_henyeyGreensteinFactor == henyeyGreensteinFactor)
+        return;
+
+    m_henyeyGreensteinFactor = henyeyGreensteinFactor;
+    emit henyeyGreensteinFactorChanged(henyeyGreensteinFactor);
+}
+
 PhotonflowWorker::PhotonflowWorker()
     : SimulatorWorker()
 {
 
-    qDebug() << "RenderView::RenderView(): Init";
+    qDebug() << "PhotonflowWorker: Init";
     QElapsedTimer timer;
     timer.start();
     //    arma::Cube<short> data;
     arma::cube data;
-//    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
+    //    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
 //    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/volume.hdf5", hdf5_binary);
     data.load("/tmp/out.h5", hdf5_binary);
 
+    qDebug() << "PhotonflowWorker: Loaded file";
     qDebug() << "Data size:" << data.n_rows << data.n_cols << data.n_slices;
     qDebug() << "Data load time:" << timer.elapsed() << "ms";
     qDebug() << "Data max value: " << data.max();
@@ -80,7 +135,6 @@ PhotonflowWorker::PhotonflowWorker()
     bbox.pMax = Point3D(side, side, 0.2*side);
 
     double gg = 1.0;
-
     double angle = 0.5;
 
     Transform translation = translate(Length3D(0.1 * side, 0.3 * side, 1.0 * side));
@@ -89,23 +143,25 @@ PhotonflowWorker::PhotonflowWorker()
 
     Transform boxTransform = translation*rotation;
 
-//    Transform boxTransform;
-    cout << "Identity: " << boxTransform.isIdentity() << endl;
-
     Spectrum sigma_a(0.95);
     Spectrum sigma_s(0.1);
     Spectrum emita(0.1);
 
-    arma::Cube<short> dataShort = arma::conv_to<arma::Cube<short>>::from(data*32000);
-    vr = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, dataShort);
+    qDebug() << "PhotonflowWorker: Converting file...";
+//    arma::Cube<short> dataShort = arma::conv_to<arma::Cube<short>>::from(data*32000);
+
+    qDebug() << "PhotonflowWorker: Creating volume object...";
+    m_volumeRegion = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, data);
+
+    qDebug() << "PhotonflowWorker: Init complete";
 }
 
 void PhotonflowWorker::work()
 {
-    if(rngs.size() < threadCount) {
-        rngs.resize(threadCount);
+    if(m_randomNumberGenerators.size() < threadCount) {
+        m_randomNumberGenerators.resize(threadCount);
         int i = 0;
-        for(RNG& rng : rngs) {
+        for(RNG& rng : m_randomNumberGenerators) {
             rng.seed(1325125 ^ i);
             i++;
         }
@@ -133,7 +189,7 @@ void PhotonflowWorker::work()
     double boxSize = 1.0;
     BoxFilter filter(boxSize * 0.5, boxSize * 0.5);
 
-    if(m_image.size() != size || !film) {
+    if(m_image.size() != size || !m_film) {
         qDebug() << "Creating image of size" << size;
         m_image = QImage(size, QImage::Format_ARGB32);
         for(int x = 0; x < width; x++) {
@@ -141,23 +197,21 @@ void PhotonflowWorker::work()
                 m_image.setPixel(x, y, QColor(0.0, 0.0, 0.0, 255.0).rgba());
             }
         }
-        film = make_shared<ImageFilm>(width, height, &filter, crop);
+        m_film = make_shared<ImageFilm>(width, height, &filter, crop);
     }
     const auto sopen = 0.0_us;
     const auto sclose = 1.0_us;
     const auto lensr = 0.0_um;
     const auto focald = 3.5_um;
     const double fov = 0.2;
-    const PerspectiveCamera camera(cameraTransform, screenWindow, sopen, sclose, lensr, focald, fov, film);
+    const PerspectiveCamera camera(cameraTransform, screenWindow, sopen, sclose, lensr, focald, fov, m_film);
 
 #pragma omp parallel num_threads(threadCount) // OpenMP
     {
-        cout << "Thread num: " << omp_get_thread_num() << " rngs size: " << rngs.size() << endl;
-        RNG& rng = rngs.at(omp_get_thread_num());
+        RNG& rng = m_randomNumberGenerators.at(omp_get_thread_num());
         int actualCount = 0;
         RandomSampler sampler(0, width, 0, height, requestedSampleCount, 0.0_us, 1.0_us);
         int maxSampleCount = sampler.maximumSampleCount();
-        qDebug() << "Max count: " << maxSampleCount;
 
         Sample originalSample;
         originalSample.Add1D(1);
@@ -175,7 +229,7 @@ void PhotonflowWorker::work()
 
                 double t0;
                 double t1;
-                if (!vr.intersectP(intersectRay, &t0, &t1)) {
+                if (!m_volumeRegion.intersectP(intersectRay, &t0, &t1)) {
                     continue;
                 }
                 if((t1-t0) == 0.0) {
@@ -190,17 +244,17 @@ void PhotonflowWorker::work()
 
 //                startRay = Ray(startRay.origin() + intersectRay.m_direction * 0.01, startRay.direction());
 
-                Integrator integrator(&vr, startRay, bounces, rng);
+                Integrator integrator(&m_volumeRegion, startRay, bounces, rng);
 
                 integrator.integrate([&](const Ray& ray, photonflow::Length ds) {
                     Q_UNUSED(ds);
-                    if(!vr.fuzzyInside(ray.origin())) {
+                    if(!m_volumeRegion.fuzzyInside(ray.origin())) {
                         return Integrator::Control::Break;
                     }
 //                    double factor = (1.0_um - ds).value();
-                    Tr *= vr.sigma_a(ray.origin(), Length3D(), 0.0);
-                    if(vr.Density(ray.origin()) > 60) {
-                        Lv += Tr * vr.Lve(ray.origin(), Length3D(), 0.0);
+                    Tr *= m_volumeRegion.absorption(ray.origin(), Length3D(), 0.0);
+                    if(m_volumeRegion.Density(ray.origin()) > 60) {
+                        Lv += Tr * m_volumeRegion.emission(ray.origin(), Length3D(), 0.0);
                         photonflowAssert(!Lv.hasNaNs());
                     }
                     if(Tr < Spectrum(0.01)) {
@@ -211,10 +265,10 @@ void PhotonflowWorker::work()
 
                 Spectrum final = Lv / omp_get_num_threads();
 
-                film->addSample(sample, final);
+                m_film->addSample(sample, final);
 
                 actualCount++;
-                if(!(actualCount % 10000) && omp_get_thread_num() == 0) {
+                if(!(actualCount % 100000) && omp_get_thread_num() == 0) {
                     qDebug() << "Sample count:" << actualCount;
                 }
             }
@@ -223,15 +277,15 @@ void PhotonflowWorker::work()
         delete[] samples;
     }
 
-    totalSampleCount += requestedSampleCount;
+    m_totalSampleCount += requestedSampleCount;
 
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
 
-            Pixel& pixel = (*film->pixels)(x, y);
+            Pixel& pixel = (*m_film->pixels)(x, y);
             Spectrum result = Spectrum::fromXYZ(pixel.Lxyz);
 
-            result /= (totalSampleCount * boxSize);
+            result /= (m_totalSampleCount * boxSize);
 
             double rgb[3];
             result.toRGB(rgb);
@@ -253,7 +307,20 @@ void PhotonflowWorker::work()
 void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
 {
     PhotonflowSimulator *renderView = qobject_cast<PhotonflowSimulator*>(simulator);
+    if(renderView->m_clearRequested) {
+        m_film.reset();
+        m_totalSampleCount = 0;
+        renderView->m_clearRequested = false;
+        m_image.fill(QColor("black"));
+    }
+
+    m_volumeRegion.setAbsorptionCoefficient(Spectrum(renderView->m_absorptionCoefficient));
+    m_volumeRegion.setScatteringCoefficient(Spectrum(renderView->m_scatteringCoefficient));
+    m_volumeRegion.setEmissionCoefficient(Spectrum(renderView->m_emissionCoefficient));
+    m_volumeRegion.setHenyeyGreensteinFactor(renderView->m_henyeyGreensteinFactor);
+
     renderView->m_image = m_image;
+
     emit renderView->imageChanged(renderView->m_image);
 }
 

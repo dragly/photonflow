@@ -30,44 +30,58 @@ private:
 
     QImage m_image;
     bool m_isDataLoaded = false;
-    int times = 1;
-    std::shared_ptr<ImageFilm> film;
-    int totalSampleCount = 0;
-    VolumeGridDensity vr;
-    vector<RNG> rngs;
+    std::shared_ptr<ImageFilm> m_film;
+    int m_totalSampleCount = 0;
+    VolumeGridDensity m_volumeRegion;
+    vector<RNG> m_randomNumberGenerators;
 };
 
 class PhotonflowSimulator : public Simulator
 {
     Q_OBJECT
     Q_PROPERTY(QImage image READ image WRITE setImage NOTIFY imageChanged)
+    Q_PROPERTY(double emissionFactor READ emissionFactor WRITE setEmissionFactor NOTIFY emissionFactorChanged)
+    Q_PROPERTY(double scatteringCoefficient READ scatteringCoefficient WRITE setScatteringCoefficient NOTIFY scatteringCoefficientChanged)
+    Q_PROPERTY(double absorptionCoefficient READ absorptionCoefficient WRITE setAbsorptionCoefficient NOTIFY absorptionCoefficientChanged)
+    Q_PROPERTY(double henyeyGreensteinFactor READ henyeyGreensteinFactor WRITE setHenyeyGreensteinFactor NOTIFY henyeyGreensteinFactorChanged)
 public:
     PhotonflowSimulator(QNode *parent = 0);
 
     QImage image();
+    double emissionFactor() const;
+    double absorptionCoefficient() const;
+    double scatteringCoefficient() const;
+
+    double henyeyGreensteinFactor() const;
 
 signals:
-
     void imageChanged(QImage image);
+    void emissionFactorChanged(double emissionFactor);
+    void absorptionCoefficientChanged(double absorptionCoefficient);
+    void scatteringCoefficientChanged(double scatteringCoefficient);
+
+    void henyeyGreensteinFactorChanged(double henyeyGreensteinFactor);
 
 public slots:
-    void requestIntegrate();
-
+    void clear();
     void setImage(QImage image);
+    void setEmissionFactor(double emissionFactor);
+    void setAbsorptionCoefficient(double absorptionCoefficient);
+    void setScatteringCoefficient(double scatteringCoefficient);
+
+    void setHenyeyGreensteinFactor(double henyeyGreensteinFactor);
 
 protected:
     virtual SimulatorWorker *createWorker() override;
 
 private:
-    void integrate();
-
     QImage m_image;
     bool m_isDataLoaded = false;
-    int times = 1;
-    std::shared_ptr<ImageFilm> film;
-    int totalSampleCount = 0;
-    VolumeGridDensity vr;
-    vector<RNG> rngs;
+    bool m_clearRequested = false;
+    double m_emissionCoefficient = 0.1;
+    double m_absorptionCoefficient = 1.0;
+    double m_scatteringCoefficient = 0.1;
+    double m_henyeyGreensteinFactor = 1.0;
 
     friend class PhotonflowWorker;
     QT3D_CLONEABLE(PhotonflowSimulator)

@@ -11,6 +11,10 @@ int main(int argc, char *argv[])
 {
     qmlRegisterType<PhotonflowSimulator>("Photonflow", 1, 0, "PhotonflowSimulator");
     qmlRegisterType<ImageViewer>("Photonflow", 1, 0, "ImageViewer");
+
+    QApplication::setOrganizationName("Ovilab");
+    QApplication::setApplicationName("Photonflow");
+
     QApplication app(argc, argv);
 
     QQmlApplicationEngine engine;

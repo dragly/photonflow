@@ -181,9 +181,9 @@ double PhaseHG(const Length3D &w, const Length3D &wp, double g) {
 //}
 
 
-Spectrum VolumeRegion::sigma_t(const Point3D &p, const Length3D &w,
+Spectrum VolumeRegion::extinction(const Point3D &p, const Length3D &w,
                                double time) const {
-    return sigma_a(p, w, time) + sigma_s(p, w, time);
+    return absorption(p, w, time) + scattering(p, w, time);
 }
 
 

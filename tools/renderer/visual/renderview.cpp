@@ -165,9 +165,9 @@ void PhotonflowSimulator::integrate()
                         return Integrator::Control::Break;
                     }
 //                    double factor = (1.0_um - ds).value();
-                    Tr *= vr.sigma_a(ray.origin(), Length3D(), 0.0);
+                    Tr *= vr.absorption(ray.origin(), Length3D(), 0.0);
                     if(vr.Density(ray.origin()) > 60) {
-                        Lv += Tr * vr.Lve(ray.origin(), Length3D(), 0.0);
+                        Lv += Tr * vr.emission(ray.origin(), Length3D(), 0.0);
                         photonflowAssert(!Lv.hasNaNs());
                     }
                     if(Tr < Spectrum(0.01)) {

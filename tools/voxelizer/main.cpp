@@ -26,7 +26,7 @@ int main() {
     vector<CylinderFrustum> cylinders = reader.cylinders();
     BoundingBox boundingBox = reader.boundingBox();
 
-    arma::cube voxels = voxelize(cylinders, boundingBox, 2048);
+    arma::cube voxels = voxelize(cylinders, boundingBox, 1024);
 
     cout << "Voxels minmax: " << voxels.min() << " " << voxels.max() << endl;
     cout << "Voxels shape: " << voxels.n_slices << " " << voxels.n_rows << " " << voxels.n_cols << endl;
