@@ -8,9 +8,13 @@ import Photonflow 1.0
 
 ApplicationWindow {
     visible: true
-    width: 1280
+    width: 1920
     height: 1024
     title: qsTr("Photonflow")
+
+    Component.onCompleted: {
+        builderScene.addNeuron("...")
+    }
 
     Settings {
         property alias emissionFactor: simulator.emissionFactor
@@ -34,6 +38,7 @@ ApplicationWindow {
 
             ColumnLayout {
                 anchors.fill: parent
+
                 Button {
                     text: simulator.running ? "Stop" : "Start"
                     onClicked: {
@@ -48,76 +53,63 @@ ApplicationWindow {
                     }
                 }
 
-                Text {
-                    text: "Emission: " + simulator.emissionFactor.toFixed(2)
+                Button {
+                    text: "Create neuron"
+                    onClicked: {
+                        builderScene.addNeuron("/home/svenni/Dropbox/projects/programming/neuroscience/neurona/neurona/hay_et_al_2011.nml")
+                    }
                 }
 
-                Slider {
+                Button {
+                    text: "Voxelize"
+                    onClicked: {
+                        var neuronSimulators = []
+                        for(var i in builderScene.neurons) {
+                            var neuron = builderScene.neurons[i]
+                            neuronSimulators.push({simulator: neuron.simulator, transform: neuron.transform})
+                        }
+                        simulator.voxelize(neuronSimulators)
+                    }
+                }
+
+                BoundSlider {
                     id: emissionSlider
                     Layout.fillWidth: true
-                    value: simulator.emissionFactor
+                    text: "Emission"
                     minimumValue: 0.01
                     maximumValue: 1.0
-
-                    Binding {
-                        target: simulator
-                        property: "emissionFactor"
-                        value: emissionSlider.value
-                    }
+                    target: simulator
+                    property: "emissionFactor"
                 }
 
-                Text {
-                    text: "Scattering: " + simulator.scatteringCoefficient.toFixed(2)
-                }
-
-                Slider {
+                BoundSlider {
                     id: scatteringSlider
                     Layout.fillWidth: true
-                    value: simulator.scatteringCoefficient
+                    text: "Scattering"
                     minimumValue: 0.0
                     maximumValue: 1.0
-
-                    Binding {
-                        target: simulator
-                        property: "scatteringCoefficient"
-                        value: scatteringSlider.value
-                    }
+                    target: simulator
+                    property: "scatteringCoefficient"
                 }
 
-                Text {
-                    text: "Absorption: " + simulator.absorptionCoefficient.toFixed(2)
-                }
-
-                Slider {
+                BoundSlider {
                     id: absorptionSlider
+                    text: "Absorption"
                     Layout.fillWidth: true
-                    value: simulator.absorptionCoefficient
                     minimumValue: 0.0
                     maximumValue: 1.0
-
-                    Binding {
-                        target: simulator
-                        property: "absorptionCoefficient"
-                        value: absorptionSlider.value
-                    }
+                    target: simulator
+                    property: "absorptionCoefficient"
                 }
 
-                Text {
-                    text: "Henyey greenstein factor: " + simulator.henyeyGreensteinFactor.toFixed(2)
-                }
-
-                Slider {
+                BoundSlider {
                     id: henyeyGreensteinFactorSlider
-                    Layout.fillWidth: true
-                    value: simulator.henyeyGreensteinFactor
+                    target: simulator
+                    property: "henyeyGreensteinFactor"
+                    text: "Henyey Greenstein factor"
                     minimumValue: 0.0
                     maximumValue: 1.0
-
-                    Binding {
-                        target: simulator
-                        property: "henyeyGreensteinFactor"
-                        value: henyeyGreensteinFactorSlider.value
-                    }
+                    Layout.fillWidth: true
                 }
 
                 Item {
@@ -125,6 +117,69 @@ ApplicationWindow {
                     Layout.fillHeight: true
                 }
             }
+        }
+
+        Item {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            width: 3
+            BuilderScene {
+                id: builderScene
+                anchors.fill: parent
+            }
+
+//            MouseArea {
+//                anchors.fill: parent
+//                propagateComposedEvents: true
+//                onPressed: {
+//                    console.log("Pressed")
+////                    mouse.accepted = false
+//                }
+//                onReleased: {
+//                    console.log("Released")
+//                    mouse.accepted = false
+//                }
+//            }
+
+//            MouseArea {
+//                property point previousPosition
+//                property real dragSpeed: 0.04
+//                property alias camera: builderScene.camera
+//                property alias entity: builderScene.currentEntity
+
+//                propagateComposedEvents: true
+//                acceptedButtons: Qt.LeftButton | Qt.RightButton
+//                anchors.fill: parent
+//                onPressed: {
+//                    previousPosition = Qt.point(mouse.x, mouse.y)
+//                }
+//                onPositionChanged: {
+//                    var currentPosition = Qt.point(mouse.x, mouse.y)
+//                    var diff = Qt.vector2d(previousPosition.x - currentPosition.x, previousPosition.y - currentPosition.y)
+
+//                    diff = diff.times(0.5)
+
+//                    if(mouse.buttons & Qt.LeftButton) {
+//                        camera.panAboutViewCenter(diff.x, camera.upVector)
+//                        camera.tiltAboutViewCenter(-diff.y)
+//                    } else if(mouse.buttons & Qt.RightButton) {
+//                        var rightVector = camera.viewVector.crossProduct(camera.upVector).normalized()
+//                        var upVector = camera.upVector.normalized()
+//                        var direction = rightVector.times(-diff.x).plus(upVector.times(diff.y))
+//                        entity.transform.translation = entity.transform.translation.plus(direction.times(dragSpeed))
+//                    }
+//                    previousPosition = Qt.point(mouse.x, mouse.y)
+//                }
+//                onReleased: {
+//                    mouse.accepted = false
+//                }
+//                onClicked: {
+//                    mouse.accepted = false
+//                }
+//                onWheel: {
+//                    camera.fieldOfView = Math.max(10.0, Math.min(160.0, camera.fieldOfView - wheel.angleDelta.y * 0.1))
+//                }
+//            }
         }
 
         ImageViewer {

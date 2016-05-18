@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <vendor.h>
 
+#include "neuronsimulator.h"
 #include "visual/renderview.h"
 #include "visual/imageviewer.h"
 
@@ -9,7 +10,10 @@ using namespace photonflow;
 
 int main(int argc, char *argv[])
 {
+    qputenv("QSG_RENDER_LOOP", "basic"); // TODO remove this when fixed in Qt3D
+
     qmlRegisterType<PhotonflowSimulator>("Photonflow", 1, 0, "PhotonflowSimulator");
+    qmlRegisterType<NeuronSimulator>("Photonflow", 1, 0, "NeuronSimulator");
     qmlRegisterType<ImageViewer>("Photonflow", 1, 0, "ImageViewer");
 
     QApplication::setOrganizationName("Ovilab");
@@ -22,6 +26,5 @@ int main(int argc, char *argv[])
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     return app.exec();
-
 }
 

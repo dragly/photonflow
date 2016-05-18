@@ -15,9 +15,11 @@ RESOURCES += \
 SOURCES += \
     main.cpp \
     visual/renderview.cpp \
-    visual/imageviewer.cpp
+    visual/imageviewer.cpp \
+    neuronsimulator.cpp
 
 HEADERS += \
     visual/renderview.h \
-    visual/imageviewer.h
+    visual/imageviewer.h \
+    neuronsimulator.h
 

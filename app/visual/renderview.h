@@ -71,6 +71,8 @@ public slots:
 
     void setHenyeyGreensteinFactor(double henyeyGreensteinFactor);
 
+    void voxelize(const QVariantList &neuronSimulators);
+
 protected:
     virtual SimulatorWorker *createWorker() override;
 
@@ -84,7 +86,6 @@ private:
     double m_henyeyGreensteinFactor = 1.0;
 
     friend class PhotonflowWorker;
-    QT3D_CLONEABLE(PhotonflowSimulator)
 };
 
 }

@@ -10,7 +10,10 @@
 #include "filters/sinc.h"
 #include "samplers/random.h"
 #include "volumes/volumegrid.h"
+#include "neuronsimulator.h"
+#include "io/voxelizer.h"
 
+#include <Qt3DCore/QTransform>
 #include <QElapsedTimer>
 #include <QPainter>
 #include <QMutexLocker>
@@ -131,13 +134,13 @@ PhotonflowWorker::PhotonflowWorker()
 
     BoundingBox bbox;
     photonflow::Length side = 100.0_um;
-    bbox.pMin = Point3D(-side, -side, -0.2*side);
-    bbox.pMax = Point3D(side, side, 0.2*side);
+    bbox.pMin = Point3D(-side, -0.2*side, -0.2*side);
+    bbox.pMax = Point3D(side, 0.2*side, 0.2*side);
 
     double gg = 1.0;
-    double angle = 0.5;
+    double angle = 0.0;
 
-    Transform translation = translate(Length3D(0.1 * side, 0.3 * side, 1.0 * side));
+    Transform translation = translate(Length3D(0.1 * side, 0.3 * side, 2.0 * side));
 //    Transform translation = translate(Length3D(0.0 * side, 0.0 * side, 0.0 * side));
     Transform rotation = rotate(angle, Vector3D(0.0, 1.0, 0.0));
 
@@ -327,6 +330,24 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
 SimulatorWorker *PhotonflowSimulator::createWorker()
 {
     return new PhotonflowWorker();
+}
+
+void PhotonflowSimulator::voxelize(const QVariantList &neuronSimulators)
+{
+    for(auto element : neuronSimulators) {
+        QVariantMap map = element.toMap();
+        NeuronSimulator *neuronSimulator = map["simulator"].value<NeuronSimulator*>();
+        if(!neuronSimulator) {
+            qWarning() << "Could not find simulator of object";
+            return;
+        }
+        Qt3DCore::QTransform *transform = map["transform"].value<Qt3DCore::QTransform*>();
+        if(!transform) {
+            qWarning() << "Could not find transform of object";
+            return;
+        }
+        photonflow::voxelize(neuronSimulator->cylinders(), neuronSimulator->boundingBox(), 1024);
+    }
 }
 
 } // namespace
