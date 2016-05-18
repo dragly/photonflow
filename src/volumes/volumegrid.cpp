@@ -72,7 +72,7 @@ double VolumeGridDensity::Density(const Point3D &Pobj) const {
 //    double dy = vox.y - vy;
 //    double dz = vox.z - vz;
 
-    return D(vx, vy, vz);
+    return D(vy, vx, vz);
 
     // Trilinearly interpolate density values to compute local density
 //    double d00 = Lerp(dx, D(vx, vy, vz),     D(vx+1, vy, vz));

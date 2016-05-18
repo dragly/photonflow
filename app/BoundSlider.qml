@@ -36,6 +36,7 @@ Column {
         }
 
         value: root.valid ? root.target[root.property] : 0.0
+        stepSize: 0.0
         minimumValue: 0.0
         maximumValue: 1.0
 

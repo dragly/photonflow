@@ -33,7 +33,7 @@ arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const Transform &tra
     }
 
     Length step = maxLen / double(maxExtent - 2);
-    Length eps = step / 2.0;
+    Length eps = step; // / 2.0;
     for(CylinderFrustum& cylinder : cylinders) {
         BoundingBox localBounds(Point3D(-cylinder.h, -cylinder.startRadius, -cylinder.startRadius),
                          Point3D(cylinder.h, cylinder.startRadius, cylinder.startRadius));

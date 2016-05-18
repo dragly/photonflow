@@ -12,6 +12,7 @@
 #include "volumes/volumegrid.h"
 #include "neuronsimulator.h"
 #include "io/voxelizer.h"
+#include "neuronsimulator.h"
 
 #include <Qt3DCore/QTransform>
 #include <QElapsedTimer>
@@ -144,7 +145,7 @@ void PhotonflowWorker::work()
     const int width = size.width();
     const int height = size.height();
 
-    const Transform cameraTransform = translate(Length3D(0.0_um, 0.0_um, -768.0_um));
+    const Transform cameraTransform = translate(Length3D(0.0_um, 0.0_um, -512.0_um));
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const double crop[4] = {0.0, 1.0, 0.0, 1.0};
 
@@ -209,16 +210,40 @@ void PhotonflowWorker::work()
                 Integrator integrator(&m_volumeRegion, startRay, bounces, rng);
 
                 integrator.integrate([&](const Ray& ray, photonflow::Length ds) {
-                    Q_UNUSED(ds);
                     if(!m_volumeRegion.fuzzyInside(ray.origin())) {
                         return Integrator::Control::Break;
                     }
                     //                    double factor = (1.0_um - ds).value();
-                    Tr *= m_volumeRegion.absorption(ray.origin(), Length3D(), 0.0);
+//                    Tr *= m_volumeRegion.absorption(ray.origin(), Length3D(), 0.0);
                     if(m_volumeRegion.Density(ray.origin()) > 0.1) {
-                        Lv += Tr * m_volumeRegion.emission(ray.origin(), Length3D(), 0.0);
-                        photonflowAssert(!Lv.hasNaNs());
+//                        Lv += Tr * 1000.0;
+//                        Lv += Tr * m_volumeRegion.emission(ray.origin(), Length3D(), 0.0);
+//                        photonflowAssert(!Lv.hasNaNs());
+//                    }
+
+                        for(const CylinderFrustum &cylinder : m_cylinders) {
+                            Length eps = 0.0_um;
+                            Point3D p = ray.origin();
+                            Length3D diff = p - cylinder.center;
+                            Length distance = diff.length();
+                            if(distance > cylinder.h + eps && distance > cylinder.startRadius + eps) {
+                                continue;
+                            }
+                            auto yComponent = dot(diff, cylinder.direction * 1.0_um) / 1.0_um;
+                            if(fabs(yComponent) <= cylinder.h + eps) {
+                                auto y2 = yComponent*yComponent;
+                                auto diff2 = dot(diff, diff);
+                                auto distanceToAxis = sqrt(diff2 - y2);
+                                double endProportion = (yComponent + cylinder.h) / (2.0 * cylinder.h);
+                                Length radius = cylinder.startRadius * (1 - endProportion) + endProportion * cylinder.endRadius;
+                                if(distanceToAxis <= radius + eps) {
+                                    Lv += Tr * 20.0 * ds.value();
+                                }
+                            }
+
+                        }
                     }
+
                     if(Tr < Spectrum(0.01)) {
                         return Integrator::Control::Break;
                     }
@@ -266,6 +291,8 @@ void PhotonflowWorker::work()
     qDebug() << "Done after" << timer.elapsed() << "ms";
 }
 
+const Length sideLength = 256.0_um;
+
 void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
 {
     PhotonflowSimulator *renderView = qobject_cast<PhotonflowSimulator*>(simulator);
@@ -277,7 +304,7 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
     }
 
     if(renderView->m_dataDirty) {
-        BoundingBox bbox(Point3D(-512.0_um, -512.0_um, -512.0_um), Point3D(512.0_um, 512.0_um, 512.0_um));
+        BoundingBox bbox(Point3D(-sideLength, -sideLength, -sideLength), Point3D(sideLength, sideLength, sideLength));
         double gg = 1.0;
         double angle = 0.0;
         photonflow::Length side = 100.0_um;
@@ -295,6 +322,9 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
     m_volumeRegion.setEmissionCoefficient(Spectrum(renderView->m_emissionCoefficient));
     m_volumeRegion.setHenyeyGreensteinFactor(renderView->m_henyeyGreensteinFactor);
 
+
+    m_cylinders = renderView->m_cylinders;
+
     renderView->m_image = m_image;
 
     emit renderView->imageChanged(renderView->m_image);
@@ -307,8 +337,10 @@ SimulatorWorker *PhotonflowSimulator::createWorker()
 
 void PhotonflowSimulator::voxelize(const QVariantList &neuronSimulators)
 {
-    BoundingBox bbox(Point3D(-512.0_um, -512.0_um, -512.0_um), Point3D(512.0_um, 512.0_um, 512.0_um));
-    arma::cube volume = zeros(128, 128, 128);
+    m_cylinders.clear();
+    BoundingBox bbox(Point3D(-sideLength, -sideLength, -sideLength), Point3D(sideLength, sideLength, sideLength));
+    int resolution = 128;
+    arma::cube volume = zeros(resolution, resolution, resolution);
     for(auto element : neuronSimulators) {
         QVariantMap map = element.toMap();
         NeuronSimulator *neuronSimulator = map["simulator"].value<NeuronSimulator*>();
@@ -316,13 +348,13 @@ void PhotonflowSimulator::voxelize(const QVariantList &neuronSimulators)
             qWarning() << "Could not find simulator of object";
             return;
         }
-        Qt3DCore::QTransform *transform = map["transform"].value<Qt3DCore::QTransform*>();
-        if(!transform) {
+        Qt3DCore::QTransform *transform3d = map["transform"].value<Qt3DCore::QTransform*>();
+        if(!transform3d) {
             qWarning() << "Could not find transform of object";
             return;
         }
 
-        QMatrix4x4 t = transform->matrix();
+        QMatrix4x4 t = transform3d->matrix();
 
         qDebug() << "Scale:" << (1.0 / neuronSimulator->scale());
 
@@ -332,9 +364,18 @@ void PhotonflowSimulator::voxelize(const QVariantList &neuronSimulators)
                 t(1, 0), t(1, 1), t(1, 2), t(1, 3)*(1.0 / neuronSimulator->scale()),
                 t(2, 0), t(2, 1), t(2, 2), t(2, 3)*(1.0 / neuronSimulator->scale()),
                 t(3, 0), t(3, 1), t(3, 2), t(3, 3));
-        Transform transform2(matrix);
+        Transform transform(matrix);
 
-        volume += photonflow::voxelize(neuronSimulator->cylinders(), transform2, bbox, 128);
+        volume += photonflow::voxelize(neuronSimulator->cylinders(), transform, bbox, resolution);
+
+        std::vector<CylinderFrustum> cylinders = neuronSimulator->cylinders();
+        for(CylinderFrustum& cylinder : cylinders) {
+            cylinder = CylinderFrustum(transform(cylinder.start),
+                                       transform(cylinder.end),
+                                       cylinder.startRadius,
+                                       cylinder.endRadius);
+        }
+        m_cylinders.insert(m_cylinders.end(), cylinders.begin(), cylinders.end());
     }
     m_data = volume;
 //    m_data = zeros(3, 3, 3);

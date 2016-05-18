@@ -118,7 +118,8 @@ ApplicationWindow {
                     target: simulator
                     property: "henyeyGreensteinFactor"
                     text: "Henyey Greenstein factor"
-                    minimumValue: 0.0
+                    stepSize: 0.001
+                    minimumValue: 0.94
                     maximumValue: 1.0
                     Layout.fillWidth: true
                 }

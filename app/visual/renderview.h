@@ -3,6 +3,7 @@
 
 #include "armadillo_includer.h"
 #include "core/randomnumbergenerator.h"
+#include "geometry/cylinderfrustum.h"
 #include "film/image.h"
 #include "volumes/volumegrid.h"
 
@@ -14,6 +15,8 @@
 #include <SimVis/Simulator>
 
 #include <memory>
+
+class NeuronSimulator;
 
 namespace photonflow {
 
@@ -34,6 +37,7 @@ private:
     int m_totalSampleCount = 0;
     VolumeGridDensity m_volumeRegion;
     vector<RNG> m_randomNumberGenerators;
+    std::vector<photonflow::CylinderFrustum> m_cylinders;
 };
 
 class PhotonflowSimulator : public Simulator
@@ -86,6 +90,7 @@ private:
     double m_absorptionCoefficient = 1.0;
     double m_scatteringCoefficient = 0.1;
     double m_henyeyGreensteinFactor = 1.0;
+    std::vector<photonflow::CylinderFrustum> m_cylinders;
 
     friend class PhotonflowWorker;
 };
