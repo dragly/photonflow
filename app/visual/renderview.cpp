@@ -144,7 +144,7 @@ void PhotonflowWorker::work()
     const int width = size.width();
     const int height = size.height();
 
-    const Transform cameraTransform = translate(Length3D(0.0_um, 0.0_um, -1920.0_um));
+    const Transform cameraTransform = translate(Length3D(0.0_um, 0.0_um, -768.0_um));
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const double crop[4] = {0.0, 1.0, 0.0, 1.0};
 
@@ -277,7 +277,7 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
     }
 
     if(renderView->m_dataDirty) {
-        BoundingBox bbox(Point3D(-1024.0_um, -1024.0_um, -1024.0_um), Point3D(1024.0_um, 1024.0_um, 1024.0_um));
+        BoundingBox bbox(Point3D(-512.0_um, -512.0_um, -512.0_um), Point3D(512.0_um, 512.0_um, 512.0_um));
         double gg = 1.0;
         double angle = 0.0;
         photonflow::Length side = 100.0_um;
@@ -307,7 +307,7 @@ SimulatorWorker *PhotonflowSimulator::createWorker()
 
 void PhotonflowSimulator::voxelize(const QVariantList &neuronSimulators)
 {
-    BoundingBox bbox(Point3D(-1024.0_um, -1024.0_um, -1024.0_um), Point3D(1024.0_um, 1024.0_um, 1024.0_um));
+    BoundingBox bbox(Point3D(-512.0_um, -512.0_um, -512.0_um), Point3D(512.0_um, 512.0_um, 512.0_um));
     arma::cube volume = zeros(128, 128, 128);
     for(auto element : neuronSimulators) {
         QVariantMap map = element.toMap();
