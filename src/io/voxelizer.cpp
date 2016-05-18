@@ -17,16 +17,12 @@ arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const Transform &tra
     // x = col, y = row, z = slice
     arma::cube voxels = arma::zeros(maxExtent * yRatio, maxExtent * xRatio, maxExtent * zRatio);
 
-    Length3D offset(0.0_um, 0.0_um, 0.0_um);
     for(CylinderFrustum& cylinder : cylinders) {
-        cylinder = CylinderFrustum(cylinder.start - offset,
-                                   cylinder.end - offset,
+        cylinder = CylinderFrustum(cylinder.start,
+                                   cylinder.end,
                                    cylinder.startRadius,
                                    cylinder.endRadius);
     }
-    BoundingBox offsetBox = boundingBox;
-    offsetBox.pMin -= offset;
-    offsetBox.pMax -= offset;
 
     for(CylinderFrustum& cylinder : cylinders) {
         cylinder = CylinderFrustum(transform(cylinder.start),
@@ -37,7 +33,6 @@ arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const Transform &tra
 
     Length step = maxLen / double(maxExtent - 2);
     Length eps = step / 2.0;
-    cout << "Step: " << step.value() << endl;
     for(CylinderFrustum& cylinder : cylinders) {
         BoundingBox localBounds(Point3D(-cylinder.h, -cylinder.startRadius, -cylinder.startRadius),
                          Point3D(cylinder.h, cylinder.startRadius, cylinder.startRadius));

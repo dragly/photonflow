@@ -144,7 +144,7 @@ void PhotonflowWorker::work()
     const int width = size.width();
     const int height = size.height();
 
-    const Transform cameraTransform = translate(Length3D(0.0_um, 0.0_um, 0.0_um));
+    const Transform cameraTransform = translate(Length3D(0.0_um, 0.0_um, 80.0_um));
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const double crop[4] = {0.0, 1.0, 0.0, 1.0};
 
@@ -164,8 +164,8 @@ void PhotonflowWorker::work()
     const auto sopen = 0.0_us;
     const auto sclose = 1.0_us;
     const auto lensr = 0.0_um;
-    const auto focald = 3.5_um;
-    const double fov = 0.2;
+    const auto focald = 50.0_um;
+    const double fov = 60.0 / 180.0 * M_PI;
     const PerspectiveCamera camera(cameraTransform, screenWindow, sopen, sclose, lensr, focald, fov, m_film);
 
 #pragma omp parallel num_threads(threadCount) // OpenMP
@@ -277,13 +277,12 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
     }
 
     if(renderView->m_dataDirty) {
-        BoundingBox bbox(Point3D(-20.0_um, -20.0_um, -20.0_um), Point3D(20.0_um, 20.0_um, 20.0_um));
+        BoundingBox bbox(Point3D(-80.0_um, -80.0_um, -80.0_um), Point3D(80.0_um, 80.0_um, 80.0_um));
         double gg = 1.0;
         double angle = 0.0;
         photonflow::Length side = 100.0_um;
         Transform translation = translate(Length3D(0.0 * side, 0.0 * side, 2.0 * side));
-        Transform rotation = rotate(angle, Vector3D(0.0, 1.0, 0.0));
-        Transform boxTransform = translation*rotation;
+        Transform boxTransform = translation;
         Spectrum sigma_a(0.95);
         Spectrum sigma_s(0.1);
         Spectrum emita(0.1);
@@ -308,7 +307,7 @@ SimulatorWorker *PhotonflowSimulator::createWorker()
 
 void PhotonflowSimulator::voxelize(const QVariantList &neuronSimulators)
 {
-    BoundingBox bbox(Point3D(-20.0_um, -20.0_um, -20.0_um), Point3D(20.0_um, 20.0_um, 20.0_um));
+    BoundingBox bbox(Point3D(-80.0_um, -80.0_um, -80.0_um), Point3D(80.0_um, 80.0_um, 80.0_um));
     arma::cube volume = zeros(128, 128, 128);
     for(auto element : neuronSimulators) {
         QVariantMap map = element.toMap();
