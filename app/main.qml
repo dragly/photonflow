@@ -7,6 +7,8 @@ import Qt.labs.settings 1.0
 import Photonflow 1.0
 
 ApplicationWindow {
+    id: root
+
     visible: true
     width: 1920
     height: 1024
@@ -17,11 +19,24 @@ ApplicationWindow {
         builderScene.addNeuron("...")
     }
 
+    function voxelize() {
+        var neuronSimulators = []
+        for(var i in builderScene.neurons) {
+            var neuron = builderScene.neurons[i]
+            neuronSimulators.push({simulator: neuron.simulator, transform: neuron.transform})
+        }
+        simulator.voxelize(neuronSimulators)
+    }
+
     Settings {
         property alias emissionFactor: simulator.emissionFactor
         property alias absorptionCoefficient: simulator.absorptionCoefficient
         property alias henyeyGreensteinFactor: simulator.henyeyGreensteinFactor
         property alias scatteringCoefficient: simulator.scatteringCoefficient
+        property alias windowX: root.x
+        property alias windowY: root.y
+        property alias windowWidth: root.width
+        property alias windowHeight: root.height
     }
 
     PhotonflowSimulator {
@@ -64,12 +79,7 @@ ApplicationWindow {
                 Button {
                     text: "Voxelize"
                     onClicked: {
-                        var neuronSimulators = []
-                        for(var i in builderScene.neurons) {
-                            var neuron = builderScene.neurons[i]
-                            neuronSimulators.push({simulator: neuron.simulator, transform: neuron.transform})
-                        }
-                        simulator.voxelize(neuronSimulators)
+                        voxelize()
                     }
                 }
 

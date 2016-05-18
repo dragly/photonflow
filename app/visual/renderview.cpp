@@ -116,44 +116,6 @@ PhotonflowWorker::PhotonflowWorker()
     : SimulatorWorker()
 {
 
-    qDebug() << "PhotonflowWorker: Init";
-    QElapsedTimer timer;
-    timer.start();
-    //    arma::Cube<short> data;
-    arma::cube data;
-    //    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
-    //    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/volume.hdf5", hdf5_binary);
-    data.load("/tmp/out.h5", hdf5_binary);
-
-    qDebug() << "PhotonflowWorker: Loaded file";
-    qDebug() << "Data size:" << data.n_rows << data.n_cols << data.n_slices;
-    qDebug() << "Data load time:" << timer.elapsed() << "ms";
-    qDebug() << "Data max value: " << data.max();
-
-    //    data *= 255;
-
-    BoundingBox bbox;
-    photonflow::Length side = 100.0_um;
-    bbox.pMin = Point3D(-side, -0.2*side, -0.2*side);
-    bbox.pMax = Point3D(side, 0.2*side, 0.2*side);
-
-    double gg = 1.0;
-    double angle = 0.0;
-
-    Transform translation = translate(Length3D(0.1 * side, 0.3 * side, 2.0 * side));
-    //    Transform translation = translate(Length3D(0.0 * side, 0.0 * side, 0.0 * side));
-    Transform rotation = rotate(angle, Vector3D(0.0, 1.0, 0.0));
-
-    Transform boxTransform = translation*rotation;
-
-    Spectrum sigma_a(0.95);
-    Spectrum sigma_s(0.1);
-    Spectrum emita(0.1);
-
-    qDebug() << "PhotonflowWorker: Creating volume object...";
-    m_volumeRegion = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, data);
-
-    qDebug() << "PhotonflowWorker: Init complete";
 }
 
 void PhotonflowWorker::work()
@@ -319,7 +281,7 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
         double gg = 1.0;
         double angle = 0.0;
         photonflow::Length side = 100.0_um;
-        Transform translation = translate(Length3D(0.1 * side, 0.3 * side, 2.0 * side));
+        Transform translation = translate(Length3D(0.0 * side, 0.0 * side, 2.0 * side));
         Transform rotation = rotate(angle, Vector3D(0.0, 1.0, 0.0));
         Transform boxTransform = translation*rotation;
         Spectrum sigma_a(0.95);
