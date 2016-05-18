@@ -144,7 +144,7 @@ void PhotonflowWorker::work()
     const int width = size.width();
     const int height = size.height();
 
-    const Transform cameraTransform = translate(Length3D(0.0_um, 0.0_um, 80.0_um));
+    const Transform cameraTransform = translate(Length3D(0.0_um, 0.0_um, -1920.0_um));
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const double crop[4] = {0.0, 1.0, 0.0, 1.0};
 
@@ -165,7 +165,7 @@ void PhotonflowWorker::work()
     const auto sclose = 1.0_us;
     const auto lensr = 0.0_um;
     const auto focald = 50.0_um;
-    const double fov = 60.0 / 180.0 * M_PI;
+    const double fov = 60.0 / 180.0;
     const PerspectiveCamera camera(cameraTransform, screenWindow, sopen, sclose, lensr, focald, fov, m_film);
 
 #pragma omp parallel num_threads(threadCount) // OpenMP
@@ -215,7 +215,7 @@ void PhotonflowWorker::work()
                     }
                     //                    double factor = (1.0_um - ds).value();
                     Tr *= m_volumeRegion.absorption(ray.origin(), Length3D(), 0.0);
-                    if(m_volumeRegion.Density(ray.origin()) > 60) {
+                    if(m_volumeRegion.Density(ray.origin()) > 0.1) {
                         Lv += Tr * m_volumeRegion.emission(ray.origin(), Length3D(), 0.0);
                         photonflowAssert(!Lv.hasNaNs());
                     }
@@ -277,11 +277,11 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
     }
 
     if(renderView->m_dataDirty) {
-        BoundingBox bbox(Point3D(-80.0_um, -80.0_um, -80.0_um), Point3D(80.0_um, 80.0_um, 80.0_um));
+        BoundingBox bbox(Point3D(-1024.0_um, -1024.0_um, -1024.0_um), Point3D(1024.0_um, 1024.0_um, 1024.0_um));
         double gg = 1.0;
         double angle = 0.0;
         photonflow::Length side = 100.0_um;
-        Transform translation = translate(Length3D(0.0 * side, 0.0 * side, 2.0 * side));
+        Transform translation = translate(Length3D(0.0 * side, 0.0 * side, 0.0 * side));
         Transform boxTransform = translation;
         Spectrum sigma_a(0.95);
         Spectrum sigma_s(0.1);
@@ -307,7 +307,7 @@ SimulatorWorker *PhotonflowSimulator::createWorker()
 
 void PhotonflowSimulator::voxelize(const QVariantList &neuronSimulators)
 {
-    BoundingBox bbox(Point3D(-80.0_um, -80.0_um, -80.0_um), Point3D(80.0_um, 80.0_um, 80.0_um));
+    BoundingBox bbox(Point3D(-1024.0_um, -1024.0_um, -1024.0_um), Point3D(1024.0_um, 1024.0_um, 1024.0_um));
     arma::cube volume = zeros(128, 128, 128);
     for(auto element : neuronSimulators) {
         QVariantMap map = element.toMap();
@@ -322,21 +322,29 @@ void PhotonflowSimulator::voxelize(const QVariantList &neuronSimulators)
             return;
         }
 
-        QMatrix4x4 t = (1.0 / neuronSimulator->scale()) * transform->matrix();
+        QMatrix4x4 t = transform->matrix();
 
         qDebug() << "Scale:" << (1.0 / neuronSimulator->scale());
 
         // TODO verify order
         Matrix4x4 matrix(
-                t(0, 0), t(0, 1), t(0, 2), t(0, 3),
-                t(1, 0), t(1, 1), t(1, 2), t(1, 3),
-                t(2, 0), t(2, 1), t(2, 2), t(2, 3),
+                t(0, 0), t(0, 1), t(0, 2), t(0, 3)*(1.0 / neuronSimulator->scale()),
+                t(1, 0), t(1, 1), t(1, 2), t(1, 3)*(1.0 / neuronSimulator->scale()),
+                t(2, 0), t(2, 1), t(2, 2), t(2, 3)*(1.0 / neuronSimulator->scale()),
                 t(3, 0), t(3, 1), t(3, 2), t(3, 3));
         Transform transform2(matrix);
 
         volume += photonflow::voxelize(neuronSimulator->cylinders(), transform2, bbox, 128);
     }
     m_data = volume;
+//    m_data = zeros(3, 3, 3);
+//    for(int i = 0; i < 3; i++) {
+//        for(int j = 0; j < 3; j++) {
+//            for(int k = 0; k < 3; k++) {
+//                m_data(i, j, k) = 1.0 - (i + j + k) % 2;
+//            }
+//        }
+//    }
     m_dataDirty = true;
     clear();
 }

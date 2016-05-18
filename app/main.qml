@@ -88,7 +88,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     text: "Emission"
                     minimumValue: 0.01
-                    maximumValue: 1.0
+                    maximumValue: 1000.0
                     target: simulator
                     property: "emissionFactor"
                 }

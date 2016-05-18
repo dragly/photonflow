@@ -75,7 +75,7 @@ inline double VolumeGridDensity::D(int x, int y, int z) const {
     z = clamp(z, 0, int(density.n_slices-1));
     double value = 0.0;
     try {
-        return 32000.0 * density(x, y, z);
+        return density(x, y, z);
     } catch(std::logic_error &e) {
         std::cout << "Error on fetching value for " << x << " " << y << " " << z << std::endl;
         std::cout << "Size is " << density.n_rows << " " << density.n_cols << " " << density.n_slices << std::endl;
