@@ -14,6 +14,7 @@ ApplicationWindow {
 
     Component.onCompleted: {
         builderScene.addNeuron("...")
+        builderScene.addNeuron("...")
     }
 
     Settings {
@@ -56,7 +57,7 @@ ApplicationWindow {
                 Button {
                     text: "Create neuron"
                     onClicked: {
-                        builderScene.addNeuron("/home/svenni/Dropbox/projects/programming/neuroscience/neurona/neurona/hay_et_al_2011.nml")
+                        builderScene.addNeuron("...")
                     }
                 }
 

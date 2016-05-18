@@ -78,7 +78,9 @@ protected:
 
 private:
     QImage m_image;
+    arma::cube m_data;
     bool m_isDataLoaded = false;
+    bool m_dataDirty = false;
     bool m_clearRequested = false;
     double m_emissionCoefficient = 0.1;
     double m_absorptionCoefficient = 1.0;

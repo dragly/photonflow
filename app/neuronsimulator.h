@@ -29,6 +29,7 @@ public:
     class CylinderData* cylinderData() const;
     const std::vector<photonflow::CylinderFrustum>& cylinders() const;
     const photonflow::BoundingBox &boundingBox() const;
+    double scale() const;
 
 signals:
 

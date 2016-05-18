@@ -26,6 +26,11 @@ const BoundingBox &NeuronSimulator::boundingBox() const
     return m_boundingBox;
 }
 
+double NeuronSimulator::scale() const
+{
+    return 10e-3;
+}
+
 SimulatorWorker *NeuronSimulator::createWorker() {
     return new NeuroMlWorker();
 }
@@ -47,7 +52,7 @@ void NeuroMlWorker::synchronizeSimulator(Simulator *simulator) {
     QVector<CylinderVBOData> renderableData;
     renderableData.resize(m_cylinders.size());
 
-    double scale = 10e-3;
+    double scale = neuronSimulator->scale();
     for(int i = 0; i < m_cylinders.size(); i++) {
         const CylinderFrustum& cylinder = m_cylinders.at(i);
         CylinderVBOData &renderableCylinder = renderableData[i];

@@ -122,7 +122,7 @@ PhotonflowWorker::PhotonflowWorker()
     //    arma::Cube<short> data;
     arma::cube data;
     //    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/output.hdf5", hdf5_binary);
-//    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/volume.hdf5", hdf5_binary);
+    //    data.load("/home/svenni/Dropbox/projects/programming/neuroscience/photonflow/photonflow/notebooks/volume.hdf5", hdf5_binary);
     data.load("/tmp/out.h5", hdf5_binary);
 
     qDebug() << "PhotonflowWorker: Loaded file";
@@ -130,7 +130,7 @@ PhotonflowWorker::PhotonflowWorker()
     qDebug() << "Data load time:" << timer.elapsed() << "ms";
     qDebug() << "Data max value: " << data.max();
 
-//    data *= 255;
+    //    data *= 255;
 
     BoundingBox bbox;
     photonflow::Length side = 100.0_um;
@@ -141,7 +141,7 @@ PhotonflowWorker::PhotonflowWorker()
     double angle = 0.0;
 
     Transform translation = translate(Length3D(0.1 * side, 0.3 * side, 2.0 * side));
-//    Transform translation = translate(Length3D(0.0 * side, 0.0 * side, 0.0 * side));
+    //    Transform translation = translate(Length3D(0.0 * side, 0.0 * side, 0.0 * side));
     Transform rotation = rotate(angle, Vector3D(0.0, 1.0, 0.0));
 
     Transform boxTransform = translation*rotation;
@@ -149,9 +149,6 @@ PhotonflowWorker::PhotonflowWorker()
     Spectrum sigma_a(0.95);
     Spectrum sigma_s(0.1);
     Spectrum emita(0.1);
-
-    qDebug() << "PhotonflowWorker: Converting file...";
-//    arma::Cube<short> dataShort = arma::conv_to<arma::Cube<short>>::from(data*32000);
 
     qDebug() << "PhotonflowWorker: Creating volume object...";
     m_volumeRegion = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, data);
@@ -172,7 +169,7 @@ void PhotonflowWorker::work()
     QElapsedTimer timer;
     timer.start();
 
-//    const QSize size = boundingRect().size().toSize();
+    //    const QSize size = boundingRect().size().toSize();
     QSize size(640, 480); // TODO actually get size from simulator
     if(size.width() <= 0 || size.height() <= 0 || size.width() > 1e6 || size.height() > 1e6) {
         qWarning() << "WARNING: Integrate returns due to invalid size:" << size;
@@ -245,7 +242,7 @@ void PhotonflowWorker::work()
                 Point3D p = intersectRay(t0);
                 Ray startRay(p, intersectRay.m_direction);
 
-//                startRay = Ray(startRay.origin() + intersectRay.m_direction * 0.01, startRay.direction());
+                //                startRay = Ray(startRay.origin() + intersectRay.m_direction * 0.01, startRay.direction());
 
                 Integrator integrator(&m_volumeRegion, startRay, bounces, rng);
 
@@ -254,7 +251,7 @@ void PhotonflowWorker::work()
                     if(!m_volumeRegion.fuzzyInside(ray.origin())) {
                         return Integrator::Control::Break;
                     }
-//                    double factor = (1.0_um - ds).value();
+                    //                    double factor = (1.0_um - ds).value();
                     Tr *= m_volumeRegion.absorption(ray.origin(), Length3D(), 0.0);
                     if(m_volumeRegion.Density(ray.origin()) > 60) {
                         Lv += Tr * m_volumeRegion.emission(ray.origin(), Length3D(), 0.0);
@@ -293,7 +290,7 @@ void PhotonflowWorker::work()
             double rgb[3];
             result.toRGB(rgb);
 
-//            qDebug() << rgb[0] << rgb[1] << rgb[2];
+            //            qDebug() << rgb[0] << rgb[1] << rgb[2];
 
             double factor = 1.0;
             QColor color(clamp(rgb[0]*factor, 0.0, 255.0),
@@ -317,6 +314,21 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
         m_image.fill(QColor("black"));
     }
 
+    if(renderView->m_dataDirty) {
+        BoundingBox bbox(Point3D(-20.0_um, -20.0_um, -20.0_um), Point3D(20.0_um, 20.0_um, 20.0_um));
+        double gg = 1.0;
+        double angle = 0.0;
+        photonflow::Length side = 100.0_um;
+        Transform translation = translate(Length3D(0.1 * side, 0.3 * side, 2.0 * side));
+        Transform rotation = rotate(angle, Vector3D(0.0, 1.0, 0.0));
+        Transform boxTransform = translation*rotation;
+        Spectrum sigma_a(0.95);
+        Spectrum sigma_s(0.1);
+        Spectrum emita(0.1);
+        m_volumeRegion = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, renderView->m_data);
+        renderView->m_dataDirty = false;
+    }
+
     m_volumeRegion.setAbsorptionCoefficient(Spectrum(renderView->m_absorptionCoefficient));
     m_volumeRegion.setScatteringCoefficient(Spectrum(renderView->m_scatteringCoefficient));
     m_volumeRegion.setEmissionCoefficient(Spectrum(renderView->m_emissionCoefficient));
@@ -334,6 +346,8 @@ SimulatorWorker *PhotonflowSimulator::createWorker()
 
 void PhotonflowSimulator::voxelize(const QVariantList &neuronSimulators)
 {
+    BoundingBox bbox(Point3D(-20.0_um, -20.0_um, -20.0_um), Point3D(20.0_um, 20.0_um, 20.0_um));
+    arma::cube volume = zeros(128, 128, 128);
     for(auto element : neuronSimulators) {
         QVariantMap map = element.toMap();
         NeuronSimulator *neuronSimulator = map["simulator"].value<NeuronSimulator*>();
@@ -346,8 +360,24 @@ void PhotonflowSimulator::voxelize(const QVariantList &neuronSimulators)
             qWarning() << "Could not find transform of object";
             return;
         }
-        photonflow::voxelize(neuronSimulator->cylinders(), neuronSimulator->boundingBox(), 1024);
+
+        QMatrix4x4 t = (1.0 / neuronSimulator->scale()) * transform->matrix();
+
+        qDebug() << "Scale:" << (1.0 / neuronSimulator->scale());
+
+        // TODO verify order
+        Matrix4x4 matrix(
+                t(0, 0), t(0, 1), t(0, 2), t(0, 3),
+                t(1, 0), t(1, 1), t(1, 2), t(1, 3),
+                t(2, 0), t(2, 1), t(2, 2), t(2, 3),
+                t(3, 0), t(3, 1), t(3, 2), t(3, 3));
+        Transform transform2(matrix);
+
+        volume += photonflow::voxelize(neuronSimulator->cylinders(), transform2, bbox, 128);
     }
+    m_data = volume;
+    m_dataDirty = true;
+    clear();
 }
 
 } // namespace

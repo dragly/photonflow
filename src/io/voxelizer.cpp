@@ -4,7 +4,7 @@
 
 namespace photonflow {
 
-arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const BoundingBox &boundingBox, int maxExtent)
+arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const Transform &transform, const BoundingBox &boundingBox, int maxExtent)
 {
     Length xSide = boundingBox.pMax[0] - boundingBox.pMin[0];
     Length ySide = boundingBox.pMax[1] - boundingBox.pMin[1];
@@ -15,9 +15,9 @@ arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const BoundingBox &b
     double zRatio = zSide / maxLen;
 
     // x = col, y = row, z = slice
-    arma::cube voxels = arma::zeros(maxExtent * yRatio + 1, maxExtent * xRatio + 1, maxExtent * zRatio + 1);
+    arma::cube voxels = arma::zeros(maxExtent * yRatio, maxExtent * xRatio, maxExtent * zRatio);
 
-    Length3D offset(boundingBox.pMin);
+    Length3D offset(0.0_um, 0.0_um, 0.0_um);
     for(CylinderFrustum& cylinder : cylinders) {
         cylinder = CylinderFrustum(cylinder.start - offset,
                                    cylinder.end - offset,
@@ -28,7 +28,14 @@ arma::cube voxelize(std::vector<CylinderFrustum> cylinders, const BoundingBox &b
     offsetBox.pMin -= offset;
     offsetBox.pMax -= offset;
 
-    Length step = maxLen / double(maxExtent - 1);
+    for(CylinderFrustum& cylinder : cylinders) {
+        cylinder = CylinderFrustum(transform(cylinder.start),
+                                   transform(cylinder.end),
+                                   cylinder.startRadius,
+                                   cylinder.endRadius);
+    }
+
+    Length step = maxLen / double(maxExtent - 2);
     Length eps = step / 2.0;
     cout << "Step: " << step.value() << endl;
     for(CylinderFrustum& cylinder : cylinders) {
