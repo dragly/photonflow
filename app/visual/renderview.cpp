@@ -28,7 +28,7 @@ using namespace arma;
 
 namespace photonflow {
 
-static const int threadCount = 8;
+static const int threadCount = 7;
 
 PhotonflowSimulator::PhotonflowSimulator(QNode *parent)
     : Simulator(parent)
@@ -58,6 +58,16 @@ double PhotonflowSimulator::scatteringCoefficient() const
 double PhotonflowSimulator::henyeyGreensteinFactor() const
 {
     return m_henyeyGreensteinFactor;
+}
+
+double PhotonflowSimulator::renderTime() const
+{
+    return m_renderTime;
+}
+
+Qt3DCore::QEntity *PhotonflowSimulator::camera() const
+{
+    return m_camera;
 }
 
 
@@ -155,11 +165,7 @@ void PhotonflowWorker::work()
     if(m_image.size() != size || !m_film) {
         qDebug() << "Creating image of size" << size;
         m_image = QImage(size, QImage::Format_ARGB32);
-        for(int x = 0; x < width; x++) {
-            for(int y = 0; y < height; y++) {
-                m_image.setPixel(x, y, QColor(0.0, 0.0, 0.0, 255.0).rgba());
-            }
-        }
+        m_image.fill(Qt::black);
         m_film = make_shared<ImageFilm>(width, height, &filter, crop);
     }
     const auto sopen = 0.0_us;
@@ -255,9 +261,6 @@ void PhotonflowWorker::work()
                 m_film->addSample(sample, final);
 
                 actualCount++;
-                if(!(actualCount % 100000) && omp_get_thread_num() == 0) {
-                    qDebug() << "Sample count:" << actualCount;
-                }
             }
         }
 
@@ -285,10 +288,10 @@ void PhotonflowWorker::work()
                     clamp(rgb[2]*factor, 0.0, 255.0),
                     255.0);
 
-            m_image.setPixel(x, y, color.rgba());
+            m_image.setPixel(x, height - y - 1, color.rgba());
         }
     }
-    qDebug() << "Done after" << timer.elapsed() << "ms";
+    m_renderTime = timer.elapsed();
 }
 
 const Length sideLength = 256.0_um;
@@ -324,6 +327,9 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
 
 
     m_cylinders = renderView->m_cylinders;
+
+    renderView->m_renderTime = m_renderTime;
+    emit renderView->renderTimeChanged(m_renderTime);
 
     renderView->m_image = m_image;
 
@@ -388,6 +394,15 @@ void PhotonflowSimulator::voxelize(const QVariantList &neuronSimulators)
 //    }
     m_dataDirty = true;
     clear();
+}
+
+void PhotonflowSimulator::setCamera(Qt3DCore::QEntity *camera)
+{
+    if (m_camera == camera)
+        return;
+
+    m_camera = camera;
+    emit cameraChanged(camera);
 }
 
 } // namespace

@@ -41,6 +41,8 @@ ApplicationWindow {
 
     PhotonflowSimulator {
         id: simulator
+
+        camera: builderScene.simulatorCamera
     }
 
     RowLayout {
@@ -54,6 +56,14 @@ ApplicationWindow {
 
             ColumnLayout {
                 anchors.fill: parent
+
+                Text {
+                    text: "Render time: " + simulator.renderTime
+                }
+
+                Text {
+                    text: "Mode: " + builderScene.mode
+                }
 
                 Button {
                     text: simulator.running ? "Stop" : "Start"
@@ -135,6 +145,7 @@ ApplicationWindow {
             Layout.fillWidth: true
             Layout.fillHeight: true
             width: 3
+
             BuilderScene {
                 id: builderScene
                 anchors.fill: parent

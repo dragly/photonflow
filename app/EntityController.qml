@@ -15,9 +15,7 @@ Entity {
     property real zoomSpeed: 100.0
     property real zoomLimit: 2.0
 
-    onEnabledChanged: {
-        console.log("Controller enabled", enabled)
-    }
+    property string mode: "translate"
 
     KeyboardDevice {
         id: keyboardSourceDevice
@@ -57,6 +55,38 @@ Entity {
                     ActionInput {
                         sourceDevice: keyboardSourceDevice
                         buttons: [Qt.Key_Shift]
+                    }
+                },
+                Action {
+                    id: sAction
+                    onActiveChanged: {
+                        if(active) {
+                            if(mode === "scale") {
+                                mode = "translate"
+                            } else {
+                                mode = "scale"
+                            }
+                        }
+                    }
+                    ActionInput {
+                        sourceDevice: keyboardSourceDevice
+                        buttons: [Qt.Key_S]
+                    }
+                },
+                Action {
+                    id: rAction
+                    onActiveChanged: {
+                        if(active) {
+                            if(mode === "rotate") {
+                                mode = "translate"
+                            } else {
+                                mode = "rotate"
+                            }
+                        }
+                    }
+                    ActionInput {
+                        sourceDevice: keyboardSourceDevice
+                        buttons: [Qt.Key_R]
                     }
                 },
                 Action {
@@ -123,6 +153,18 @@ Entity {
         },
         FrameAction {
             property bool buttonWasDownPreviousFrame: false
+
+            function multiplyQuaternion(q1, q2) {
+                return Qt.quaternion(q1.scalar * q2.scalar - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z,
+                                     q1.scalar * q2.x + q1.x * q2.scalar + q1.y * q2.z - q1.z * q2.y,
+                                     q1.scalar * q2.y + q1.y * q2.scalar + q1.z * q2.x - q1.x * q2.z,
+                                     q1.scalar * q2.z + q1.z * q2.scalar + q1.x * q2.y - q1.y * q2.x);
+            }
+
+            function inverseQuaternion(q) {
+                return Qt.quaternion(q.scalar, -q.x, -q.y, -q.z)
+            }
+
             onTriggered: {
                 if(!root.enabled) {
                     return
@@ -131,12 +173,29 @@ Entity {
                     return
                 }
 
-                // The time difference since the last frame is passed in as the
-                // argument dt. It is a floating point value in units of seconds.
-                var rightVector = camera.viewVector.crossProduct(camera.upVector).normalized()
-                var upVector = camera.upVector.normalized()
-                var direction = rightVector.times(mouseXAxis.value).plus(upVector.times(mouseYAxis.value))
-                root.entity.transform.translation = root.entity.transform.translation.plus(direction.times(dragSpeed * dt))
+                if(mode === "translate") {
+                    var rightVector = camera.viewVector.crossProduct(camera.upVector).normalized()
+                    var upVector = camera.upVector.normalized()
+                    var direction = rightVector.times(mouseXAxis.value).plus(upVector.times(mouseYAxis.value))
+                    root.entity.transform.translation = root.entity.transform.translation.plus(direction.times(dragSpeed * dt))
+                } else if(mode === "scale") {
+                    var totalValue = mouseXAxis.value + mouseYAxis.value
+                    totalValue *= 0.1
+                    root.entity.transform.scale3D = root.entity.transform.scale3D.plus(Qt.vector3d(totalValue, totalValue, totalValue))
+                } else if(mode === "rotate") {
+                    var totalValue = mouseXAxis.value + mouseYAxis.value
+                    totalValue *= 10.0
+                    var currentRotation = root.entity.transform.rotation
+                    var addedRotation = root.entity.transform.fromAxisAndAngle(camera.viewVector, totalValue)
+
+//                    console.log(addedRotation, inverseQuaternion(addedRotation))
+
+//                    if(currentRotation.x === 0.0 && currentRotation.y === 0.0 && currentRotation.z === 0.0) {
+//                        root.entity.transform.rotation = Qt.quaternion(Math.sqrt(2) / 2, 0, 0, Math.sqrt(2) / 2)
+//                    } else {
+                        root.entity.transform.rotation = multiplyQuaternion(addedRotation, currentRotation)
+//                    }
+                }
             }
         }
     ] // components

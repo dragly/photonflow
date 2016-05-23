@@ -16,6 +16,7 @@ Entity {
         id: d
         readonly property vector3d firstPersonUp: Qt.vector3d(0, 1, 0)
     }
+
     function zoomDistance(firstPoint, secondPoint) {
         var u = secondPoint.minus(firstPoint); u = u.times(u);
         return u.x + u.y + u.z;

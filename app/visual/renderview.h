@@ -38,6 +38,7 @@ private:
     VolumeGridDensity m_volumeRegion;
     vector<RNG> m_randomNumberGenerators;
     std::vector<photonflow::CylinderFrustum> m_cylinders;
+    double m_renderTime = 0.0;
 };
 
 class PhotonflowSimulator : public Simulator
@@ -48,6 +49,9 @@ class PhotonflowSimulator : public Simulator
     Q_PROPERTY(double scatteringCoefficient READ scatteringCoefficient WRITE setScatteringCoefficient NOTIFY scatteringCoefficientChanged)
     Q_PROPERTY(double absorptionCoefficient READ absorptionCoefficient WRITE setAbsorptionCoefficient NOTIFY absorptionCoefficientChanged)
     Q_PROPERTY(double henyeyGreensteinFactor READ henyeyGreensteinFactor WRITE setHenyeyGreensteinFactor NOTIFY henyeyGreensteinFactorChanged)
+    Q_PROPERTY(double renderTime READ renderTime NOTIFY renderTimeChanged)
+    Q_PROPERTY(Qt3DCore::QEntity* camera READ camera WRITE setCamera NOTIFY cameraChanged)
+
 public:
     PhotonflowSimulator(QNode *parent = 0);
 
@@ -55,16 +59,20 @@ public:
     double emissionFactor() const;
     double absorptionCoefficient() const;
     double scatteringCoefficient() const;
-
     double henyeyGreensteinFactor() const;
+    double renderTime() const;
+
+    Qt3DCore::QEntity* camera() const;
 
 signals:
     void imageChanged(QImage image);
     void emissionFactorChanged(double emissionFactor);
     void absorptionCoefficientChanged(double absorptionCoefficient);
     void scatteringCoefficientChanged(double scatteringCoefficient);
-
     void henyeyGreensteinFactorChanged(double henyeyGreensteinFactor);
+    void renderTimeChanged(double renderTime);
+
+    void cameraChanged(Qt3DCore::QEntity* camera);
 
 public slots:
     void clear();
@@ -72,10 +80,10 @@ public slots:
     void setEmissionFactor(double emissionFactor);
     void setAbsorptionCoefficient(double absorptionCoefficient);
     void setScatteringCoefficient(double scatteringCoefficient);
-
     void setHenyeyGreensteinFactor(double henyeyGreensteinFactor);
-
     void voxelize(const QVariantList &neuronSimulators);
+
+    void setCamera(Qt3DCore::QEntity* camera);
 
 protected:
     virtual SimulatorWorker *createWorker() override;
@@ -90,9 +98,11 @@ private:
     double m_absorptionCoefficient = 1.0;
     double m_scatteringCoefficient = 0.1;
     double m_henyeyGreensteinFactor = 1.0;
+    double m_renderTime = 0.0;
     std::vector<photonflow::CylinderFrustum> m_cylinders;
 
     friend class PhotonflowWorker;
+    Qt3DCore::QEntity* m_camera;
 };
 
 }
