@@ -15,8 +15,14 @@ ApplicationWindow {
     title: qsTr("Photonflow")
 
     Component.onCompleted: {
-        builderScene.addNeuron("...")
-        builderScene.addNeuron("...")
+        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(0, 0, 0)})
+        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(1, 0, 0)})
+        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(0, 1, 0)})
+        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(1, 1, 0)})
+        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(0, 0, 1)})
+        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(1, 0, 1)})
+        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(0, 1, 1)})
+        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(1, 1, 1)})
     }
 
     function voxelize() {
@@ -150,59 +156,6 @@ ApplicationWindow {
                 id: builderScene
                 anchors.fill: parent
             }
-
-//            MouseArea {
-//                anchors.fill: parent
-//                propagateComposedEvents: true
-//                onPressed: {
-//                    console.log("Pressed")
-////                    mouse.accepted = false
-//                }
-//                onReleased: {
-//                    console.log("Released")
-//                    mouse.accepted = false
-//                }
-//            }
-
-//            MouseArea {
-//                property point previousPosition
-//                property real dragSpeed: 0.04
-//                property alias camera: builderScene.camera
-//                property alias entity: builderScene.currentEntity
-
-//                propagateComposedEvents: true
-//                acceptedButtons: Qt.LeftButton | Qt.RightButton
-//                anchors.fill: parent
-//                onPressed: {
-//                    previousPosition = Qt.point(mouse.x, mouse.y)
-//                }
-//                onPositionChanged: {
-//                    var currentPosition = Qt.point(mouse.x, mouse.y)
-//                    var diff = Qt.vector2d(previousPosition.x - currentPosition.x, previousPosition.y - currentPosition.y)
-
-//                    diff = diff.times(0.5)
-
-//                    if(mouse.buttons & Qt.LeftButton) {
-//                        camera.panAboutViewCenter(diff.x, camera.upVector)
-//                        camera.tiltAboutViewCenter(-diff.y)
-//                    } else if(mouse.buttons & Qt.RightButton) {
-//                        var rightVector = camera.viewVector.crossProduct(camera.upVector).normalized()
-//                        var upVector = camera.upVector.normalized()
-//                        var direction = rightVector.times(-diff.x).plus(upVector.times(diff.y))
-//                        entity.transform.translation = entity.transform.translation.plus(direction.times(dragSpeed))
-//                    }
-//                    previousPosition = Qt.point(mouse.x, mouse.y)
-//                }
-//                onReleased: {
-//                    mouse.accepted = false
-//                }
-//                onClicked: {
-//                    mouse.accepted = false
-//                }
-//                onWheel: {
-//                    camera.fieldOfView = Math.max(10.0, Math.min(160.0, camera.fieldOfView - wheel.angleDelta.y * 0.1))
-//                }
-//            }
         }
 
         ImageViewer {
@@ -211,49 +164,6 @@ ApplicationWindow {
             width: 3
             image: simulator.image
         }
-
     }
-
-//    Timer {
-//        running: true
-//        repeat: true
-//        interval: 100
-//        onTriggered: {
-//            simulator.step()
-//        }
-//    }
-
-//    Visualizer {
-//        anchors.fill: parent
-//        simulator: TestSimulator {
-//            id: simulator
-//        }
-//    }
-
-//    Text {
-//        color: "white"
-//        text: Math.round(timer.totalTime, 1)
-//    }
-
-//    MouseArea {
-//        anchors.fill: parent
-//        onClicked: timer.running = !timer.running
-//    }
-
-//    Timer {
-//        id: timer
-//        property real lastTime: Date.now()
-//        property real totalTime: 0
-//        running: true
-//        repeat: true
-//        interval: 16
-
-//        onTriggered: {
-//            console.log("Triggered!")
-//            totalTime += Date.now() - lastTime
-//            lastTime = Date.now()
-//            renderView.requestIntegrate()
-//        }
-//    }
 }
 

@@ -35,6 +35,8 @@ public:
     bool operator==(const BoundingBox &b) const;
     bool operator!=(const BoundingBox &b) const;
 
+    friend std::ostream& operator<< (std::ostream &out, const BoundingBox &point);
+
     // BBox Public Data
     Point3D pMin, pMax;
 };

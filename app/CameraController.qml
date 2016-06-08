@@ -7,9 +7,9 @@ import QtQml 2.2
 Entity {
     id: root
     property Camera camera
-    property real linearSpeed: 10.0
-    property real lookSpeed: 360.0
-    property real zoomSpeed: 100.0
+    property real linearSpeed: 40.0
+    property real lookSpeed: 10.0
+    property real zoomSpeed: 20.0
     property real zoomLimit: 2.0
 
     QtObject {
@@ -32,9 +32,15 @@ Entity {
     }
 
     components: [
-
         LogicalDevice {
             actions: [
+                Action {
+                    id: noMouseButtonAction
+                    ActionInput {
+                        sourceDevice: mouseSourceDevice
+                        buttons: [MouseEvent.NoButton]
+                    }
+                },
                 Action {
                     id: leftMouseButtonAction
                     ActionInput {
@@ -140,23 +146,37 @@ Entity {
         },
 
         FrameAction {
+            property real timeSinceLastAction: 0.0
             onTriggered: {
                 if(!root.enabled) {
+                    return
+                }
+
+                if(!leftMouseButtonAction.active && !middleMouseButtonAction.active) {
+                    timeSinceLastAction += dt
                     return
                 }
 
                 // The time difference since the last frame is passed in as the
                 // argument dt. It is a floating point value in units of seconds.
                 if (leftMouseButtonAction.active) {
-                    root.camera.panAboutViewCenter(-mouseXAxis.value * lookSpeed * dt, d.firstPersonUp);
-                    root.camera.tiltAboutViewCenter(-mouseYAxis.value * lookSpeed * dt);
+                    if(timeSinceLastAction > 0.1) {
+                        timeSinceLastAction = 0
+                        return
+                    }
+                    root.camera.panAboutViewCenter(-mouseXAxis.value * lookSpeed, d.firstPersonUp);
+                    root.camera.tiltAboutViewCenter(-mouseYAxis.value * lookSpeed);
                 } else if(middleMouseButtonAction.active) {
+                    if(timeSinceLastAction > 0.1) {
+                        timeSinceLastAction = 0
+                        return
+                    }
                     var fov = root.camera.fieldOfView
-                    fov += mouseYAxis.value * dt * zoomSpeed
+                    fov += mouseYAxis.value * zoomSpeed
                     fov = Math.max(10.0, Math.min(160.0, fov))
                     root.camera.fieldOfView = fov
                 }
-                root.camera.translate(Qt.vector3d(keyboardXAxis.value, 0.0, keyboardYAxis.value).times(dt))
+                root.camera.translate(Qt.vector3d(keyboardXAxis.value, 0.0, keyboardYAxis.value))
             }
         }
     ] // components

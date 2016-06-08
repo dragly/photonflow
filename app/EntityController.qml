@@ -10,7 +10,7 @@ Entity {
     property Camera camera
     property Entity entity
     property real linearSpeed: 10.0
-    property real dragSpeed: 10.0
+    property real dragSpeed: 1.0
     property real lookSpeed: 360.0
     property real zoomSpeed: 100.0
     property real zoomLimit: 2.0
@@ -152,7 +152,7 @@ Entity {
             ] // axes
         },
         FrameAction {
-            property bool buttonWasDownPreviousFrame: false
+            property real timeSinceLastAction: 0.0
 
             function multiplyQuaternion(q1, q2) {
                 return Qt.quaternion(q1.scalar * q2.scalar - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z,
@@ -170,6 +170,11 @@ Entity {
                     return
                 }
                 if(!rightMouseButtonAction.active) {
+                    timeSinceLastAction += dt
+                    return
+                }
+                if(timeSinceLastAction > 0.1) {
+                    timeSinceLastAction = 0
                     return
                 }
 
@@ -177,7 +182,7 @@ Entity {
                     var rightVector = camera.viewVector.crossProduct(camera.upVector).normalized()
                     var upVector = camera.upVector.normalized()
                     var direction = rightVector.times(mouseXAxis.value).plus(upVector.times(mouseYAxis.value))
-                    root.entity.transform.translation = root.entity.transform.translation.plus(direction.times(dragSpeed * dt))
+                    root.entity.transform.translation = root.entity.transform.translation.plus(direction.times(dragSpeed))
                 } else if(mode === "scale") {
                     var totalValue = mouseXAxis.value + mouseYAxis.value
                     totalValue *= 0.1

@@ -17,8 +17,7 @@ Scene3D {
     property var currentEntity
     property var neurons: []
     property var entities: [
-        simulatorCamera_,
-        boundingBox
+        simulatorCamera_
     ]
 
     aspects: ["input", "render", "logic"]
@@ -36,19 +35,18 @@ Scene3D {
         currentEntity = entity
     }
 
-    function addNeuron(path) {
+    function addNeuron(path, properties) {
         var neuronComponent = Qt.createComponent("Neuron.qml")
-//        var properties = {
-//            transform: {
-//                translation: Qt.vector3d(0, 0, 0)
-//            }
-//        }
         if(neuronComponent.status !== QQ2.Component.Ready) {
             console.log("Could not create neuron")
             throw(neuronComponent.errorString())
         }
 
-        var neuron = neuronComponent.createObject(visualizer)
+        if(!properties) {
+            properties = {}
+        }
+
+        var neuron = neuronComponent.createObject(visualizer, properties)
         neuron.parent = visualizer
         neuron.pressed.connect(function() {
             selectEntity(neuron)
@@ -72,26 +70,6 @@ Scene3D {
             id: entityController
             camera: visualizer.camera
             entity: root.currentEntity
-        }
-
-        Entity {
-            id: boundingBox
-            property alias transform: boundingBoxTransform
-            property bool selected: false
-            components: [
-                CuboidMesh {},
-                PhongMaterial {
-                    diffuse: boundingBox.selected ? "red" : "lightblue"
-                },
-                Transform {
-                    id: boundingBoxTransform
-                    scale3D: Qt.vector3d(1, 2, 2)
-                },
-                ObjectPicker {
-                    hoverEnabled: true
-                    onPressed: root.selectEntity(boundingBox)
-                }
-            ]
         }
 
         Entity {

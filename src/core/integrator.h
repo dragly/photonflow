@@ -49,11 +49,11 @@ public:
         Break
     };
 
-    Integrator(VolumeGridDensity *volumeGridDensity, Ray startRay, int bounces, RNG &rng);
+    Integrator(Ray startRay, int bounces, RNG &rng);
     void integrate(std::function<Control(const Ray & ray, photonflow::Length stepLength)> callback);
 
 private:
-    VolumeGridDensity *m_volumeGridDensity;
+//    VolumeGridDensity *m_volumeGridDensity;
     Ray m_ray;
     int m_bounces;
     RNG *m_rng;

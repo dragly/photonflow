@@ -37,7 +37,8 @@ private:
     int m_totalSampleCount = 0;
     VolumeGridDensity m_volumeRegion;
     vector<RNG> m_randomNumberGenerators;
-    std::vector<photonflow::CylinderFrustum> m_cylinders;
+    std::vector<CylinderFrustum> m_cylinders;
+    BoundingBox m_boundingBox;
     double m_renderTime = 0.0;
 };
 
@@ -71,7 +72,6 @@ signals:
     void scatteringCoefficientChanged(double scatteringCoefficient);
     void henyeyGreensteinFactorChanged(double henyeyGreensteinFactor);
     void renderTimeChanged(double renderTime);
-
     void cameraChanged(Qt3DCore::QEntity* camera);
 
 public slots:
@@ -82,7 +82,6 @@ public slots:
     void setScatteringCoefficient(double scatteringCoefficient);
     void setHenyeyGreensteinFactor(double henyeyGreensteinFactor);
     void voxelize(const QVariantList &neuronSimulators);
-
     void setCamera(Qt3DCore::QEntity* camera);
 
 protected:
@@ -99,7 +98,8 @@ private:
     double m_scatteringCoefficient = 0.1;
     double m_henyeyGreensteinFactor = 1.0;
     double m_renderTime = 0.0;
-    std::vector<photonflow::CylinderFrustum> m_cylinders;
+    BoundingBox m_boundingBox;
+    std::vector<CylinderFrustum> m_cylinders;
 
     friend class PhotonflowWorker;
     Qt3DCore::QEntity* m_camera;
