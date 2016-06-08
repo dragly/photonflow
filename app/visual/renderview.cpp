@@ -334,93 +334,87 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
         Spectrum sigma_s(0.1);
         Spectrum emita(0.1);
         m_volumeRegion = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, renderView->m_data);
-        renderView->m_dataDirty = false;
-    }
 
-    //    m_volumeRegion.setAbsorptionCoefficient(Spectrum(renderView->m_absorptionCoefficient));
-    //    m_volumeRegion.setScatteringCoefficient(Spectrum(renderView->m_scatteringCoefficient));
-    //    m_volumeRegion.setEmissionCoefficient(Spectrum(renderView->m_emissionCoefficient));
-    //    m_volumeRegion.setHenyeyGreensteinFactor(renderView->m_henyeyGreensteinFactor);
+        m_cylinders = renderView->m_cylinders;
 
-    m_cylinders = renderView->m_cylinders;
+        m_boundingBox = BoundingBox();
+        for(const auto& cylinder : m_cylinders) {
+            m_boundingBox = makeUnion(m_boundingBox, cylinder.start);
+            m_boundingBox = makeUnion(m_boundingBox, cylinder.end);
+        }
 
-    m_boundingBox = BoundingBox();
-    for(const auto& cylinder : m_cylinders) {
-        m_boundingBox = makeUnion(m_boundingBox, cylinder.start);
-        m_boundingBox = makeUnion(m_boundingBox, cylinder.end);
-    }
+        const Length cellSide = 10_um;
+        const Length3D boundingBoxSize = m_boundingBox.pMax - m_boundingBox.pMin;
 
-    const Length cellSide = 10_um;
-    const Length3D boundingBoxSize = m_boundingBox.pMax - m_boundingBox.pMin;
+        if(boundingBoxSize[0] > 0.0_um && boundingBoxSize[1] > 0.0_um && boundingBoxSize[1] > 0.0_um) {
+            size_t cellCount[3] = {
+                size_t(boundingBoxSize[0] / cellSide) + 1,
+                size_t(boundingBoxSize[1] / cellSide) + 1,
+                size_t(boundingBoxSize[2] / cellSide) + 1
+            };
 
-    if(boundingBoxSize[0] > 0.0_um && boundingBoxSize[1] > 0.0_um && boundingBoxSize[1] > 0.0_um) {
-        size_t cellCount[3] = {
-            size_t(boundingBoxSize[0] / cellSide) + 1,
-            size_t(boundingBoxSize[1] / cellSide) + 1,
-            size_t(boundingBoxSize[2] / cellSide) + 1
-        };
+            size_t cellCountTotal = cellCount[0] * cellCount[1] * cellCount[2];
+            m_cells.clear();
+            m_cells.resize(cellCountTotal); // TODO empty
 
-        size_t cellCountTotal = cellCount[0] * cellCount[1] * cellCount[2];
-        m_cells.clear();
-        m_cells.resize(cellCountTotal); // TODO empty
+            Length step = cellSide;
+            Length eps = step; // / 2.0;
 
-        Length step = cellSide;
-        Length eps = step; // / 2.0;
+            Length3D offset(m_boundingBox.pMin);
 
-        Length3D offset(m_boundingBox.pMin);
+            for(auto& originalCylinder : m_cylinders) {
+                auto cylinder = CylinderFrustum(originalCylinder.start - offset,
+                                                originalCylinder.end - offset,
+                                                originalCylinder.startRadius,
+                                                originalCylinder.endRadius);
 
-        for(auto& originalCylinder : m_cylinders) {
-            auto cylinder = CylinderFrustum(originalCylinder.start - offset,
-                                            originalCylinder.end - offset,
-                                            originalCylinder.startRadius,
-                                            originalCylinder.endRadius);
+                BoundingBox localBounds(Point3D(-cylinder.h, -cylinder.startRadius, -cylinder.startRadius),
+                                        Point3D(cylinder.h, cylinder.startRadius, cylinder.startRadius));
 
-            BoundingBox localBounds(Point3D(-cylinder.h, -cylinder.startRadius, -cylinder.startRadius),
-                                    Point3D(cylinder.h, cylinder.startRadius, cylinder.startRadius));
+                Vector3D perpendicular = cross(Vector3D(1.0, 0.0, 0.0), cylinder.direction);
+                Transform rotation;
+                double sinAngle = perpendicular.length();
+                if(sinAngle > 0.0) {
+                    if(sinAngle > 1.0) {
+                        sinAngle -= 2.2204460492503131e-16; // typical machine precision error
+                    }
+                    double cosAngle = sqrt(1.0 - sinAngle*sinAngle);
 
-            Vector3D perpendicular = cross(Vector3D(1.0, 0.0, 0.0), cylinder.direction);
-            Transform rotation;
-            double sinAngle = perpendicular.length();
-            if(sinAngle > 0.0) {
-                if(sinAngle > 1.0) {
-                    sinAngle -= 2.2204460492503131e-16; // typical machine precision error
+                    rotation = rotate(cosAngle, sinAngle, perpendicular);
                 }
-                double cosAngle = sqrt(1.0 - sinAngle*sinAngle);
+                Transform translation = translate(Length3D(cylinder.center));
+                BoundingBox bounds = translation(rotation(localBounds));
+                bounds.expand(eps);
 
-                rotation = rotate(cosAngle, sinAngle, perpendicular);
-            }
-            Transform translation = translate(Length3D(cylinder.center));
-            BoundingBox bounds = translation(rotation(localBounds));
-            bounds.expand(eps);
+                int istart = int(bounds.pMin.x / step);
+                int jstart = int(bounds.pMin.y / step);
+                int kstart = int(bounds.pMin.z / step);
 
-            int istart = int(bounds.pMin.x / step);
-            int jstart = int(bounds.pMin.y / step);
-            int kstart = int(bounds.pMin.z / step);
+                int iend = int(bounds.pMax.x / step + 1);
+                int jend = int(bounds.pMax.y / step + 1);
+                int kend = int(bounds.pMax.z / step + 1);
 
-            int iend = int(bounds.pMax.x / step + 1);
-            int jend = int(bounds.pMax.y / step + 1);
-            int kend = int(bounds.pMax.z / step + 1);
-
-            for(int i = istart; i < iend + 1; i++) {
-                for(int j = jstart; j < jend + 1; j++) {
-                    for(int k = kstart; k < kend + 1; k++) {
-                        Point3D p(step * (double(i) + 0.5), step * (double(j) + 0.5), step * (double(k) + 0.5));
-                        Length3D diff = p - cylinder.center;
-                        Length distance = diff.length();
-                        if(distance > cylinder.h + eps && distance > cylinder.startRadius + eps) {
-                            continue;
-                        }
-                        auto yComponent = dot(diff, cylinder.direction * 1.0_um) / 1.0_um;
-                        if(fabs(yComponent) <= cylinder.h + eps) {
-                            auto y2 = yComponent*yComponent;
-                            auto diff2 = dot(diff, diff);
-                            auto distanceToAxis = sqrt(diff2 - y2);
-                            double endProportion = (yComponent + cylinder.h) / (2.0 * cylinder.h);
-                            Length radius = cylinder.startRadius * (1 - endProportion) + endProportion * cylinder.endRadius;
-                            if(distanceToAxis <= radius + eps) {
-                                size_t index = i * cellCount[1] * cellCount[2] + j * cellCount[2] + k;
-                                if(index < m_cells.size()) {
-                                    m_cells[index].m_cylinders.push_back(originalCylinder);
+                for(int i = istart; i < iend + 1; i++) {
+                    for(int j = jstart; j < jend + 1; j++) {
+                        for(int k = kstart; k < kend + 1; k++) {
+                            Point3D p(step * (double(i) + 0.5), step * (double(j) + 0.5), step * (double(k) + 0.5));
+                            Length3D diff = p - cylinder.center;
+                            Length distance = diff.length();
+                            if(distance > cylinder.h + eps && distance > cylinder.startRadius + eps) {
+                                continue;
+                            }
+                            auto yComponent = dot(diff, cylinder.direction * 1.0_um) / 1.0_um;
+                            if(fabs(yComponent) <= cylinder.h + eps) {
+                                auto y2 = yComponent*yComponent;
+                                auto diff2 = dot(diff, diff);
+                                auto distanceToAxis = sqrt(diff2 - y2);
+                                double endProportion = (yComponent + cylinder.h) / (2.0 * cylinder.h);
+                                Length radius = cylinder.startRadius * (1 - endProportion) + endProportion * cylinder.endRadius;
+                                if(distanceToAxis <= radius + eps) {
+                                    size_t index = i * cellCount[1] * cellCount[2] + j * cellCount[2] + k;
+                                    if(index < m_cells.size()) {
+                                        m_cells[index].m_cylinders.push_back(originalCylinder);
+                                    }
                                 }
                             }
                         }
@@ -428,7 +422,13 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
                 }
             }
         }
+        renderView->m_dataDirty = false;
     }
+
+    //    m_volumeRegion.setAbsorptionCoefficient(Spectrum(renderView->m_absorptionCoefficient));
+    //    m_volumeRegion.setScatteringCoefficient(Spectrum(renderView->m_scatteringCoefficient));
+    //    m_volumeRegion.setEmissionCoefficient(Spectrum(renderView->m_emissionCoefficient));
+    //    m_volumeRegion.setHenyeyGreensteinFactor(renderView->m_henyeyGreensteinFactor);
 
     renderView->m_renderTime = m_renderTime;
     emit renderView->renderTimeChanged(m_renderTime);
