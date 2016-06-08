@@ -51,7 +51,7 @@ void Integrator::integrate(std::function<Control(const Ray& ray, photonflow::Len
     for(int i = 0; i < m_bounces; i++) {
         double eps = 1e-16; // avoid -log(0) which returns inf
 
-        photonflow::Length ds = 1000.0_um * -log(m_rng->randomFloat() + eps); // TODO set proper step length
+        photonflow::Length ds = 100.0_um * -log(m_rng->randomFloat() + eps); // TODO set proper step length
         double g = 0.99; // TODO use proper HG value
 
         double cosTheta = Distribution::heyneyGreenstein(g, *m_rng);

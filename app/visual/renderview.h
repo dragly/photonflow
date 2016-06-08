@@ -20,6 +20,10 @@ class NeuronSimulator;
 
 namespace photonflow {
 
+struct Cell {
+    std::vector<CylinderFrustum> m_cylinders;
+};
+
 class PhotonflowWorker : public SimulatorWorker {
 
 public:
@@ -39,6 +43,7 @@ private:
     vector<RNG> m_randomNumberGenerators;
     std::vector<CylinderFrustum> m_cylinders;
     BoundingBox m_boundingBox;
+    std::vector<Cell> m_cells;
     double m_renderTime = 0.0;
 };
 
@@ -98,7 +103,6 @@ private:
     double m_scatteringCoefficient = 0.1;
     double m_henyeyGreensteinFactor = 1.0;
     double m_renderTime = 0.0;
-    BoundingBox m_boundingBox;
     std::vector<CylinderFrustum> m_cylinders;
 
     friend class PhotonflowWorker;

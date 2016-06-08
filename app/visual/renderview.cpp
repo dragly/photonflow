@@ -217,31 +217,52 @@ void PhotonflowWorker::work()
 
                 Integrator integrator(startRay, bounces, rng);
 
+
+                const Length cellSide = 10_um;
+                const Length3D boundingBoxSize = m_boundingBox.pMax - m_boundingBox.pMin;
+
+                size_t cellCount[3] = {
+                    size_t(boundingBoxSize[0] / cellSide) + 1,
+                    size_t(boundingBoxSize[1] / cellSide) + 1,
+                    size_t(boundingBoxSize[2] / cellSide) + 1
+                };
+
                 integrator.integrate([&](const Ray& ray, photonflow::Length ds) {
                     if(!m_boundingBox.fuzzyInside(ray.origin())) {
                         return Integrator::Control::Break;
                     }
 
-                    Lv += Tr * 1.0 * ds.value();
+//                    Lv += Tr * 1.0 * ds.value();
 
-                    for(const CylinderFrustum &cylinder : m_cylinders) {
-                        Length eps = 0.0_um;
-                        Point3D p = ray.origin();
-                        Length3D diff = p - cylinder.center;
-                        Length distance = diff.length();
-                        if(distance > cylinder.h + eps && distance > cylinder.startRadius + eps) {
-                            continue;
-                        }
-                        auto yComponent = dot(diff, cylinder.direction * 1.0_um) / 1.0_um;
-                        if(fabs(yComponent) <= cylinder.h + eps) {
-                            auto y2 = yComponent*yComponent;
-                            auto diff2 = dot(diff, diff);
-                            auto distanceToAxis = sqrt(diff2 - y2);
-                            double endProportion = (yComponent + cylinder.h) / (2.0 * cylinder.h);
-                            Length radius = cylinder.startRadius * (1 - endProportion) + endProportion * cylinder.endRadius;
-                            if(distanceToAxis <= radius + eps) {
-                                // TODO replace with proper emission
-                                Lv += Tr * 20.0 * ds.value();
+                    Length3D pointInBoundingBox = ray.origin() - m_boundingBox.pMin;
+                    int i = pointInBoundingBox[0] / cellSide;
+                    int j = pointInBoundingBox[1] / cellSide;
+                    int k = pointInBoundingBox[2] / cellSide;
+
+                    int index = i * cellCount[1] * cellCount[2] + j * cellCount[2] + k;
+
+
+                    if(index >= 0 && index < m_cells.size()) {
+                        Cell &cell = m_cells[index];
+                        for(const CylinderFrustum &cylinder : cell.m_cylinders) {
+                            Length eps = 0.0_um;
+                            Point3D p = ray.origin();
+                            Length3D diff = p - cylinder.center;
+                            Length distance = diff.length();
+                            if(distance > cylinder.h + eps && distance > cylinder.startRadius + eps) {
+                                continue;
+                            }
+                            auto yComponent = dot(diff, cylinder.direction * 1.0_um) / 1.0_um;
+                            if(fabs(yComponent) <= cylinder.h + eps) {
+                                auto y2 = yComponent*yComponent;
+                                auto diff2 = dot(diff, diff);
+                                auto distanceToAxis = sqrt(diff2 - y2);
+                                double endProportion = (yComponent + cylinder.h) / (2.0 * cylinder.h);
+                                Length radius = cylinder.startRadius * (1 - endProportion) + endProportion * cylinder.endRadius;
+                                if(distanceToAxis <= radius + eps) {
+                                    // TODO replace with proper emission
+                                    Lv += Tr * 20.0 * ds.value();
+                                }
                             }
                         }
                     }
@@ -316,14 +337,98 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
         renderView->m_dataDirty = false;
     }
 
-//    m_volumeRegion.setAbsorptionCoefficient(Spectrum(renderView->m_absorptionCoefficient));
-//    m_volumeRegion.setScatteringCoefficient(Spectrum(renderView->m_scatteringCoefficient));
-//    m_volumeRegion.setEmissionCoefficient(Spectrum(renderView->m_emissionCoefficient));
-//    m_volumeRegion.setHenyeyGreensteinFactor(renderView->m_henyeyGreensteinFactor);
-
-    m_boundingBox = renderView->m_boundingBox;
+    //    m_volumeRegion.setAbsorptionCoefficient(Spectrum(renderView->m_absorptionCoefficient));
+    //    m_volumeRegion.setScatteringCoefficient(Spectrum(renderView->m_scatteringCoefficient));
+    //    m_volumeRegion.setEmissionCoefficient(Spectrum(renderView->m_emissionCoefficient));
+    //    m_volumeRegion.setHenyeyGreensteinFactor(renderView->m_henyeyGreensteinFactor);
 
     m_cylinders = renderView->m_cylinders;
+
+    m_boundingBox = BoundingBox();
+    for(const auto& cylinder : m_cylinders) {
+        m_boundingBox = makeUnion(m_boundingBox, cylinder.start);
+        m_boundingBox = makeUnion(m_boundingBox, cylinder.end);
+    }
+
+    const Length cellSide = 10_um;
+    const Length3D boundingBoxSize = m_boundingBox.pMax - m_boundingBox.pMin;
+
+    if(boundingBoxSize[0] > 0.0_um && boundingBoxSize[1] > 0.0_um && boundingBoxSize[1] > 0.0_um) {
+        size_t cellCount[3] = {
+            size_t(boundingBoxSize[0] / cellSide) + 1,
+            size_t(boundingBoxSize[1] / cellSide) + 1,
+            size_t(boundingBoxSize[2] / cellSide) + 1
+        };
+
+        size_t cellCountTotal = cellCount[0] * cellCount[1] * cellCount[2];
+        m_cells.clear();
+        m_cells.resize(cellCountTotal); // TODO empty
+
+        Length step = cellSide;
+        Length eps = step; // / 2.0;
+
+        Length3D offset(m_boundingBox.pMin);
+
+        for(auto& originalCylinder : m_cylinders) {
+            auto cylinder = CylinderFrustum(originalCylinder.start - offset,
+                                            originalCylinder.end - offset,
+                                            originalCylinder.startRadius,
+                                            originalCylinder.endRadius);
+
+            BoundingBox localBounds(Point3D(-cylinder.h, -cylinder.startRadius, -cylinder.startRadius),
+                                    Point3D(cylinder.h, cylinder.startRadius, cylinder.startRadius));
+
+            Vector3D perpendicular = cross(Vector3D(1.0, 0.0, 0.0), cylinder.direction);
+            Transform rotation;
+            double sinAngle = perpendicular.length();
+            if(sinAngle > 0.0) {
+                if(sinAngle > 1.0) {
+                    sinAngle -= 2.2204460492503131e-16; // typical machine precision error
+                }
+                double cosAngle = sqrt(1.0 - sinAngle*sinAngle);
+
+                rotation = rotate(cosAngle, sinAngle, perpendicular);
+            }
+            Transform translation = translate(Length3D(cylinder.center));
+            BoundingBox bounds = translation(rotation(localBounds));
+            bounds.expand(eps);
+
+            int istart = int(bounds.pMin.x / step);
+            int jstart = int(bounds.pMin.y / step);
+            int kstart = int(bounds.pMin.z / step);
+
+            int iend = int(bounds.pMax.x / step + 1);
+            int jend = int(bounds.pMax.y / step + 1);
+            int kend = int(bounds.pMax.z / step + 1);
+
+            for(int i = istart; i < iend + 1; i++) {
+                for(int j = jstart; j < jend + 1; j++) {
+                    for(int k = kstart; k < kend + 1; k++) {
+                        Point3D p(step * (double(i) + 0.5), step * (double(j) + 0.5), step * (double(k) + 0.5));
+                        Length3D diff = p - cylinder.center;
+                        Length distance = diff.length();
+                        if(distance > cylinder.h + eps && distance > cylinder.startRadius + eps) {
+                            continue;
+                        }
+                        auto yComponent = dot(diff, cylinder.direction * 1.0_um) / 1.0_um;
+                        if(fabs(yComponent) <= cylinder.h + eps) {
+                            auto y2 = yComponent*yComponent;
+                            auto diff2 = dot(diff, diff);
+                            auto distanceToAxis = sqrt(diff2 - y2);
+                            double endProportion = (yComponent + cylinder.h) / (2.0 * cylinder.h);
+                            Length radius = cylinder.startRadius * (1 - endProportion) + endProportion * cylinder.endRadius;
+                            if(distanceToAxis <= radius + eps) {
+                                size_t index = i * cellCount[1] * cellCount[2] + j * cellCount[2] + k;
+                                if(index < m_cells.size()) {
+                                    m_cells[index].m_cylinders.push_back(originalCylinder);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     renderView->m_renderTime = m_renderTime;
     emit renderView->renderTimeChanged(m_renderTime);
@@ -341,7 +446,6 @@ SimulatorWorker *PhotonflowSimulator::createWorker()
 void PhotonflowSimulator::voxelize(const QVariantList &neuronSimulators)
 {
     m_cylinders.clear();
-    m_boundingBox = BoundingBox();
     for(auto element : neuronSimulators) {
         QVariantMap map = element.toMap();
         NeuronSimulator *neuronSimulator = map["simulator"].value<NeuronSimulator*>();
@@ -359,16 +463,14 @@ void PhotonflowSimulator::voxelize(const QVariantList &neuronSimulators)
 
         // TODO verify order
         Matrix4x4 matrix(
-                t(0, 0), t(0, 1), t(0, 2), t(0, 3)*(1.0 / neuronSimulator->scale()),
-                t(1, 0), t(1, 1), t(1, 2), t(1, 3)*(1.0 / neuronSimulator->scale()),
-                t(2, 0), t(2, 1), t(2, 2), t(2, 3)*(1.0 / neuronSimulator->scale()),
-                t(3, 0), t(3, 1), t(3, 2), t(3, 3));
+                    t(0, 0), t(0, 1), t(0, 2), t(0, 3)*(1.0 / neuronSimulator->scale()),
+                    t(1, 0), t(1, 1), t(1, 2), t(1, 3)*(1.0 / neuronSimulator->scale()),
+                    t(2, 0), t(2, 1), t(2, 2), t(2, 3)*(1.0 / neuronSimulator->scale()),
+                    t(3, 0), t(3, 1), t(3, 2), t(3, 3));
         Transform transform(matrix);
 
         std::vector<CylinderFrustum> cylinders = neuronSimulator->cylinders();
         for(CylinderFrustum& cylinder : cylinders) {
-            m_boundingBox = makeUnion(m_boundingBox, transform(cylinder.start));
-            m_boundingBox = makeUnion(m_boundingBox, transform(cylinder.end));
             cylinder = CylinderFrustum(transform(cylinder.start),
                                        transform(cylinder.end),
                                        cylinder.startRadius,
