@@ -14,17 +14,9 @@ Entity {
     property real lookSpeed: 360.0
     property real zoomSpeed: 100.0
     property real zoomLimit: 2.0
-
     property string mode: "translate"
-
-    KeyboardDevice {
-        id: keyboardSourceDevice
-    }
-
-    MouseDevice {
-        id: mouseSourceDevice
-        sensitivity: 0.1
-    }
+    property MouseDevice mouseSourceDevice
+    property KeyboardDevice keyboardSourceDevice
 
     components: [
         LogicalDevice {

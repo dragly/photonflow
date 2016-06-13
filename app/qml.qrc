@@ -6,5 +6,6 @@
         <file>Neuron.qml</file>
         <file>CameraController.qml</file>
         <file>EntityController.qml</file>
+        <file>Test.qml</file>
     </qresource>
 </RCC>

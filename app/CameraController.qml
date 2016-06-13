@@ -8,9 +8,11 @@ Entity {
     id: root
     property Camera camera
     property real linearSpeed: 40.0
-    property real lookSpeed: 10.0
+    property real lookSpeed: 100.0
     property real zoomSpeed: 20.0
     property real zoomLimit: 2.0
+    property MouseDevice mouseSourceDevice
+    property KeyboardDevice keyboardSourceDevice
 
     QtObject {
         id: d
@@ -20,15 +22,6 @@ Entity {
     function zoomDistance(firstPoint, secondPoint) {
         var u = secondPoint.minus(firstPoint); u = u.times(u);
         return u.x + u.y + u.z;
-    }
-
-    KeyboardDevice {
-        id: keyboardSourceDevice
-    }
-
-    MouseDevice {
-        id: mouseSourceDevice
-        sensitivity: 0.1
     }
 
     components: [
@@ -146,31 +139,32 @@ Entity {
         },
 
         FrameAction {
-            property real timeSinceLastAction: 0.0
+//            property real timeSinceLastAction: 0.0
             onTriggered: {
+
                 if(!root.enabled) {
                     return
                 }
 
-                if(!leftMouseButtonAction.active && !middleMouseButtonAction.active) {
-                    timeSinceLastAction += dt
-                    return
-                }
+//                if(!leftMouseButtonAction.active && !middleMouseButtonAction.active) {
+//                    timeSinceLastAction += dt
+//                    return
+//                }
 
                 // The time difference since the last frame is passed in as the
                 // argument dt. It is a floating point value in units of seconds.
                 if (leftMouseButtonAction.active) {
-                    if(timeSinceLastAction > 0.1) {
-                        timeSinceLastAction = 0
-                        return
-                    }
+//                    if(timeSinceLastAction > 0.1) {
+//                        timeSinceLastAction = 0
+//                        return
+//                    }
                     root.camera.panAboutViewCenter(-mouseXAxis.value * lookSpeed, d.firstPersonUp);
                     root.camera.tiltAboutViewCenter(-mouseYAxis.value * lookSpeed);
                 } else if(middleMouseButtonAction.active) {
-                    if(timeSinceLastAction > 0.1) {
-                        timeSinceLastAction = 0
-                        return
-                    }
+//                    if(timeSinceLastAction > 0.1) {
+//                        timeSinceLastAction = 0
+//                        return
+//                    }
                     var fov = root.camera.fieldOfView
                     fov += mouseYAxis.value * zoomSpeed
                     fov = Math.max(10.0, Math.min(160.0, fov))

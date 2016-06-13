@@ -15,14 +15,13 @@ ApplicationWindow {
     title: qsTr("Photonflow")
 
     Component.onCompleted: {
-        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(0, 0, 0)})
-        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(1, 0, 0)})
-        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(0, 1, 0)})
-        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(1, 1, 0)})
-        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(0, 0, 1)})
-        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(1, 0, 1)})
-        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(0, 1, 1)})
-        builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(1, 1, 1)})
+        for(var i = 0; i < 2; i++) {
+            for(var j = 0; j < 2; j++) {
+                for(var k = 0; k < 2; k++) {
+                    builderScene.addNeuron("...", {"transform.translation": Qt.vector3d(i - 2 + Math.random(), j - 2 + Math.random(), k - 2 + Math.random())})
+                }
+            }
+        }
     }
 
     function voxelize() {

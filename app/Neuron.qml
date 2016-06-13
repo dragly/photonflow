@@ -29,7 +29,13 @@ Entity {
         },
         ObjectPicker {
             hoverEnabled: true
-            onPressed: root.pressed()
+            onPressed: {
+                console.log("Pick")
+                console.log(pick.worldIntersection)
+                console.log(pick.distance)
+
+                root.pressed()
+            }
         }
     ]
     NeuronSimulator {

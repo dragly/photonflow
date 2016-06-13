@@ -10,7 +10,8 @@ QMAKE_CXXFLAGS += -fopenmp
 QMAKE_LFLAGS += -fopenmp
 
 RESOURCES += \
-    qml.qrc
+    qml.qrc \
+    meshes.qrc
 
 SOURCES += \
     main.cpp \
