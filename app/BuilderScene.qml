@@ -56,7 +56,6 @@ Scene3D {
             mouseHandler.pickOffset = pick.worldIntersection.minus(neuron.transform.translation)
             mouseHandler.pickPosition = pick.worldIntersection
             mouseHandler.pickRegistered = true
-            console.log("Neuron pressed")
         })
         entities.push(neuron)
         neurons.push(neuron)
@@ -67,7 +66,7 @@ Scene3D {
 
         clearColor: "#393939"
         camera.aspectRatio: root.width / root.height
-        camera.position: Qt.vector3d(0, 0, 5)
+        camera.position: Qt.vector3d(5, 0, 10)
 
         KeyboardDevice {
             id: keyboardDevice
