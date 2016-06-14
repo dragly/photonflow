@@ -1,5 +1,3 @@
-import SimVis 1.0
-import SimVis.ShaderNodes 1.0
 import Qt3D.Core 2.0
 import Qt3D.Logic 2.0
 import Qt3D.Input 2.0
@@ -8,6 +6,8 @@ import Qt3D.Extras 2.0
 import QtQuick.Scene3D 2.0
 import QtQuick 2.5 as QQ2
 import Photonflow 1.0
+import SimVis 1.0
+import SimVis.ShaderNodes 1.0
 
 Scene3D {
     id: root
@@ -44,7 +44,9 @@ Scene3D {
         }
 
         if(!properties) {
-            properties = {}
+            properties = {
+//                lights: visualizer.lights
+            }
         }
 
         var neuron = neuronComponent.createObject(visualizer, properties)
@@ -63,6 +65,7 @@ Scene3D {
     Visualizer {
         id: visualizer
 
+        clearColor: "#393939"
         camera.aspectRatio: root.width / root.height
         camera.position: Qt.vector3d(0, 0, 5)
 

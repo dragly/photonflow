@@ -139,38 +139,23 @@ Entity {
         },
 
         FrameAction {
-//            property real timeSinceLastAction: 0.0
             onTriggered: {
-
                 if(!root.enabled) {
                     return
                 }
 
-//                if(!leftMouseButtonAction.active && !middleMouseButtonAction.active) {
-//                    timeSinceLastAction += dt
-//                    return
-//                }
-
                 // The time difference since the last frame is passed in as the
                 // argument dt. It is a floating point value in units of seconds.
                 if (leftMouseButtonAction.active) {
-//                    if(timeSinceLastAction > 0.1) {
-//                        timeSinceLastAction = 0
-//                        return
-//                    }
                     root.camera.panAboutViewCenter(-mouseXAxis.value * lookSpeed, d.firstPersonUp);
                     root.camera.tiltAboutViewCenter(-mouseYAxis.value * lookSpeed);
                 } else if(middleMouseButtonAction.active) {
-//                    if(timeSinceLastAction > 0.1) {
-//                        timeSinceLastAction = 0
-//                        return
-//                    }
                     var fov = root.camera.fieldOfView
                     fov += mouseYAxis.value * zoomSpeed
                     fov = Math.max(10.0, Math.min(160.0, fov))
                     root.camera.fieldOfView = fov
                 }
-                root.camera.translate(Qt.vector3d(keyboardXAxis.value, 0.0, keyboardYAxis.value))
+                root.camera.translate(Qt.vector3d(keyboardXAxis.value * 0.3 * linearSpeed * dt, 0.0, keyboardYAxis.value * linearSpeed * dt))
             }
         }
     ] // components

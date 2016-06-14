@@ -1,4 +1,5 @@
 import QtQuick.Scene3D 2.0
+import QtQuick 2.0 as QQ2
 
 import Qt3D.Core 2.0
 import Qt3D.Logic 2.0
@@ -17,31 +18,59 @@ Entity {
     property alias transform: transform_
     property alias simulator: simulator_
 
+    property list<Light> lights: [
+        Light {
+            position: Qt.vector3d(-100, 100, -100)
+            strength: 0.4
+            attenuation: 0.0
+        },
+        Light {
+            position: Qt.vector3d(-100, 100, 100)
+            strength: 0.4
+            attenuation: 0.0
+        },
+        Light {
+            position: Qt.vector3d(100, 100, 100)
+            strength: 0.4
+            attenuation: 0.0
+        },
+        Light {
+            position: Qt.vector3d(100, 100, -100)
+            strength: 0.4
+            attenuation: 0.0
+        }
+    ]
+
     components: [
         Transform {
             id: transform_
-        },
+        }
+        ,
         SphereMesh {
             radius: 0.1
         },
-        PhongMaterial {
-            diffuse: root.selected ? "red" : "lightblue"
+        ShaderBuilderMaterial {
+            fragmentColor: StandardMaterial {
+                color: root.selected ? "#FF0000" : "#0000FF"
+                lights: root.lights
+            }
         },
         ObjectPicker {
             hoverEnabled: true
             onPressed: {
-                console.log("Pick")
-                console.log(pick.worldIntersection)
-                console.log(pick.distance)
-
                 root.pressed(pick)
             }
         }
     ]
+
     NeuronSimulator {
         id: simulator_
     }
     Cylinders {
         cylinderData: simulator_.cylinderData
+        fragmentColor: StandardMaterial {
+            color: "#E7E7E7"
+            lights: root.lights
+        }
     }
 }

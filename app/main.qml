@@ -22,6 +22,8 @@ ApplicationWindow {
                 }
             }
         }
+
+//        builderScene.addNeuron("...", {})
     }
 
     function voxelize() {
