@@ -11,7 +11,7 @@ import Photonflow 1.0
 
 Entity {
     id: root
-    signal pressed
+    signal pressed(var pick)
 
     property bool selected: false
     property alias transform: transform_
@@ -34,7 +34,7 @@ Entity {
                 console.log(pick.worldIntersection)
                 console.log(pick.distance)
 
-                root.pressed()
+                root.pressed(pick)
             }
         }
     ]

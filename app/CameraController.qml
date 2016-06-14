@@ -7,7 +7,7 @@ import QtQml 2.2
 Entity {
     id: root
     property Camera camera
-    property real linearSpeed: 40.0
+    property real linearSpeed: 10.0
     property real lookSpeed: 100.0
     property real zoomSpeed: 20.0
     property real zoomLimit: 2.0

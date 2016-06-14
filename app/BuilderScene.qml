@@ -15,7 +15,7 @@ Scene3D {
     property alias simulatorCamera: simulatorCamera_
     property alias mode: entityController.mode
     property alias viewportCamera: visualizer.camera
-    property var currentEntity
+    property Entity currentEntity
     property var neurons: []
     property var entities: [
         simulatorCamera_
@@ -49,12 +49,15 @@ Scene3D {
 
         var neuron = neuronComponent.createObject(visualizer, properties)
         neuron.parent = visualizer
-        neuron.pressed.connect(function() {
+        neuron.pressed.connect(function(pick) {
             selectEntity(neuron)
+            mouseHandler.pickOffset = pick.worldIntersection.minus(neuron.transform.translation)
+            mouseHandler.pickPosition = pick.worldIntersection
+            mouseHandler.pickRegistered = true
+            console.log("Neuron pressed")
         })
         entities.push(neuron)
         neurons.push(neuron)
-        neuron.pressed()
     }
 
     Visualizer {
@@ -73,9 +76,17 @@ Scene3D {
         }
 
         MouseHandler {
+            id: mouseHandler
+
+            property vector3d pickOffset
+            property vector3d pickPosition
+            property vector3d previousPosition
+            property bool pickRegistered: false
+            property bool pressRegistered: false
+
             sourceDevice: mouseDevice
 
-            onPositionChanged: {
+            function intersection(mouse) {
                 var camera = visualizer.camera
                 var viewProjection = camera.projectionMatrix.times(camera.viewMatrix)
                 var viewProjectionInverse = viewProjection.inverted()
@@ -89,26 +100,52 @@ Scene3D {
                 // ray-plane intersection
                 var n = camera.viewVector
                 var v = ray
-                var x0 = currentEntity.transform.translation
+                var x0 = pickPosition
                 var d = -x0.dotProduct(n)
                 var p0 = camera.position
                 var t = -(p0.dotProduct(n) + d) / (v.dotProduct(n))
 
                 var p = p0.plus(v.times(t))
 
-                console.log("p", p)
+                return p
+            }
 
-                currentEntity.transform.translation = p
+            onPressed: {
+                console.log("Pressed", pickRegistered)
+                if(pickRegistered) {
+                    previousPosition = intersection(mouse)
+                    pressRegistered = true
+                }
+            }
 
-                // TODO use difference since last position instead
+            onPositionChanged: {
+                if(!currentEntity || !pickRegistered) {
+                    return
+                }
+
+                var position = intersection(mouse)
+                var diff = position.minus(previousPosition)
+
+                if(pressRegistered) {
+                    currentEntity.transform.translation = currentEntity.transform.translation.plus(diff)
+                }
+
+                previousPosition = position
+                pressRegistered = true
+            }
+
+            onReleased: {
+                pickRegistered = false
+                pressRegistered = false
             }
         }
 
-//        CameraController {
-//            mouseSourceDevice: mouseDevice
-//            keyboardSourceDevice: keyboardDevice
-//            camera: visualizer.camera
-//        }
+        CameraController {
+            enabled: !mouseHandler.pickRegistered
+            mouseSourceDevice: mouseDevice
+            keyboardSourceDevice: keyboardDevice
+            camera: visualizer.camera
+        }
 
         EntityController {
             id: entityController
