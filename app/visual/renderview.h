@@ -120,7 +120,7 @@ private:
     double m_absorptionCoefficient = 1.0;
     double m_scatteringCoefficient = 0.1;
     double m_henyeyGreensteinFactor = 1.0;
-    double m_lensRadius = 200.0;
+    double m_lensRadius = 20.0;
     double m_focalDepth = 512.0;
     double m_fieldOfView = 60.0 / 180.0;
     double m_renderTime = 0.0;

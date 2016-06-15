@@ -28,7 +28,7 @@ using namespace arma;
 
 namespace photonflow {
 
-static const int threadCount = 1;
+static const int threadCount = 7;
 
 PhotonflowSimulator::PhotonflowSimulator(QNode *parent)
     : Simulator(parent)
@@ -178,8 +178,9 @@ void PhotonflowWorker::work()
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const double crop[4] = {0.0, 1.0, 0.0, 1.0};
 
-    double boxSize = 2.0;
-    BoxFilter filter(boxSize * 0.5, boxSize * 0.5);
+//    double boxSize = 2.0;
+//    BoxFilter filter(boxSize * 0.5, boxSize * 0.5);
+    LanczosSincFilter filter(4.0, 4.0, 3.0); // TODO make filter type selectable
 
     if(m_image.size() != size || !m_film) {
         qDebug() << "Creating image of size" << size;
@@ -195,26 +196,9 @@ void PhotonflowWorker::work()
 #pragma omp parallel num_threads(threadCount) // OpenMP
     {
         RNG& rng = m_randomNumberGenerators.at(omp_get_thread_num());
-        //        RandomSampler sampler(0, width, 0, height, requestedSampleCount, 0.0_us, 1.0_us);
-        //        int maxSampleCount = sampler.maximumSampleCount();
-
-        //        Sample originalSample;
-        //        originalSample.Add1D(1);
-        //        Sample* samples = originalSample.Duplicate(maxSampleCount);
-
-        //        while(true) {
-        //            int sampleCount = sampler.moreSamples(samples, rng);
-        //            if(sampleCount < 1) {
-        //                break;
-        //            }
-        //            for(int i = 0; i < sampleCount; i++) {
-        //                Sample sample = samples[i];
 
         for(int i = 0; i < width * height; i++) {
             Sample sample;
-            //                sample.Add1D(1);
-            //                cout << sample.imageX << " " << sample.imageY << " " << sample.lensU << " " << sample.lensV << " " << sample.time.value() << endl;
-
             sample.imageX = rng.randomFloat() * width;
             sample.imageY = rng.randomFloat() * height;
             sample.lensU = rng.randomFloat();
@@ -223,7 +207,6 @@ void PhotonflowWorker::work()
 
             Ray intersectRay;
             camera.generateRay(sample, &intersectRay);
-            //                cout << intersectRay.origin().x << " "<< intersectRay.origin().y << " "<< intersectRay.origin().z << " " << intersectRay.direction().x << " " << intersectRay.direction().y << " " << intersectRay.direction().z << endl;
 
             double t0;
             double t1;
@@ -239,10 +222,6 @@ void PhotonflowWorker::work()
 
             Point3D p = intersectRay(t0);
             Ray startRay(p, intersectRay.m_direction);
-
-
-
-            //                startRay = Ray(startRay.origin() + intersectRay.m_direction * 0.01, startRay.direction());
 
             Integrator integrator(startRay, bounces, rng);
 
@@ -308,9 +287,6 @@ void PhotonflowWorker::work()
 
             actualCount++;
         }
-        //        }
-
-        //        delete[] samples;
     }
 
     m_completedSampleCount += actualCount;
@@ -322,7 +298,7 @@ void PhotonflowWorker::work()
             Pixel& pixel = (*m_film->pixels)(x, y);
             Spectrum result = Spectrum::fromXYZ(pixel.Lxyz);
 
-            result /= pixel.weightSum;
+            result = result * threadCount / pixel.weightSum;
 
             double rgb[3];
             result.toRGB(rgb);
