@@ -67,7 +67,7 @@ double PerspectiveCamera::generateRay(const CameraSample &sample,
         concentricSampleDisk(sample.lensU, sample.lensV, &lensU, &lensV);
 
         Length x = lensU * lensRadius;
-        Length y = lensU * lensRadius;
+        Length y = lensV * lensRadius;
 
         // Compute point on plane of focus
         double ft = focalDistance / ray->m_direction.z;
