@@ -15,6 +15,7 @@ Scene3D {
     property alias simulatorCamera: simulatorCamera_
     property alias mode: entityController.mode
     property alias viewportCamera: visualizer.camera
+    property alias clearColor: visualizer.clearColor
     property Entity currentEntity
     property var neurons: []
     property var entities: [
@@ -64,7 +65,6 @@ Scene3D {
     Visualizer {
         id: visualizer
 
-        clearColor: "#393939"
         camera.aspectRatio: root.width / root.height
         camera.position: Qt.vector3d(5, 0, 10)
 

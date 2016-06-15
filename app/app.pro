@@ -11,7 +11,8 @@ QMAKE_LFLAGS += -fopenmp
 
 RESOURCES += \
     qml.qrc \
-    meshes.qrc
+    meshes.qrc \
+    images.qrc
 
 SOURCES += \
     main.cpp \

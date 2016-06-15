@@ -44,8 +44,7 @@ Entity {
     components: [
         Transform {
             id: transform_
-        }
-        ,
+        },
         SphereMesh {
             radius: 0.1
         },
@@ -69,7 +68,7 @@ Entity {
     Cylinders {
         cylinderData: simulator_.cylinderData
         fragmentColor: StandardMaterial {
-            color: "#E7E7E7"
+            color: root.selected ? "#F7C7C7" : "#E7E7E7"
             lights: root.lights
         }
     }

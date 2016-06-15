@@ -1,1 +1,15 @@
-<RCC/>
+<RCC>
+    <qresource prefix="/">
+        <file>images/ic_play_arrow_white_48dp.png</file>
+        <file>images/ic_visibility_white_48dp.png</file>
+        <file>images/ic_visibility_white_36dp.png</file>
+        <file>images/ic_image_white_36dp.png</file>
+        <file>images/ic_image_white_48dp.png</file>
+        <file>images/ic_timeline_white_36dp.png</file>
+        <file>images/ic_timeline_white_48dp.png</file>
+        <file>images/logo/photonflow-logo_48dp.png</file>
+        <file>images/logo/photonflow-logo.png</file>
+        <file>images/ic_refresh_white_36dp.png</file>
+        <file>images/ic_refresh_white_48dp.png</file>
+    </qresource>
+</RCC>

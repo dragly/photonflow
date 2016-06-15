@@ -7,5 +7,7 @@
         <file>CameraController.qml</file>
         <file>EntityController.qml</file>
         <file>Test.qml</file>
+        <file>ToggleImage.qml</file>
+        <file>ToggleButton.qml</file>
     </qresource>
 </RCC>
