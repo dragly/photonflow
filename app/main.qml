@@ -34,7 +34,9 @@ ApplicationWindow {
         dummyTransform.destroy()
     }
 
-    function voxelize() {
+    function rebuild() {
+        simulator.running = true
+        modeMenu.currentIndex = 1
         var neuronSimulators = []
         for(var i in builderScene.neurons) {
             var neuron = builderScene.neurons[i]
@@ -192,9 +194,7 @@ ApplicationWindow {
                     source: "qrc:/images/ic_refresh_white_48dp.png"
                     text: "Rebuild"
                     onClicked: {
-                        simulator.running = true
-                        voxelize()
-                        modeMenu.currentIndex = 1
+                        rebuild()
                     }
                 }
             }
@@ -432,6 +432,13 @@ ApplicationWindow {
                     }
                 }
             }
+        }
+    }
+
+    Shortcut {
+        sequence: "Ctrl+R"
+        onActivated: {
+            rebuild()
         }
     }
 }

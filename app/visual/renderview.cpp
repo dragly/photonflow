@@ -28,7 +28,7 @@ using namespace arma;
 
 namespace photonflow {
 
-static const int threadCount = 7;
+static const int threadCount = 1;
 
 PhotonflowSimulator::PhotonflowSimulator(QNode *parent)
     : Simulator(parent)
@@ -178,7 +178,7 @@ void PhotonflowWorker::work()
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
     const double crop[4] = {0.0, 1.0, 0.0, 1.0};
 
-    double boxSize = 1.0;
+    double boxSize = 2.0;
     BoxFilter filter(boxSize * 0.5, boxSize * 0.5);
 
     if(m_image.size() != size || !m_film) {
@@ -195,109 +195,122 @@ void PhotonflowWorker::work()
 #pragma omp parallel num_threads(threadCount) // OpenMP
     {
         RNG& rng = m_randomNumberGenerators.at(omp_get_thread_num());
-        RandomSampler sampler(0, width, 0, height, requestedSampleCount, 0.0_us, 1.0_us);
-        int maxSampleCount = sampler.maximumSampleCount();
+        //        RandomSampler sampler(0, width, 0, height, requestedSampleCount, 0.0_us, 1.0_us);
+        //        int maxSampleCount = sampler.maximumSampleCount();
 
-        Sample originalSample;
-        originalSample.Add1D(1);
-        Sample* samples = originalSample.Duplicate(maxSampleCount);
+        //        Sample originalSample;
+        //        originalSample.Add1D(1);
+        //        Sample* samples = originalSample.Duplicate(maxSampleCount);
 
-        while(true) {
-            int sampleCount = sampler.moreSamples(samples, rng);
-            if(sampleCount < 1) {
-                break;
+        //        while(true) {
+        //            int sampleCount = sampler.moreSamples(samples, rng);
+        //            if(sampleCount < 1) {
+        //                break;
+        //            }
+        //            for(int i = 0; i < sampleCount; i++) {
+        //                Sample sample = samples[i];
+
+        for(int i = 0; i < width * height; i++) {
+            Sample sample;
+            //                sample.Add1D(1);
+            //                cout << sample.imageX << " " << sample.imageY << " " << sample.lensU << " " << sample.lensV << " " << sample.time.value() << endl;
+
+            sample.imageX = rng.randomFloat() * width;
+            sample.imageY = rng.randomFloat() * height;
+            sample.lensU = rng.randomFloat();
+            sample.lensV = rng.randomFloat();
+            sample.time = 0.0_us; // TODO allow for different samplers
+
+            Ray intersectRay;
+            camera.generateRay(sample, &intersectRay);
+            //                cout << intersectRay.origin().x << " "<< intersectRay.origin().y << " "<< intersectRay.origin().z << " " << intersectRay.direction().x << " " << intersectRay.direction().y << " " << intersectRay.direction().z << endl;
+
+            double t0;
+            double t1;
+            if (!m_boundingBox.intersectP(intersectRay, &t0, &t1)) {
+                continue;
             }
-            for(int i = 0; i < sampleCount; i++) {
-                Sample sample = samples[i];
-                Ray intersectRay;
-                camera.generateRay(sample, &intersectRay);
+            if((t1-t0) == 0.0) {
+                continue;
+            }
 
-                double t0;
-                double t1;
-                if (!m_boundingBox.intersectP(intersectRay, &t0, &t1)) {
-                    continue;
+            Spectrum Tr(1.0);
+            Spectrum Lv(0.1);
+
+            Point3D p = intersectRay(t0);
+            Ray startRay(p, intersectRay.m_direction);
+
+
+
+            //                startRay = Ray(startRay.origin() + intersectRay.m_direction * 0.01, startRay.direction());
+
+            Integrator integrator(startRay, bounces, rng);
+
+
+            const Length cellSide = 10_um;
+            const Length3D boundingBoxSize = m_boundingBox.pMax - m_boundingBox.pMin;
+
+            size_t cellCount[3] = {
+                size_t(boundingBoxSize[0] / cellSide) + 1,
+                size_t(boundingBoxSize[1] / cellSide) + 1,
+                size_t(boundingBoxSize[2] / cellSide) + 1
+            };
+
+            integrator.integrate([&](const Ray& ray, photonflow::Length ds) {
+                if(!m_boundingBox.fuzzyInside(ray.origin())) {
+                    return Integrator::Control::Break;
                 }
-                if((t1-t0) == 0.0) {
-                    continue;
-                }
 
-                Spectrum Tr(1.0);
-                Spectrum Lv(0.1);
+                //                    Lv += Tr * 1.0 * ds.value();
 
-                Point3D p = intersectRay(t0);
-                Ray startRay(p, intersectRay.m_direction);
+                Length3D pointInBoundingBox = ray.origin() - m_boundingBox.pMin;
+                int i = pointInBoundingBox[0] / cellSide;
+                int j = pointInBoundingBox[1] / cellSide;
+                int k = pointInBoundingBox[2] / cellSide;
 
-
-
-                //                startRay = Ray(startRay.origin() + intersectRay.m_direction * 0.01, startRay.direction());
-
-                Integrator integrator(startRay, bounces, rng);
+                int index = i * cellCount[1] * cellCount[2] + j * cellCount[2] + k;
 
 
-                const Length cellSide = 10_um;
-                const Length3D boundingBoxSize = m_boundingBox.pMax - m_boundingBox.pMin;
-
-                size_t cellCount[3] = {
-                    size_t(boundingBoxSize[0] / cellSide) + 1,
-                    size_t(boundingBoxSize[1] / cellSide) + 1,
-                    size_t(boundingBoxSize[2] / cellSide) + 1
-                };
-
-                integrator.integrate([&](const Ray& ray, photonflow::Length ds) {
-                    if(!m_boundingBox.fuzzyInside(ray.origin())) {
-                        return Integrator::Control::Break;
-                    }
-
-//                    Lv += Tr * 1.0 * ds.value();
-
-                    Length3D pointInBoundingBox = ray.origin() - m_boundingBox.pMin;
-                    int i = pointInBoundingBox[0] / cellSide;
-                    int j = pointInBoundingBox[1] / cellSide;
-                    int k = pointInBoundingBox[2] / cellSide;
-
-                    int index = i * cellCount[1] * cellCount[2] + j * cellCount[2] + k;
-
-
-                    if(index >= 0 && index < m_cells.size()) {
-                        Cell &cell = m_cells[index];
-                        for(const CylinderFrustum &cylinder : cell.m_cylinders) {
-                            Length eps = 0.0_um;
-                            Point3D p = ray.origin();
-                            Length3D diff = p - cylinder.center;
-                            Length distance = diff.length();
-                            if(distance > cylinder.h + eps && distance > cylinder.startRadius + eps) {
-                                continue;
-                            }
-                            auto yComponent = dot(diff, cylinder.direction * 1.0_um) / 1.0_um;
-                            if(fabs(yComponent) <= cylinder.h + eps) {
-                                auto y2 = yComponent*yComponent;
-                                auto diff2 = dot(diff, diff);
-                                auto distanceToAxis = sqrt(diff2 - y2);
-                                double endProportion = (yComponent + cylinder.h) / (2.0 * cylinder.h);
-                                Length radius = cylinder.startRadius * (1 - endProportion) + endProportion * cylinder.endRadius;
-                                if(distanceToAxis <= radius + eps) {
-                                    // TODO replace with proper emission
-                                    Lv += Tr * 20.0 * ds.value();
-                                }
+                if(index >= 0 && index < m_cells.size()) {
+                    Cell &cell = m_cells[index];
+                    for(const CylinderFrustum &cylinder : cell.m_cylinders) {
+                        Length eps = 0.0_um;
+                        Point3D p = ray.origin();
+                        Length3D diff = p - cylinder.center;
+                        Length distance = diff.length();
+                        if(distance > cylinder.h + eps && distance > cylinder.startRadius + eps) {
+                            continue;
+                        }
+                        auto yComponent = dot(diff, cylinder.direction * 1.0_um) / 1.0_um;
+                        if(fabs(yComponent) <= cylinder.h + eps) {
+                            auto y2 = yComponent*yComponent;
+                            auto diff2 = dot(diff, diff);
+                            auto distanceToAxis = sqrt(diff2 - y2);
+                            double endProportion = (yComponent + cylinder.h) / (2.0 * cylinder.h);
+                            Length radius = cylinder.startRadius * (1 - endProportion) + endProportion * cylinder.endRadius;
+                            if(distanceToAxis <= radius + eps) {
+                                // TODO replace with proper emission
+                                Lv += Tr * 20.0 * ds.value();
                             }
                         }
                     }
+                }
 
-                    if(Tr < Spectrum(0.01)) {
-                        return Integrator::Control::Break;
-                    }
-                    return Integrator::Control::Continue;
-                });
+                if(Tr < Spectrum(0.01)) {
+                    return Integrator::Control::Break;
+                }
+                return Integrator::Control::Continue;
+            });
 
-                Spectrum final = Lv / omp_get_num_threads();
+            Spectrum final = Lv / omp_get_num_threads();
 
-                m_film->addSample(sample, final);
+            m_film->addSample(sample, final);
 
-                actualCount++;
-            }
+            actualCount++;
         }
+        //        }
 
-        delete[] samples;
+        //        delete[] samples;
     }
 
     m_completedSampleCount += actualCount;
@@ -309,7 +322,7 @@ void PhotonflowWorker::work()
             Pixel& pixel = (*m_film->pixels)(x, y);
             Spectrum result = Spectrum::fromXYZ(pixel.Lxyz);
 
-            result /= (m_iterationCount * boxSize);
+            result /= pixel.weightSum;
 
             double rgb[3];
             result.toRGB(rgb);
