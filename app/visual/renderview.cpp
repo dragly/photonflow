@@ -70,6 +70,25 @@ Qt3DCore::QEntity *PhotonflowSimulator::camera() const
     return m_camera;
 }
 
+int PhotonflowSimulator::completedSampleCount() const
+{
+    return m_completedSampleCount;
+}
+
+double PhotonflowSimulator::fieldOfView() const
+{
+    return m_fieldOfView;
+}
+
+double PhotonflowSimulator::lensRadius() const
+{
+    return m_lensRadius;
+}
+
+double PhotonflowSimulator::focalDepth() const
+{
+    return m_focalDepth;
+}
 
 void PhotonflowSimulator::clear()
 {
@@ -170,15 +189,12 @@ void PhotonflowWorker::work()
     }
     const auto sopen = 0.0_us;
     const auto sclose = 1.0_us;
-    const auto lensr = 0.0_um;
-    const auto focald = 50.0_um;
-    const double fov = 60.0 / 180.0;
-    const PerspectiveCamera camera(cameraTransform, screenWindow, sopen, sclose, lensr, focald, fov, m_film);
+    const PerspectiveCamera camera(cameraTransform, screenWindow, sopen, sclose, m_lensRadius, m_focalDepth, m_fieldOfView, m_film);
 
+    int actualCount = 0;
 #pragma omp parallel num_threads(threadCount) // OpenMP
     {
         RNG& rng = m_randomNumberGenerators.at(omp_get_thread_num());
-        int actualCount = 0;
         RandomSampler sampler(0, width, 0, height, requestedSampleCount, 0.0_us, 1.0_us);
         int maxSampleCount = sampler.maximumSampleCount();
 
@@ -284,7 +300,8 @@ void PhotonflowWorker::work()
         delete[] samples;
     }
 
-    m_totalSampleCount += requestedSampleCount;
+    m_completedSampleCount += actualCount;
+    m_iterationCount += requestedSampleCount;
 
     for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
@@ -292,7 +309,7 @@ void PhotonflowWorker::work()
             Pixel& pixel = (*m_film->pixels)(x, y);
             Spectrum result = Spectrum::fromXYZ(pixel.Lxyz);
 
-            result /= (m_totalSampleCount * boxSize);
+            result /= (m_iterationCount * boxSize);
 
             double rgb[3];
             result.toRGB(rgb);
@@ -318,7 +335,8 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
     PhotonflowSimulator *renderView = qobject_cast<PhotonflowSimulator*>(simulator);
     if(renderView->m_clearRequested) {
         m_film.reset();
-        m_totalSampleCount = 0;
+        m_completedSampleCount = 0;
+        m_iterationCount = 0;
         renderView->m_clearRequested = false;
         m_image.fill(QColor("black"));
     }
@@ -336,6 +354,9 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
         m_volumeRegion = VolumeGridDensity(sigma_a, sigma_s, gg, emita, bbox, boxTransform, renderView->m_data);
 
         m_cylinders = renderView->m_cylinders;
+        m_focalDepth = renderView->m_focalDepth * 1.0_um;
+        m_lensRadius = renderView->m_lensRadius * 1.0_um;
+        m_fieldOfView = renderView->m_fieldOfView;
 
         m_boundingBox = BoundingBox();
         for(const auto& cylinder : m_cylinders) {
@@ -430,11 +451,16 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
     //    m_volumeRegion.setEmissionCoefficient(Spectrum(renderView->m_emissionCoefficient));
     //    m_volumeRegion.setHenyeyGreensteinFactor(renderView->m_henyeyGreensteinFactor);
 
-    renderView->m_renderTime = m_renderTime;
-    emit renderView->renderTimeChanged(m_renderTime);
+    if(renderView->m_renderTime != m_renderTime) {
+        renderView->m_renderTime = m_renderTime;
+        emit renderView->renderTimeChanged(m_renderTime);
+    }
+    if(renderView->m_completedSampleCount != m_completedSampleCount) {
+        renderView->m_completedSampleCount = m_completedSampleCount;
+        emit renderView->completedSampleCountChanged(m_completedSampleCount);
+    }
 
     renderView->m_image = m_image;
-
     emit renderView->imageChanged(renderView->m_image);
 }
 
@@ -489,6 +515,33 @@ void PhotonflowSimulator::setCamera(Qt3DCore::QEntity *camera)
 
     m_camera = camera;
     emit cameraChanged(camera);
+}
+
+void PhotonflowSimulator::setFieldOfView(double fieldOfView)
+{
+    if (m_fieldOfView == fieldOfView)
+        return;
+
+    m_fieldOfView = fieldOfView;
+    emit fieldOfViewChanged(fieldOfView);
+}
+
+void PhotonflowSimulator::setLensRadius(double lensRadius)
+{
+    if (m_lensRadius == lensRadius)
+        return;
+
+    m_lensRadius = lensRadius;
+    emit lensRadiusChanged(lensRadius);
+}
+
+void PhotonflowSimulator::setFocalDepth(double focalDepth)
+{
+    if (m_focalDepth == focalDepth)
+        return;
+
+    m_focalDepth = focalDepth;
+    emit focalDepthChanged(focalDepth);
 }
 
 } // namespace

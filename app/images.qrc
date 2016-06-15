@@ -11,5 +11,19 @@
         <file>images/logo/photonflow-logo.png</file>
         <file>images/ic_refresh_white_36dp.png</file>
         <file>images/ic_refresh_white_48dp.png</file>
+        <file>images/ic_create_white_48dp.png</file>
+        <file>images/ic_create_white_36dp.png</file>
+        <file>images/ic_brush_white_36dp.png</file>
+        <file>images/ic_brush_white_48dp.png</file>
+        <file>images/ic_help_white_36dp.png</file>
+        <file>images/ic_help_white_48dp.png</file>
+        <file>images/ic_camera_white_36dp.png</file>
+        <file>images/ic_camera_white_48dp.png</file>
+        <file>images/ic_device_hub_white_36dp.png</file>
+        <file>images/ic_device_hub_white_48dp.png</file>
+        <file>images/ic_wb_sunny_white_36dp.png</file>
+        <file>images/ic_wb_sunny_white_48dp.png</file>
+        <file>images/ic_blur_on_white_48dp.png</file>
+        <file>images/ic_blur_on_white_36dp.png</file>
     </qresource>
 </RCC>

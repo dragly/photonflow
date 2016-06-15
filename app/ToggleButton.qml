@@ -12,8 +12,8 @@ Item {
 
     signal clicked
 
-    property bool toggled
-    property alias source: image.source
+    property alias toggled: toggleImage.toggled
+    property alias source: toggleImage.source
     property alias text: buttonText.text
 
     height: buttonColumn.height
@@ -23,31 +23,15 @@ Item {
             left: parent.left
             right: parent.right
         }
-        Item {
+        spacing: 8
+        ToggleImage {
+            id: toggleImage
             anchors {
                 left: parent.left
                 right: parent.right
+                margins: 8
             }
             height: width
-
-            Image {
-                id: image
-                anchors.fill: parent
-                fillMode: Image.PreserveAspectFit
-            }
-            ColorOverlay {
-                anchors.fill: parent
-                source: image
-                color: "#888"
-                visible: !toggled
-            }
-            Glow {
-                anchors.fill: parent
-                visible: toggled
-                source: image
-                samples: 12
-                color: "#3377ef"
-            }
         }
         Text {
             id: buttonText

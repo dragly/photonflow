@@ -129,8 +129,8 @@ ApplicationWindow {
                 Repeater {
                     model: ListModel {
                         ListElement {
-                            image: "qrc:/images/ic_visibility_white_48dp.png"
-                            name: "Construct"
+                            image: "qrc:/images/ic_brush_white_48dp.png"
+                            name: "Model"
                         }
                         ListElement {
                             image: "qrc:/images/ic_image_white_48dp.png"
@@ -139,6 +139,10 @@ ApplicationWindow {
                         ListElement {
                             image: "qrc:/images/ic_timeline_white_48dp.png"
                             name: "Analyze"
+                        }
+                        ListElement {
+                            image: "qrc:/images/ic_help_white_48dp.png"
+                            name: "Help"
                         }
                     }
 
@@ -165,125 +169,35 @@ ApplicationWindow {
                     margins: 16
                 }
                 spacing: 24
-                ToggleImage {
+
+                ToggleButton {
                     anchors {
                         left: parent.left
                         right: parent.right
                         margins: 8
                     }
-                    height: width
                     source: "qrc:/images/ic_play_arrow_white_48dp.png"
                     toggled: simulator.running
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: simulator.running = !simulator.running
+                    text: "Simulate"
+                    onClicked: {
+                        simulator.running = !simulator.running
                     }
                 }
-                ToggleImage {
+                ToggleButton {
                     anchors {
                         left: parent.left
                         right: parent.right
                         margins: 8
                     }
-                    height: width
                     source: "qrc:/images/ic_refresh_white_48dp.png"
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            simulator.running = true
-                            voxelize()
-                        }
+                    text: "Rebuild"
+                    onClicked: {
+                        simulator.running = true
+                        voxelize()
+                        modeMenu.currentIndex = 1
                     }
                 }
             }
-
-            //            ColumnLayout {
-            //                anchors.fill: parent
-
-            //                Text {
-            //                    text: "Render time: " + simulator.renderTime
-            //                }
-
-            //                Text {
-            //                    text: "Mode: " + builderScene.mode
-            //                }
-
-            //                Button {
-            //                    text: simulator.running ? "Stop" : "Start"
-            //                    onClicked: {
-            //                        simulator.running = !simulator.running
-            //                    }
-            //                }
-
-            //                Button {
-            //                    text: "Clear"
-            //                    onClicked: {
-            //                        simulator.clear()
-            //                    }
-            //                }
-
-            //                Button {
-            //                    text: "Create neuron"
-            //                    onClicked: {
-            //                        builderScene.addNeuron("...")
-            //                    }
-            //                }
-
-            //                Button {
-            //                    text: "Voxelize"
-            //                    onClicked: {
-            //                        voxelize()
-            //                    }
-            //                }
-
-            //                BoundSlider {
-            //                    id: emissionSlider
-            //                    Layout.fillWidth: true
-            //                    text: "Emission"
-            //                    minimumValue: 0.01
-            //                    maximumValue: 1000.0
-            //                    target: simulator
-            //                    property: "emissionFactor"
-            //                }
-
-            //                BoundSlider {
-            //                    id: scatteringSlider
-            //                    Layout.fillWidth: true
-            //                    text: "Scattering"
-            //                    minimumValue: 0.0
-            //                    maximumValue: 1.0
-            //                    target: simulator
-            //                    property: "scatteringCoefficient"
-            //                }
-
-            //                BoundSlider {
-            //                    id: absorptionSlider
-            //                    text: "Absorption"
-            //                    Layout.fillWidth: true
-            //                    minimumValue: 0.0
-            //                    maximumValue: 1.0
-            //                    target: simulator
-            //                    property: "absorptionCoefficient"
-            //                }
-
-            //                BoundSlider {
-            //                    id: henyeyGreensteinFactorSlider
-            //                    target: simulator
-            //                    property: "henyeyGreensteinFactor"
-            //                    text: "Henyey Greenstein factor"
-            //                    stepSize: 0.001
-            //                    minimumValue: 0.94
-            //                    maximumValue: 1.0
-            //                    Layout.fillWidth: true
-            //                }
-
-            //                Item {
-            //                    Layout.fillWidth: true
-            //                    Layout.fillHeight: true
-            //                }
-            //            }
         }
 
         Rectangle {
@@ -343,7 +257,11 @@ ApplicationWindow {
                 width: 360
 
                 Row {
-                    id: tabRow
+                    id: tabMenu
+
+                    property int currentIndex: 0
+                    property string currentIdentifier: tabRepeater.model.get(currentIndex).identifier
+
                     anchors {
                         left: parent.left
                         right: parent.right
@@ -352,21 +270,48 @@ ApplicationWindow {
                     spacing: 8
 
                     Repeater {
+                        id: tabRepeater
                         anchors.fill: parent
 
-                        model: 6
-                        Rectangle {
-                            height: tabRow.height - tabRow.spacing
+                        model: ListModel {
+                            ListElement {
+                                image: "qrc:/images/ic_device_hub_white_48dp.png"
+                                identifier: "neuron"
+                            }
+                            ListElement {
+                                image: "qrc:/images/ic_blur_on_white_48dp.png"
+                                identifier: "volume"
+                            }
+                            ListElement {
+                                image: "qrc:/images/ic_camera_white_48dp.png"
+                                identifier: "microscope"
+                            }
+                            ListElement {
+                                image: "qrc:/images/ic_wb_sunny_white_48dp.png"
+                                identifier: "fluorescence"
+                            }
+                            ListElement {
+                                image: "qrc:/images/ic_image_white_48dp.png"
+                                identifier: "render"
+                            }
+                        }
+
+                        ToggleImage {
                             width: height
-                            radius: width * 0.4
-                            color: "#ccc"
+                            height: tabMenu.height - tabMenu.spacing
+                            toggled: tabMenu.currentIndex === index
+                            source: image
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: tabMenu.currentIndex = index
+                            }
                         }
                     }
                 }
 
                 Rectangle {
                     anchors {
-                        top: tabRow.bottom
+                        top: tabMenu.bottom
                         topMargin: 8
                         left: parent.left
                         right: parent.right
@@ -374,18 +319,116 @@ ApplicationWindow {
                     }
 
                     color: "#222222"
+                    radius: 8
 
-                    ImageViewer {
+                    Item {
                         anchors {
-                            left: parent.left
-                            right: parent.right
-                            top: parent.top
+                            fill: parent
                             margins: 8
                         }
 
-                        height: width * 9 / 16
+                        Column {
+                            anchors.fill: parent
+                            visible: tabMenu.currentIdentifier === "render"
+                            spacing: 8
+                            ImageViewer {
+                                anchors {
+                                    left: parent.left
+                                    right: parent.right
+                                }
 
-                        image: simulator.image
+                                height: width * 9 / 16
+
+                                image: simulator.image
+                            }
+
+                            Text {
+                                text: "Samples: " + (simulator.completedSampleCount / 1e6).toFixed(1) + "M"
+                                color: "#ccc"
+                            }
+
+                            Text {
+                                text: "Render time: " + simulator.renderTime
+                                color: "#ccc"
+                            }
+                        }
+
+                        Column {
+                            anchors.fill: parent
+                            visible: tabMenu.currentIdentifier === "volume"
+
+                            BoundSlider {
+                                id: scatteringSlider
+
+                                text: "Scattering"
+                                minimumValue: 0.0
+                                maximumValue: 1.0
+                                target: simulator
+                                property: "scatteringCoefficient"
+                            }
+
+                            BoundSlider {
+                                id: absorptionSlider
+                                text: "Absorption"
+                                minimumValue: 0.0
+                                maximumValue: 1.0
+                                target: simulator
+                                property: "absorptionCoefficient"
+                            }
+
+                            BoundSlider {
+                                id: henyeyGreensteinFactorSlider
+                                target: simulator
+                                property: "henyeyGreensteinFactor"
+                                text: "Henyey Greenstein factor"
+                                stepSize: 0.001
+                                minimumValue: 0.94
+                                maximumValue: 1.0
+                            }
+                        }
+
+                        Column {
+                            anchors.fill: parent
+                            visible: tabMenu.currentIdentifier === "fluorescence"
+
+                            BoundSlider {
+                                id: emissionSlider
+                                text: "Emission"
+                                minimumValue: 0.01
+                                maximumValue: 1000.0
+                                target: simulator
+                                property: "emissionFactor"
+                            }
+                        }
+
+                        Column {
+                            anchors.fill: parent
+                            visible: tabMenu.currentIdentifier === "microscope"
+
+                            BoundSlider {
+                                text: "Field of view"
+                                minimumValue: 30 / 180
+                                maximumValue: 90 / 180
+                                target: simulator
+                                property: "fieldOfView"
+                            }
+
+                            BoundSlider {
+                                text: "Lens radius"
+                                minimumValue: 0
+                                maximumValue: 200
+                                target: simulator
+                                property: "lensRadius"
+                            }
+
+                            BoundSlider {
+                                text: "Focal depth"
+                                minimumValue: 0
+                                maximumValue: 1000
+                                target: simulator
+                                property: "focalDepth"
+                            }
+                        }
                     }
                 }
             }

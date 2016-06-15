@@ -18,6 +18,11 @@ Column {
     property alias maximumValue: slider.maximumValue
     property alias stepSize: slider.stepSize
 
+    anchors {
+        left: parent.left
+        right: parent.right
+    }
+
     Text {
         anchors {
             left: parent.left
@@ -25,6 +30,7 @@ Column {
         }
 
         text: root.valid ? root.label + root.target[root.property].toFixed(precision) : ""
+        color: "#ccc"
     }
 
     Slider {
