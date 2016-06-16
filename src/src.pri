@@ -58,7 +58,8 @@ HEADERS += \
     $$PWD/samplers/random.h \
     $$PWD/volumes/volumegrid.h \
     $$PWD/armadillo_includer.h \
-    $$PWD/stdafx.h
+    $$PWD/stdafx.h \
+    $$PWD/cameras/orthographiccamera.h
 
 SOURCES += \
     $$PWD/cameras/perspective.cpp \
@@ -99,4 +100,5 @@ SOURCES += \
     $$PWD/io/neuromlreader.cpp \
     $$PWD/io/voxelizer.cpp \
     $$PWD/samplers/random.cpp \
-    $$PWD/volumes/volumegrid.cpp
+    $$PWD/volumes/volumegrid.cpp \
+    $$PWD/cameras/orthographiccamera.cpp

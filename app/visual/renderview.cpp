@@ -2,6 +2,7 @@
 
 #include "armadillo_includer.h"
 #include "cameras/perspective.h"
+#include "cameras/orthographiccamera.h"
 #include "core/heyneygreenstein.h"
 #include "core/randomnumbergenerator.h"
 #include "film/image.h"
@@ -194,7 +195,8 @@ void PhotonflowWorker::work()
     }
     const auto sopen = 0.0_us;
     const auto sclose = 1.0_us;
-    const PerspectiveCamera camera(cameraTransform, screenWindow, sopen, sclose, m_lensRadius, m_focalDepth, m_fieldOfView, m_film);
+//    const PerspectiveCamera camera(cameraTransform, screenWindow, sopen, sclose, m_lensRadius, m_focalDepth, m_fieldOfView, m_film);
+    const OrthographicCamera camera(cameraTransform, screenWindow, sopen, sclose, m_lensRadius, m_focalDepth, m_film);
 
     int actualCount = 0;
 #pragma omp parallel num_threads(threadCount) // OpenMP
