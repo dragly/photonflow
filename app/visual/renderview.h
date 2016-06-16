@@ -49,6 +49,7 @@ private:
     Length m_lensRadius = 0.0_um;
     Length m_focalDepth = 0.0_um;
     double m_fieldOfView = 0.0;
+    QSize m_resolution;
 };
 
 class PhotonflowSimulator : public Simulator
@@ -63,6 +64,7 @@ class PhotonflowSimulator : public Simulator
     Q_PROPERTY(double fieldOfView READ fieldOfView WRITE setFieldOfView NOTIFY fieldOfViewChanged)
     Q_PROPERTY(double focalDepth READ focalDepth WRITE setFocalDepth NOTIFY focalDepthChanged)
     Q_PROPERTY(double lensRadius READ lensRadius WRITE setLensRadius NOTIFY lensRadiusChanged)
+    Q_PROPERTY(QSize resolution READ resolution WRITE setResolution NOTIFY resolutionChanged)
     Q_PROPERTY(int completedSampleCount READ completedSampleCount NOTIFY completedSampleCountChanged)
     Q_PROPERTY(Qt3DCore::QEntity* camera READ camera WRITE setCamera NOTIFY cameraChanged)
 
@@ -80,6 +82,7 @@ public:
     double fieldOfView() const;
     double lensRadius() const;
     double focalDepth() const;
+    QSize resolution() const;
 
 signals:
     void imageChanged(QImage image);
@@ -94,6 +97,8 @@ signals:
     void lensRadiusChanged(double lensRadius);
     void focalDepthChanged(double focalDepth);
 
+    void resolutionChanged(QSize resolution);
+
 public slots:
     void clear();
     void setImage(QImage image);
@@ -106,6 +111,7 @@ public slots:
     void setFieldOfView(double fieldOfView);
     void setLensRadius(double lensRadius);
     void setFocalDepth(double focalDepth);
+    void setResolution(QSize resolution);
 
 protected:
     virtual SimulatorWorker *createWorker() override;
@@ -129,6 +135,7 @@ private:
     friend class PhotonflowWorker;
     Qt3DCore::QEntity* m_camera;
     int m_completedSampleCount = 0;
+    QSize m_resolution = {640, 480};
 };
 
 }

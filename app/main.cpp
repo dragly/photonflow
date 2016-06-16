@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 
     QSurfaceFormat format = QSurfaceFormat::defaultFormat();
     qDebug() << format.samples();
-    format.setSamples(32);
+    format.setSamples(8);
     QSurfaceFormat::setDefaultFormat(format);
 
     qmlRegisterType<PhotonflowSimulator>("Photonflow", 1, 0, "PhotonflowSimulator");

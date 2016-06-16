@@ -90,6 +90,11 @@ double PhotonflowSimulator::focalDepth() const
     return m_focalDepth;
 }
 
+QSize PhotonflowSimulator::resolution() const
+{
+    return m_resolution;
+}
+
 void PhotonflowSimulator::clear()
 {
     m_clearRequested = true;
@@ -162,17 +167,16 @@ void PhotonflowWorker::work()
     timer.start();
 
     //    const QSize size = boundingRect().size().toSize();
-    QSize size(640, 480); // TODO actually get size from simulator
-    if(size.width() <= 0 || size.height() <= 0 || size.width() > 1e6 || size.height() > 1e6) {
-        qWarning() << "WARNING: Integrate returns due to invalid size:" << size;
+    if(m_resolution.width() <= 0 || m_resolution.height() <= 0 || m_resolution.width() > 1e6 || m_resolution.height() > 1e6) {
+        qWarning() << "WARNING: Integrate returns due to invalid size:" << m_resolution;
         return;
     }
 
     const int requestedSampleCount = 1;
     const int bounces = 1000;
 
-    const int width = size.width();
-    const int height = size.height();
+    const int width = m_resolution.width();
+    const int height = m_resolution.height();
 
     const Transform cameraTransform = translate(Length3D(0.0_um, 0.0_um, -512.0_um));
     Rectangle screenWindow(-width / 2.0, -height / 2.0, width, height);
@@ -182,9 +186,9 @@ void PhotonflowWorker::work()
 //    BoxFilter filter(boxSize * 0.5, boxSize * 0.5);
     LanczosSincFilter filter(4.0, 4.0, 3.0); // TODO make filter type selectable
 
-    if(m_image.size() != size || !m_film) {
-        qDebug() << "Creating image of size" << size;
-        m_image = QImage(size, QImage::Format_ARGB32);
+    if(m_image.size() != m_resolution || !m_film) {
+        qDebug() << "Creating image of size" << m_resolution;
+        m_image = QImage(m_resolution, QImage::Format_ARGB32);
         m_image.fill(Qt::black);
         m_film = make_shared<ImageFilm>(width, height, &filter, crop);
     }
@@ -346,6 +350,8 @@ void PhotonflowWorker::synchronizeSimulator(Simulator *simulator)
         m_focalDepth = renderView->m_focalDepth * 1.0_um;
         m_lensRadius = renderView->m_lensRadius * 1.0_um;
         m_fieldOfView = renderView->m_fieldOfView;
+
+        m_resolution = renderView->m_resolution;
 
         m_boundingBox = BoundingBox();
         for(const auto& cylinder : m_cylinders) {
@@ -531,6 +537,15 @@ void PhotonflowSimulator::setFocalDepth(double focalDepth)
 
     m_focalDepth = focalDepth;
     emit focalDepthChanged(focalDepth);
+}
+
+void PhotonflowSimulator::setResolution(QSize resolution)
+{
+    if (m_resolution == resolution)
+        return;
+
+    m_resolution = resolution;
+    emit resolutionChanged(resolution);
 }
 
 } // namespace

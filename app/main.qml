@@ -331,6 +331,53 @@ ApplicationWindow {
                             anchors.fill: parent
                             visible: tabMenu.currentIdentifier === "render"
                             spacing: 8
+
+                            Text {
+                                color: "#ccc"
+                                text: "Resolution:"
+                            }
+
+                            RowLayout {
+                                anchors {
+                                    left: parent.left
+                                    right: parent.right
+                                }
+                                height: widthTextInput.height
+
+                                TextField {
+                                    id: widthTextInput
+                                    Layout.fillWidth: true
+                                    text: simulator.resolution.width
+
+                                    Binding {
+                                        target: simulator
+                                        property: "resolution.width"
+                                        value: widthTextInput.text
+                                    }
+                                }
+
+                                Text {
+                                    text: "x"
+                                }
+
+                                TextField {
+                                    id: heightTextInput
+                                    Layout.fillWidth: true
+                                    text: simulator.resolution.height
+
+                                    Binding {
+                                        target: simulator
+                                        property: "resolution.height"
+                                        value: heightTextInput.text
+                                    }
+                                }
+                            }
+
+                            Text {
+                                text: "Preview:"
+                                color: "#ccc"
+                            }
+
                             ImageViewer {
                                 anchors {
                                     left: parent.left
