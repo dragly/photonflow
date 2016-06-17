@@ -304,7 +304,9 @@ void PhotonflowWorker::work()
             Pixel& pixel = (*m_film->pixels)(x, y);
             Spectrum result = Spectrum::fromXYZ(pixel.Lxyz);
 
-            result = result * threadCount / pixel.weightSum;
+            if(pixel.weightSum > 0) {
+                result = result * threadCount / pixel.weightSum;
+            }
 
             double rgb[3];
             result.toRGB(rgb);
