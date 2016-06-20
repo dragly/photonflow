@@ -22,7 +22,7 @@ ApplicationWindow {
             for(var j = 0; j < 2; j++) {
                 for(var k = 0; k < 2; k++) {
                     builderScene.addNeuron("...", {
-                                               "transform.translation": Qt.vector3d(i - 2 + Math.random(), j - 2 + Math.random(), k - 2 + Math.random()),
+                                               "transform.translation": Qt.vector3d(i - 1 + Math.random(), j - 2 + Math.random(), k - 1 + Math.random()),
                                                "transform.rotation": dummyTransform.fromAxisAndAngle(Qt.vector3d(0, 1, 0), Math.random() * 360)
                                            })
                 }

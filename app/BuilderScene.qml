@@ -66,7 +66,7 @@ Scene3D {
         id: visualizer
 
         camera.aspectRatio: root.width / root.height
-        camera.position: Qt.vector3d(5, 0, 10)
+        camera.position: Qt.vector3d(0, 0, 8)
 
         KeyboardDevice {
             id: keyboardDevice
@@ -140,6 +140,13 @@ Scene3D {
                 pickRegistered = false
                 pressRegistered = false
             }
+
+            onWheel: {
+                var fov = visualizer.camera.fieldOfView
+                fov -= wheel.angleDelta.y * 0.02
+                fov = Math.max(10.0, Math.min(160.0, fov))
+                visualizer.camera.fieldOfView = fov
+            }
         }
 
         CameraController {
@@ -165,8 +172,32 @@ Scene3D {
                 Mesh {
                     source: "meshes/cameracone.obj"
                 },
-                PhongMaterial {
-                    diffuse: simulatorCamera_.selected ? "red" : "lightblue"
+                ShaderBuilderMaterial {
+                    fragmentColor: StandardMaterial {
+                        diffuseColor: simulatorCamera_.selected ? "red" : "lightgrey"
+                        lights: [
+                            Light {
+                                position: Qt.vector3d(-100, 100, -100)
+                                strength: 0.4
+                                attenuation: 0.0
+                            },
+                            Light {
+                                position: Qt.vector3d(-100, 100, 100)
+                                strength: 0.4
+                                attenuation: 0.0
+                            },
+                            Light {
+                                position: Qt.vector3d(100, 100, 100)
+                                strength: 0.4
+                                attenuation: 0.0
+                            },
+                            Light {
+                                position: Qt.vector3d(100, 100, -100)
+                                strength: 0.4
+                                attenuation: 0.0
+                            }
+                        ]
+                    }
                 },
                 Transform {
                     id: cameraBoxTransform
