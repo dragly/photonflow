@@ -1,16 +1,17 @@
 language: cpp
 os:
-  - linux
+- linux
 compiler:
-  - gcc
+- gcc
 sudo: required
 services: docker
 notifications:
   slack:
     on_success: change
     on_failure: always
-    secure: XWZ6IEeCqMrnEqf1jqgS6j2XFC0qsIDsNmI+aJfIBhLcG+Zo7pbEdownrnSLa4P2UxgBWN1YepQbAegOZavleF7/+eBKBAuxKx3tTyCtsaAWsvPHhuxryg8VNnRNzHzQVTqDzJfekTw/9yNDGYPtzxtD0e+8jwAHqLdFdtEFHRc=
+    secure: C/p0TsP661xP2AaSi7c7r6OfqM6rjDlzJwEc0LdJSRy/5BrEwlyc2nSApSqRINJZUEdeUGzon8ZCnGB8YrTnRliL0u7Sco2kq/4r8hgQ/bl4zNBFJf/xPXiLMpZ+zo+3DMj3whM7bz94n5MN7pUH/GixlH0scA3IFCrLT6IlfTII8voSspkX/8J6oyiDAuOBsHzXkAdkAIdiB1oakVlR4UX3sNe8V3o3iKXdoxvIVRHTFSy2qZRNCMGQl021tT6prC5bDsBWDnmZBMfEAz3mC6B03U+9oB9soXkeP+NhPseuyvsQFzWT59MHvRSPEHege+LzZ2AUKnhKhdf+/Gaiw/ahjVSod/3AMWBWxICwtA2mXTbxeviskasFnlu/D9U2A1nZg4zGb2RFdekhAl91wKxo3EAs1CsHryxPNRCJL90qjAqPFKDicyOSre19RnfPl1QfVUc1o77spyxRKeT3yR0NYpccWBh0oBfcQBI/JgUIFZwPGEXEraIs4Xq2Jj5ZzZC1cUryztNd1pcLA0PaKPYJ84hrMjOJJcbU/8ORzl9IkIkFRKAU/+HF9th9jRBx/kIellgsXan4Nk/xjqbfRwJw/ly2cxoIKnrMq4n4kRNzyqSIcyoE2eXxgT2kOAqf/MbOgXC8pO5c+NsFX0rc8miHmi1mDd+aNtBM4gSSYJU=
 before_install:
-    - docker build -t dragly/photonflow -f .docker/Dockerfile .
+- docker build -t dragly/photonflow -f .docker/Dockerfile .
 script:
-    - docker run dragly/photonflow bash -c "/opt/qt57/bin/qmake photonflow.pro && make -j8 && cd tests/auto && ./auto"
+- docker run dragly/photonflow bash -c "/opt/qt57/bin/qmake photonflow.pro && make
+  -j8 && cd tests/auto && ./auto"
