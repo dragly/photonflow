@@ -144,6 +144,11 @@ Entity {
                     return
                 }
 
+                // TODO hacky fix for Qt 5.7, to be removed
+                if(Math.abs(mouseXAxis.value) > 0.1 || Math.abs(mouseYAxis.value) > 0.1) {
+                    return
+                }
+
                 // The time difference since the last frame is passed in as the
                 // argument dt. It is a floating point value in units of seconds.
                 if (leftMouseButtonAction.active) {

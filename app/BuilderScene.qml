@@ -7,7 +7,7 @@ import QtQuick.Scene3D 2.0
 import QtQuick 2.5 as QQ2
 import Photonflow 1.0
 import SimVis 1.0
-import SimVis.ShaderNodes 1.0
+import ShaderNodes 1.0
 
 Scene3D {
     id: root
@@ -66,7 +66,8 @@ Scene3D {
         id: visualizer
 
         camera.aspectRatio: root.width / root.height
-        camera.position: Qt.vector3d(0, 0, 8)
+        camera.position: Qt.vector3d(0, 0, -8)
+        camera.viewCenter: Qt.vector3d(0, 0, 0)
 
         KeyboardDevice {
             id: keyboardDevice
@@ -142,10 +143,12 @@ Scene3D {
             }
 
             onWheel: {
-                var fov = visualizer.camera.fieldOfView
-                fov -= wheel.angleDelta.y * 0.02
-                fov = Math.max(10.0, Math.min(160.0, fov))
-                visualizer.camera.fieldOfView = fov
+//                var fov = visualizer.camera.fieldOfView
+//                fov -= wheel.angleDelta.y * 0.02
+//                fov = Math.max(10.0, Math.min(160.0, fov))
+//                visualizer.camera.fieldOfView = fov
+
+                visualizer.camera.translate(Qt.vector3d(0, 0, wheel.angleDelta.y * 0.02), Camera.DontTranslateViewCenter)
             }
         }
 
@@ -172,33 +175,36 @@ Scene3D {
                 Mesh {
                     source: "meshes/cameracone.obj"
                 },
-                ShaderBuilderMaterial {
-                    fragmentColor: StandardMaterial {
-                        diffuseColor: simulatorCamera_.selected ? "red" : "lightgrey"
-                        lights: [
-                            Light {
-                                position: Qt.vector3d(-100, 100, -100)
-                                strength: 0.4
-                                attenuation: 0.0
-                            },
-                            Light {
-                                position: Qt.vector3d(-100, 100, 100)
-                                strength: 0.4
-                                attenuation: 0.0
-                            },
-                            Light {
-                                position: Qt.vector3d(100, 100, 100)
-                                strength: 0.4
-                                attenuation: 0.0
-                            },
-                            Light {
-                                position: Qt.vector3d(100, 100, -100)
-                                strength: 0.4
-                                attenuation: 0.0
-                            }
-                        ]
-                    }
-                },
+//                ShaderBuilderMaterial {
+//                    fragmentColor: StandardMaterial {
+//                        diffuseColor: simulatorCamera_.selected ? "red" : "lightgrey"
+////                        lights: [light1, light2, light3, light4]
+////                        Light {
+////                            id: light1
+////                            position: Qt.vector3d(-100, 100, -100)
+////                            strength: 0.4
+////                            attenuation: 0.0
+////                        }
+////                        Light {
+////                            id: light2
+////                            position: Qt.vector3d(-100, 100, 100)
+////                            strength: 0.4
+////                            attenuation: 0.0
+////                        }
+////                        Light {
+////                            id: light3
+////                            position: Qt.vector3d(100, 100, 100)
+////                            strength: 0.4
+////                            attenuation: 0.0
+////                        }
+////                        Light {
+////                            id: light4
+////                            position: Qt.vector3d(100, 100, -100)
+////                            strength: 0.4
+////                            attenuation: 0.0
+////                        }
+//                    }
+//                },
                 Transform {
                     id: cameraBoxTransform
                     translation: Qt.vector3d(0, 0, -10)

@@ -171,6 +171,9 @@ Entity {
                 }
 
                 if(mode === "translate") {
+                    if(!root.entity) {
+                        return
+                    }
                     var rightVector = camera.viewVector.crossProduct(camera.upVector).normalized()
                     var upVector = camera.upVector.normalized()
                     var direction = rightVector.times(mouseXAxis.value).plus(upVector.times(mouseYAxis.value))

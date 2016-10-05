@@ -7,7 +7,7 @@ import Qt3D.Render 2.0
 import Qt3D.Extras 2.0
 
 import SimVis 1.0
-import SimVis.ShaderNodes 1.0
+import ShaderNodes 1.0
 import Photonflow 1.0
 
 Entity {
@@ -18,28 +18,32 @@ Entity {
     property alias transform: transform_
     property alias simulator: simulator_
 
-    property list<Light> lights: [
-        Light {
-            position: Qt.vector3d(-100, 100, -100)
-            strength: 0.4
-            attenuation: 0.0
-        },
-        Light {
-            position: Qt.vector3d(-100, 100, 100)
-            strength: 0.4
-            attenuation: 0.0
-        },
-        Light {
-            position: Qt.vector3d(100, 100, 100)
-            strength: 0.4
-            attenuation: 0.0
-        },
-        Light {
-            position: Qt.vector3d(100, 100, -100)
-            strength: 0.4
-            attenuation: 0.0
-        }
-    ]
+    property var lights: [light1, light2, light3, light4]
+
+    Light {
+        id: light1
+        position: Qt.vector3d(-100, 100, -100)
+        strength: 0.4
+        attenuation: 0.0
+    }
+    Light {
+        id: light2
+        position: Qt.vector3d(-100, 100, 100)
+        strength: 0.4
+        attenuation: 0.0
+    }
+    Light {
+        id: light3
+        position: Qt.vector3d(100, 100, 100)
+        strength: 0.4
+        attenuation: 0.0
+    }
+    Light {
+        id: light4
+        position: Qt.vector3d(100, 100, -100)
+        strength: 0.4
+        attenuation: 0.0
+    }
 
     components: [
         Transform {
@@ -51,7 +55,7 @@ Entity {
         ShaderBuilderMaterial {
             fragmentColor: StandardMaterial {
                 color: root.selected ? "#FF0000" : "#0000FF"
-                lights: root.lights
+                lights: root.lights //TODO fix lights with new api
             }
         },
         ObjectPicker {
