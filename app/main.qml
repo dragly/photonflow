@@ -18,8 +18,8 @@ ApplicationWindow {
     Component.onCompleted: {
         var dummyTransform = Qt.createQmlObject("import Qt3D.Core 2.0; Transform {}", root)
 
-        for(var i = 0; i < 2; i++) {
-            for(var j = 0; j < 2; j++) {
+        for(var i = 0; i < 3; i++) {
+            for(var j = 0; j < 3; j++) {
                 for(var k = 0; k < 2; k++) {
                     builderScene.addNeuron("...", {
                                                "transform.translation": Qt.vector3d(i - 1 + Math.random(), j - 2 + Math.random(), k - 1 + Math.random()),
